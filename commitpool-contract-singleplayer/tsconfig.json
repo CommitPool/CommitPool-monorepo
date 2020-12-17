@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es5", "es6"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es5",
+   },
+  "exclude": ["node_modules"],
+  "include": [
+    "@types/**/*",
+    "artifacts/**/*",
+    "artifacts/**/*.json",
+    "dev-utils/**/*",
+    "migrations/*",
+    "scripts/**/*",
+    "tasks/**/*",
+    "test/**/*",
+    "typechain/**/*",
+    "types/**/*",
+    "truffle-config.js",
+    "hardhat.config.ts"
+  ],
+  "files": [
+    "hardhat.config.ts",
+    "./node_modules/@nomiclabs/hardhat-ethers/src/type-extensions.d.ts",
+    "./node_modules/@nomiclabs/hardhat-waffle/src/type-extensions.d.ts",
+    "./node_modules/@nomiclabs/hardhat-web3/src/type-extensions.d.ts",
+    "./node_modules/@nomiclabs/hardhat-truffle5/src/type-extensions.d.ts"
+  ]
+}

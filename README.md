@@ -25,13 +25,13 @@ By minimizing that counterparty risk with smart contracts and decentralized orac
 
 CommitPool users register commitments with our [smart contract](./commitpool-contract-singleplayer). Those commitments include an activity (biking or running), a time period (e.g. 2 days), a distance goal (e.g. 5 miles), and a stake amount (e.g. 5 DAI).
 
-We use ChainLink to bring their activity distance data on-chain, where our contract checks whether they met their distance goal. If so, they get their stake back; but if not, their stake gets slashed.
+We use Chainlink to bring their activity distance data on-chain, where our contract checks whether they met their distance goal. If so, they get their stake back; but if not, their stake gets slashed.
 
-The Matic Network's speed and low transaction fees is crucial to create a viable user experience for CommitPool. Higher tx fees would eat significantly into the amounts we expect most users to be staking on their commitments.
+The Matic Network's speed and low transaction fees are crucial to create a viable user experience for CommitPool. Higher tx fees would eat significantly into the amounts we expect most users to be staking on their commitments.
 
-For this hackathon, behind the scenes we're using the LINK token for commitment staking as our test ERC20 token. Once we launch on Matic mainnet, we'll use DAI, so our app still labels it DAI.
+For this hackathon, behind the scenes, we're using the LINK token for commitment staking as our test ERC20 token. Once we launch on Matic mainnet, we'll use DAI, so our app still labels it "DAI."
 
-We built a [web app](./CommitPoolApp) for users to create a commitment, track their progress against their goal, and withdraw their stake (if they fulfilled their commitment). Since our current focus is on fitness goals, our original goal was to build a mobile app, so we're using React Native with Metro to support a web app with the same code base.
+We built a [web app](./CommitPoolApp) for users to create a commitment, track their progress against their goal, and withdraw their stake (if they fulfilled their commitment). Since our current focus is on fitness goals, our original vision was to build a mobile app, so we're using React Native with Metro to support a web app with the same code base.
 
 Our app spins up an in-browser wallet for users using the [TasitSDK](https://github.com/tasitlabs/tasit-sdk).
 
@@ -40,7 +40,7 @@ Our app spins up an in-browser wallet for users using the [TasitSDK](https://git
 ## Where we ran into challenges
 
 -   Verifying our contract on the Mumbai block explorer - we were able to verify on Etherscan for a Ropsten test deployment (using the Hard Hat plugin), but couldn't get it to work on the BlockVigil explorer.
--   Mumbai rpc / node rate limiting our ChainLink node - for this hackathon we're running a single ChainLink node as our oracle service, but it kept getting rate limited by the Block Vigil RPC service, even when we were upgraded to the Growth plan.
+-   Mumbai RPC / node rate limiting our Chainlink node - for this hackathon we're running a single Chainlink node as our oracle service, but it kept getting rate limited by the Block Vigil RPC service, even when we were upgraded to the Growth plan.
 -   Getting test ERC20 tokens (e.g. Matic DAI or even TEST) was difficult. The supply of TEST tokens in the faucet was low/zero. We ended up using LINK for this purpose.
 
 ## What we want to do next
@@ -49,8 +49,9 @@ Our app spins up an in-browser wallet for users using the [TasitSDK](https://git
 -   Support metatransactions
 -   Extend our app to support mobile
 -   Support users' existing wallets (e.g. on mobile via mobile WalletConnect)
--   Update our contract to enable positive rewards (slashed stakes get distributed to users who meet their commitment).
+-   Update our contract to enable positive rewards (i.e. slashed stakes get distributed to users who meet their commitment).
 -   Cover the LINK oracle fee for users
+-   Add additional types of commitments (e.g. additional Strava activity types, Duolingo commitments, etc.)
 
 ## References
 

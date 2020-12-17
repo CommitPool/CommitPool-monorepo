@@ -1,0 +1,21 @@
+{
+  "name": "CommitPool",
+  "displayName": "CommitPool",
+  "expo": {
+    "name": "CommitPool",
+    "slug": "CommitPool",
+    "version": "1.0.0",
+    "scheme": "cpool",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "host": {
+    "exp": {
+      "exponent": "com.ztnark.commitpool"
+    }
+  },
+  "ios": {
+    "bundleIdentifier": "com.ztnark.commitpool"
+  }
+}

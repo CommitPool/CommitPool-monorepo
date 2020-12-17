@@ -10,7 +10,16 @@ Typically, the only accountability tools we can use to stick to our personal goa
 
 By minimizing that counterparty risk with smart contracts and decentralized oracles, CommitPool enables you to enforce monetary penalties _on yourself_.
 
-![app screenshot](app_screenshot.png)
+### How to use CommitPool
+
+1. Open the [app](https://festive-shannon-3a302b.netlify.app/)
+2. Connect your Strava Account
+3. Fund your in-app wallet with Mumbai Matic and LINK (Dummy Dai)
+4. Commit and stake!
+5. Hit your goal
+6. Profit?
+
+<img src="app_screenshot.png" alt="app screenshot" width="343.33" height="263.33">
 
 ## How we built it
 
@@ -26,13 +35,13 @@ We built a [web app](./CommitPoolApp) for users to create a commitment, track th
 
 Our app spins up an in-browser wallet for users using the [TasitSDK](https://github.com/tasitlabs/tasit-sdk).
 
-![CommitPool Flow Diagram](./commitpool-contract-singleplayer/documentation/architecture.png)
+<img src="./commitpool-contract-singleplayer/documentation/architecture.png" alt="architecture" width="370" height="236.66">
 
 ## Where we ran into challenges
 
 -   Verifying our contract on the Mumbai block explorer - we were able to verify on Etherscan for a Ropsten test deployment (using the Hard Hat plugin), but couldn't get it to work on the BlockVigil explorer.
 -   Mumbai rpc / node rate limiting our ChainLink node - for this hackathon we're running a single ChainLink node as our oracle service, but it kept getting rate limited by the Block Vigil RPC service, even when we were upgraded to the Growth plan.
--   Getting test ERC20 tokens (e.g. Matic DAI or even TEST) was difficult; we ended up using LINK for this purpose.
+-   Getting test ERC20 tokens (e.g. Matic DAI or even TEST) was difficult. The supply of TEST tokens in the faucet was low/zero. We ended up using LINK for this purpose.
 
 ## What we want to do next
 
@@ -48,3 +57,4 @@ Our app spins up an in-browser wallet for users using the [TasitSDK](https://git
 -   The CommitPool smart contract on Mumbai: [0x251B6f95F6A17D2aa350456f616a84b733380eBE](https://explorer-mumbai.maticvigil.com/address/0x251B6f95F6A17D2aa350456f616a84b733380eBE/transactions)
 -   The CommitPool [web app](https://festive-shannon-3a302b.netlify.app/)
 -   Our [hackathon repo](https://github.com/CommitPool/CommitPoolMatic)
+-   Hackathon [demo video](https://youtu.be/PAQ8dHWHwjQ)

@@ -7,7 +7,7 @@ CommitPool helps people meet their personal goals by holding themselves accounta
 #### Desktop/web app
 1. Use node 14 (tested on 14.7.0)
 2. ```npm install```
-3. ```npm run-script web``` 
+3. ```npm start``` 
 4. Wait for it..
 
 ## Architecture

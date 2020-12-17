@@ -10,6 +10,8 @@ Typically, the only accountability tools we can use to stick to our personal goa
 
 By minimizing that counterparty risk with smart contracts and decentralized oracles, CommitPool enables you to enforce monetary penalties _on yourself_.
 
+![app screenshot](app_screenshot.png)
+
 ## How we built it
 
 CommitPool users register commitments with our [smart contract](./commitpool-contract-singleplayer). Those commitments include an activity (biking or running), a time period (e.g. 2 days), a distance goal (e.g. 5 miles), and a stake amount (e.g. 5 DAI).
@@ -30,14 +32,16 @@ Our app spins up an in-browser wallet for users using the [TasitSDK](https://git
 
 -   Verifying our contract on the Mumbai block explorer - we were able to verify on Etherscan for a Ropsten test deployment (using the Hard Hat plugin), but couldn't get it to work on the BlockVigil explorer.
 -   Mumbai rpc / node rate limiting our ChainLink node - for this hackathon we're running a single ChainLink node as our oracle service, but it kept getting rate limited by the Block Vigil RPC service, even when we were upgraded to the Growth plan.
--   Metatransactions - we wanted to incorporate support for metatransactions so create an even smoother UX, but we ran out of time to get it working correctly.
+-   Getting test ERC20 tokens (e.g. Matic DAI or even TEST) was difficult; we ended up using LINK for this purpose.
 
 ## What we want to do next
 
 -   Refine the UX so that creating a commitment is even smoother/clearer
+-   Support metatransactions
 -   Extend our app to support mobile
 -   Support users' existing wallets (e.g. on mobile via mobile WalletConnect)
 -   Update our contract to enable positive rewards (slashed stakes get distributed to users who meet their commitment).
+-   Cover the LINK oracle fee for users
 
 ## References
 

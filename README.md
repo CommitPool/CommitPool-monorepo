@@ -14,12 +14,12 @@ By minimizing that counterparty risk with smart contracts and decentralized orac
 
 1. Open the [app](https://festive-shannon-3a302b.netlify.app/)
 2. Connect your Strava Account
-3. Fund your in-app wallet with Mumbai Matic and LINK (Dummy Dai)
+3. Fund your in-app wallet with Mumbai Matic and LINK (Dummy Dai) from the [Matic faucet](https://faucet.matic.network/)
 4. Commit and stake!
 5. Hit your goal
 6. Profit?
 
-<img src="app_screenshot.png" alt="app screenshot" width="343.33" height="263.33">
+<img src="app_screenshot.png" alt="app screenshot" width="515" height="395">
 
 ## How we built it
 
@@ -35,7 +35,7 @@ We built a [web app](./CommitPoolApp) for users to create a commitment, track th
 
 Our app spins up an in-browser wallet for users using the [TasitSDK](https://github.com/tasitlabs/tasit-sdk).
 
-<img src="./commitpool-contract-singleplayer/documentation/architecture.png" alt="architecture" width="370" height="236.66">
+<img src="./commitpool-contract-singleplayer/documentation/architecture.png" alt="architecture" width="555" height="355">
 
 ## Where we ran into challenges
 

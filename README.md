@@ -12,17 +12,19 @@ By minimizing that counterparty risk with smart contracts and decentralized orac
 
 ## How we built it
 
-CommitPool users register commitments with our smart contract. Those commitments include an activity (biking or running), a time period (e.g. 2 days), a distance goal (e.g. 5 miles), and a stake amount (e.g. 5 DAI).
+CommitPool users register commitments with our [smart contract](./commitpool-contract-singleplayer). Those commitments include an activity (biking or running), a time period (e.g. 2 days), a distance goal (e.g. 5 miles), and a stake amount (e.g. 5 DAI).
 
 We use ChainLink to bring their activity distance data on-chain, where our contract checks whether they met their distance goal. If so, they get their stake back; but if not, their stake gets slashed.
 
 The Matic Network's speed and low transaction fees is crucial to create a viable user experience for CommitPool. Higher tx fees would eat significantly into the amounts we expect most users to be staking on their commitments.
 
-For this hackathon, behind the scenes we're using the LINK token for commitment staking instead of DAI. Once we launch on Matic mainnet, we'll use DAI.
+For this hackathon, behind the scenes we're using the LINK token for commitment staking as our test ERC20 token. Once we launch on Matic mainnet, we'll use DAI, so our app still labels it DAI.
 
-We built a web app UI for users to create a commitment, track their progress against their goal, and withdraw their stake (if they fulfilled their commitment). Since our current focus is on fitness goals, our original goal was to build a mobile app, so we're using React Native with Metro to support a web app with the same code base.
+We built a [web app](./CommitPoolApp) for users to create a commitment, track their progress against their goal, and withdraw their stake (if they fulfilled their commitment). Since our current focus is on fitness goals, our original goal was to build a mobile app, so we're using React Native with Metro to support a web app with the same code base.
 
-Our app spins up an in-browser wallet for users.
+Our app spins up an in-browser wallet for users using the [TasitSDK](https://github.com/tasitlabs/tasit-sdk).
+
+![CommitPool Flow Diagram](./commitpool-contract-singleplayer/documentation/architecture.png)
 
 ## Where we ran into challenges
 

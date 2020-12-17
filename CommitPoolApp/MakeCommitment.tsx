@@ -184,7 +184,7 @@ export default class MakeCommitment extends Component <{next: any, account: any,
 
                 <TouchableOpacity
                         style={{width: 300, height: 50, backgroundColor: '#D45353', alignItems: 'center', justifyContent: 'center'}}
-                        onPress={() => this.props.next(7)}>
+                        onPress={() => this.props.next(6)}>
                     <Text style={{fontSize: 30, color:'white'}}>Track Progress</Text>
                 </TouchableOpacity>
             </View>}

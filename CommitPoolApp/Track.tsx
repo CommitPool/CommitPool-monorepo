@@ -134,7 +134,7 @@ export default class Track extends Component <{next: any, account: any, code: st
         console.log(this.props.account.signingKey.address)
         await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0x1cf7D49BE7e0c6AC30dEd720623490B64F572E17', 'd8fcf41ee8984d3b8b0eae7b74eca7dd', {gasLimit: 500000});
         this.setState({loading: false})
-        this.props.next(8)
+        this.props.next(7)
     } catch (error) {
         console.log(error)
         this.setState({loading: false})

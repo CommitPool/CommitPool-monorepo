@@ -49,7 +49,7 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
     try {
       const commitment = await commitPoolContract.commitments(this.props.account.signingKey.address);
       if(commitment.exists){
-        this.props.next(7)
+        this.props.next(6)
       } else {
         this.props.next(5)
       }

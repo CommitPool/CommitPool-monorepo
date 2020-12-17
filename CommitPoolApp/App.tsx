@@ -70,8 +70,6 @@ export default function App() {
     });
   }
   
-  const { width } = Dimensions.get('window');
-  
   return (
     <Home stravaOauth={stravaOauth} code={code}></Home>
   )

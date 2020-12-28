@@ -63,7 +63,8 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     event Withdrawal(address committer, uint256 amount);
     event RequestActivityDistanceFulfilled(
         bytes32 indexed requestId,
-        uint256 indexed distance
+        uint256 indexed distance,
+        address indexed committer
     );
     event ActivityUpdated(
         string name, 
@@ -474,8 +475,8 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        emit RequestActivityDistanceFulfilled(_requestId, _distance);
         address userAddress = jobAddresses[_requestId];
+        emit RequestActivityDistanceFulfilled(_requestId, _distance, userAddress);
         commitments[userAddress].reportedValue = _distance;
         commitments[userAddress].lastActivityUpdate = block.timestamp;
     }

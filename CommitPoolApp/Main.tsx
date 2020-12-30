@@ -91,7 +91,11 @@ export default class Main extends Component<
         );
       case 7:
         return (
-          <Complete next={this.onClick} account={this.props.account}></Complete>
+          <Complete success={true} next={this.onClick} account={this.props.account}></Complete>
+        );
+      case 8:
+        return (
+          <Complete success={false} next={this.onClick} account={this.props.account}></Complete>
         );
     }
   };

@@ -143,15 +143,18 @@ export default class Track extends Component <{next: any, account: any, code: st
 
         provider.on(filter, async (result, event) => {
             const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
-            console.log(address, this.props.account.signingKey.address.toLowerCase())
+            const now = new Date().getTime();
             if(address === this.props.account.signingKey.address.toLowerCase()){
               const commitment = await contract.commitments(this.state.account.signingKey.address)
               if(commitment.reportedValue.gte(commitment.goalValue)){
                 this.setState({loading: false})
                 this.props.next(7)
-              } else {
+              } else if(now < commitment.endTime * 1000) {
                 this.setState({loading: false})
                 alert("Goal not yet achieved. Keep going!")
+              } else {
+                this.setState({loading: false});
+                this.props.next(8);
               }
             }
         });
@@ -190,7 +193,7 @@ export default class Track extends Component <{next: any, account: any, code: st
                         : {width: 300, height: 50, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}
                     onPress={() => this.getUpdatedActivity()}
                     >
-                <Text style={{fontSize: 30}}>Claim Reward</Text>
+                <Text style={{fontSize: 30}}>Complete Goal</Text>
             </TouchableOpacity>
         </View>
     );

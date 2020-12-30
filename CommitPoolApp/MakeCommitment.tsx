@@ -109,6 +109,7 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     const startTime = this.calculateStart(this.state.daysToStart);
     const startTimestamp = Math.ceil(startTime.valueOf() /1000); //to seconds
     const endTimestamp = Math.ceil(this.calculateEnd(startTime, this.state.duration).valueOf() /1000); //to seconds    const stakeAmount = utils.parseEther(this.state.stake.toString());
+    const stakeAmount = this.state.stake;
     this.setState({loading: true})
     
     const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b');

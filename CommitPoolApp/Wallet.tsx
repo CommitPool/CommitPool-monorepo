@@ -44,10 +44,11 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
     const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
 
     const provider = new ethers.providers.JsonRpcProvider(url);
-    let commitPoolContractAddress = '0x251B6f95F6A17D2aa350456f616a84b733380eBE';
+    let commitPoolContractAddress = '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b';
     let commitPoolContract = new ethers.Contract(commitPoolContractAddress, abi, provider);
     try {
       const commitment = await commitPoolContract.commitments(this.props.account.signingKey.address);
+      console.log(commitment)
       if(commitment.exists){
         this.props.next(6)
       } else {

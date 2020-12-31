@@ -77,7 +77,7 @@ export default class Track extends Component <{next: any, account: any, code: st
     
     wallet = wallet.connect(provider);
     
-    let contractAddress = '0x251B6f95F6A17D2aa350456f616a84b733380eBE';
+    let contractAddress = '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b';
     let contract = new ethers.Contract(contractAddress, abi, provider);
 
     const commitment = await contract.commitments(this.state.account.signingKey.address)
@@ -124,7 +124,7 @@ export default class Track extends Component <{next: any, account: any, code: st
     wallet = wallet.connect(provider);
 
     
-    let contractAddress = '0x251B6f95F6A17D2aa350456f616a84b733380eBE';
+    let contractAddress = '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b';
     let contract = new ethers.Contract(contractAddress, abi, provider);
 
     let contractWithSigner = contract.connect(wallet);
@@ -132,9 +132,29 @@ export default class Track extends Component <{next: any, account: any, code: st
     this.setState({loading: true})
     try {
         console.log(this.props.account.signingKey.address)
-        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0x1cf7D49BE7e0c6AC30dEd720623490B64F572E17', 'd8fcf41ee8984d3b8b0eae7b74eca7dd', {gasLimit: 500000});
-        this.setState({loading: false})
-        this.props.next(7)
+        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0x10d914A0586E527247C9530A899D74dC189Dbd80', 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+
+        let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
+
+        let filter = {
+            address: contractAddress,
+            topics: [ topic ]
+        }
+
+        provider.on(filter, async (result, event) => {
+            const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
+            console.log(address, this.props.account.signingKey.address.toLowerCase())
+            if(address === this.props.account.signingKey.address.toLowerCase()){
+              const commitment = await contract.commitments(this.state.account.signingKey.address)
+              if(commitment.reportedValue.gte(commitment.goalValue)){
+                this.setState({loading: false})
+                this.props.next(7)
+              } else {
+                this.setState({loading: false})
+                alert("Goal not yet achieved. Keep going!")
+              }
+            }
+        });
     } catch (error) {
         console.log(error)
         this.setState({loading: false})

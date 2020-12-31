@@ -91,11 +91,14 @@ export default class MakeCommitment extends Component <{next: any, account: any,
   }
 
   calculateStart = (_daysToStart: number) => {
-    const result = _daysToStart === 0 ? 
-                              new Date() :
-                              this.addDays(new Date(), _daysToStart)
-    result.setHours(0,0,0,0); //start at next day 00:00
-    return result;
+    if (_daysToStart === 0) {
+      const result = new Date();
+      return result;
+    } else {
+      const result = this.addDays(new Date(), _daysToStart);
+      result.setHours(0,0,0,0); //start at next day 00:00
+      return result;
+    }
   }
 
   calculateEnd = (_startTime: Date, _duration: number) => {
@@ -108,7 +111,8 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     const distanceInMiles = Math.floor(this.state.distance);
     const startTime = this.calculateStart(this.state.daysToStart);
     const startTimestamp = Math.ceil(startTime.valueOf() /1000); //to seconds
-    const endTimestamp = Math.ceil(this.calculateEnd(startTime, this.state.duration).valueOf() /1000); //to seconds    const stakeAmount = utils.parseEther(this.state.stake.toString());
+    const endTimestamp = Math.ceil(this.calculateEnd(startTime, this.state.duration).valueOf() /1000); //to seconds    
+    const stakeAmount = utils.parseEther(this.state.stake.toString());
     this.setState({loading: true})
     
     const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b');

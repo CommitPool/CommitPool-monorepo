@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import { View, StyleSheet, Image, Text, Button, TouchableOpacity, TextInput } from "react-native";
 import { ethers, utils } from 'ethers';
-import abi from './abi.json'
+import abi from '../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
 import daiAbi from './daiAbi.json'
 import { Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-export default class MakeCommitment extends Component <{next: any, account: any, code: any}, {txSent: Boolean, loading: Boolean, distance: Number, stake: Number, activity: {}, activities: any}> {
+export default class MakeCommitment extends Component <{next: any, account: any, code: any}, {txSent: Boolean, loading: Boolean, distance: Number, stake: Number,daysToStart: Number, duration: Number,  activity: {}, activities: any}> {
   contract: any;
   daiContract: any;
   constructor(props) {
@@ -15,6 +15,8 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     this.state = {
       distance: 0,
       stake: 0,
+      daysToStart: 0,
+      duration: 0,
       loading: false,
       txSent: false,
       activity: {},
@@ -82,18 +84,43 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     this.setState({activities: formattedActivities, activity: formattedActivities[0]})
   }
 
+  addDays = (date: Date, days: number) => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  calculateStart = (_daysToStart: number) => {
+    if (_daysToStart === 0) {
+      const result = new Date();
+      return result;
+    } else {
+      const result = this.addDays(new Date(), _daysToStart);
+      result.setHours(0,0,0,0); //start at next day 00:00
+      return result;
+    }
+  }
+
+  calculateEnd = (_startTime: Date, _duration: number) => {
+    const result = this.addDays(_startTime, _duration)
+    result.setHours(24,0,0,0); //give until end of day
+    return result;
+  }
+
   async createCommitment() {    
     const distanceInMiles = Math.floor(this.state.distance);
-    const startTime = Math.ceil(new Date().getTime() / 1000) + 60;
+    const startTime = this.calculateStart(this.state.daysToStart);
+    const startTimestamp = Math.ceil(startTime.valueOf() /1000); //to seconds
+    const endTimestamp = Math.ceil(this.calculateEnd(startTime, this.state.duration).valueOf() /1000); //to seconds    
     const stakeAmount = utils.parseEther(this.state.stake.toString());
     this.setState({loading: true})
     
     const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b');
     if(allowance.gte(stakeAmount)) {
-      await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTime, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     } else {
       await this.daiContract.approve('0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b', stakeAmount)
-      await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTime, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     }
 
     this.setState({loading: false, txSent: true})
@@ -147,8 +174,16 @@ export default class MakeCommitment extends Component <{next: any, account: any,
                         </View>
                     </View>
                     <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Deadline:</Text>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>2 Days</Text>
+                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Starting in</Text>
+                        <View style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
+                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({daysToStart: Number(text)})}></TextInput><Text style={{flex: 1, color: 'white', fontSize: 28}}> day(s)</Text>
+                        </View>                    
+                    </View>
+                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
+                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>for</Text>
+                        <View style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
+                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({duration: Number(text)})}></TextInput><Text style={{flex: 1, color: 'white', fontSize: 28}}> day(s)</Text>
+                        </View>                    
                     </View>
                 </View>
 
@@ -177,8 +212,12 @@ export default class MakeCommitment extends Component <{next: any, account: any,
                         <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.state.stake} Dai</Text>
                     </View>
                     <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Deadline:</Text>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>2 Days</Text>
+                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Starting in </Text>
+                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.state.daysToStart} day(s)</Text>
+                    </View>
+                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
+                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>for</Text>
+                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.state.duration} day(s)</Text>
                     </View>
                 </View>
 

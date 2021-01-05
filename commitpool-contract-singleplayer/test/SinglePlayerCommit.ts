@@ -10,7 +10,6 @@ import daiArtifact from "./resources/DAI.json";
 import chainLinkArtifact from "./resources/ChainLink.json";
 
 //Test suites
-import { hasHandyHelperFunctions } from "./SinglePlayerCommit.helpers"
 import { shouldDeployWithInitialParameters } from "./SinglePlayerCommit.deploy";
 import { userCanManageCommitments } from "./SinglePlayerCommit.user";
 import { ownerCanManageContract } from "./SinglePlayerCommit.owner";
@@ -45,7 +44,6 @@ describe("SinglePlayerCommit", function () {
       console.log("SinglePlayerCommit deployed to ", await this.singlePlayerCommit.address);
     });
 
-    hasHandyHelperFunctions();
     shouldDeployWithInitialParameters();
     ownerCanManageContract();
     userCanManageCommitments();

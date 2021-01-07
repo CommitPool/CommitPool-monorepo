@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image, Text, Button, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import ConfettiCannon from 'react-native-confetti-cannon';
 
-export default class Complete extends Component <{next: any, account: any}, {loading: Boolean, step: Number, fill: number}> {
+export default class Complete extends Component <{next: any, provider: any}, {loading: Boolean, step: Number, fill: number}> {
   constructor(props) {
     super(props);
     this.state = {

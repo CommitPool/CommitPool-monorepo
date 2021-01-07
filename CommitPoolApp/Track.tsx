@@ -1,17 +1,38 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image, Text, Button, TouchableOpacity } from "react-native";
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { ethers } from 'ethers';
-import { AsyncStorage } from 'react-native';
-import { Moment } from 'moment';
-import abi from '../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
+import {
+  View,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { ethers } from "ethers";
+import { AsyncStorage } from "react-native";
+import abi from "../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json";
 
-export default class Track extends Component <{next: any, account: any, code: string}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
+export default class Track extends Component<
+  { next: any; provider: any; code: string },
+  {
+    refreshToken: string;
+    type: string;
+    account: any;
+    total: number;
+    startTime: Number;
+    endTime: Number;
+    loading: Boolean;
+    step: Number;
+    fill: number;
+    goal: number;
+    accessToken: String;
+  }
+> {
+  contract: any;
+  contractAddress: string;
   constructor(props) {
     super(props);
+    this.contractAddress = "0x104caee222E39eAd76F646daf601FD2302CBf164";
     this.state = {
       account: {},
-      refreshToken: '',
+      refreshToken: "",
       step: 1,
       fill: 0,
       loading: false,
@@ -19,35 +40,45 @@ export default class Track extends Component <{next: any, account: any, code: st
       total: 0,
       startTime: 0,
       endTime: 0,
-      type: '',
-      accessToken: ''
+      type: "",
+      accessToken: "",
     };
   }
 
   async componentDidMount() {
-    const refreshToken: any = await this._retrieveData('rt')
-    console.log(refreshToken)
-    this.setState({refreshToken: refreshToken})
-    const accountString: any = await this._retrieveData('account')
-    this.setAccount(accountString);
+    await this.props.provider.listAccounts().then((accounts) => {
+      this.setState({ account: accounts[0] });
+    });
 
-    fetch('https://www.strava.com/api/v3/oauth/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          client_id: 51548,
-          client_secret: '28d56211b9ca33972055bf61010074fbedc3c7c2',
-          refresh_token: this.state.refreshToken,
-          grant_type: 'refresh_token'
-        })
-    }).then(res => res.json())
-    .then((json) => {
-      this.setState({accessToken: json.access_token});
+    const signer = await this.props.provider.getSigner();
+    this.contract = await new ethers.Contract(
+      this.contractAddress,
+      abi,
+      signer
+    );
+
+    const refreshToken: any = await this._retrieveData("rt");
+    console.log(refreshToken);
+    this.setState({ refreshToken: refreshToken });
+
+    fetch("https://www.strava.com/api/v3/oauth/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        client_id: 51548,
+        client_secret: "28d56211b9ca33972055bf61010074fbedc3c7c2",
+        refresh_token: this.state.refreshToken,
+        grant_type: "refresh_token",
+      }),
     })
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({ accessToken: json.access_token });
+      });
 
-    this.getCommitment()
+    this.getCommitment();
   }
 
   _retrieveData = async (key: string) => {
@@ -62,137 +93,170 @@ export default class Track extends Component <{next: any, account: any, code: st
     }
   };
 
-  setAccount(accountString: string) {
-    const account = JSON.parse(accountString)
-    console.log(account)
-    this.setState({account: account})
-  }
+  async getCommitment() {
+    const commitment = await this.contract.commitments(this.state.account);
+    console.log(commitment);
 
-  async getCommitment() {    
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
-
-    const provider = new ethers.providers.JsonRpcProvider(url);    
-    let privateKey = this.state.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
-    
-    wallet = wallet.connect(provider);
-    
-    let contractAddress = '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b';
-    let contract = new ethers.Contract(contractAddress, abi, provider);
-
-    const commitment = await contract.commitments(this.state.account.signingKey.address)
-    console.log(commitment)
-
-    const type = await contract.activities(commitment['activityKey'])
+    const type = await this.contract.activities(commitment["activityKey"]);
+    console.log(type)
     this.setState({
-      goal: commitment['goalValue'].toNumber() / 100,
-      startTime: commitment['startTime'].toNumber(),
-      endTime: commitment['endTime'].toNumber(),
-      type: type[0]
-    })
+      goal: commitment["goalValue"].toNumber() / 100,
+      startTime: commitment["startTime"].toNumber(),
+      endTime: commitment["endTime"].toNumber(),
+      type: type.name,
+    });
 
     this.getActivity();
 
-    this.setState({fill: this.state.total / this.state.goal})
+    this.setState({ fill: this.state.total / this.state.goal });
   }
 
   async getActivity() {
-    fetch('https://test2.dcl.properties/activities?startTime=' + this.state.startTime + '&endTime=' + this.state.endTime + '&type=' + this.state.type + '&accessToken=' + this.state.accessToken,
+    fetch(
+      "https://test2.dcl.properties/activities?startTime=" +
+        this.state.startTime +
+        "&endTime=" +
+        this.state.endTime +
+        "&type=" +
+        this.state.type +
+        "&accessToken=" +
+        this.state.accessToken,
       {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer: ' + this.state.accessToken
-        }
-      })
-      .then(res => res.json())
+          "Content-Type": "application/json",
+          Authorization: "Bearer: " + this.state.accessToken,
+        },
+      }
+    )
+      .then((res) => res.json())
       .then((json) => {
-        this.setState({total: json.total})
-        this.setState({fill: this.state.total / this.state.goal})
-      })
+        this.setState({ total: json.total });
+        this.setState({ fill: this.state.total / this.state.goal });
+      });
   }
 
   async getUpdatedActivity() {
-    
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    let contractWithSigner = this.contract;
 
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    
-    let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
-    
-    wallet = wallet.connect(provider);
-
-    
-    let contractAddress = '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b';
-    let contract = new ethers.Contract(contractAddress, abi, provider);
-
-    let contractWithSigner = contract.connect(wallet);
-    
-    this.setState({loading: true})
+    this.setState({ loading: true });
     try {
-        console.log(this.props.account.signingKey.address)
-        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0x10d914A0586E527247C9530A899D74dC189Dbd80', 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+      console.log(this.state.account);
+      await contractWithSigner.requestActivityDistance(
+        this.state.account,
+        "0x10d914A0586E527247C9530A899D74dC189Dbd80",
+        "e21d39b70cad42d6bc6b42c64b853007",
+        { gasLimit: 500000 }
+      );
 
-        let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
+      let topic = ethers.utils.id(
+        "RequestActivityDistanceFulfilled(bytes32,uint256,address)"
+      );
 
-        let filter = {
-            address: contractAddress,
-            topics: [ topic ]
+      let filter = {
+        address: this.contractAddress,
+        topics: [topic],
+      };
+
+      contractWithSigner.provider.on(filter, async (result, event) => {
+        const address = "0x" + result.topics[3].substr(26, 66).toLowerCase();
+        console.log(
+          address,
+          this.state.account.toLowerCase()
+        );
+        if (address === this.state.account.toLowerCase()) {
+          const commitment = await this.contract.commitments(
+            this.state.account
+          );
+          if (commitment.reportedValue.gte(commitment.goalValue)) {
+            this.setState({ loading: false });
+            this.props.next(7);
+          } else {
+            this.setState({ loading: false });
+            alert("Goal not yet achieved. Keep going!");
+          }
         }
-
-        provider.on(filter, async (result, event) => {
-            const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
-            console.log(address, this.props.account.signingKey.address.toLowerCase())
-            if(address === this.props.account.signingKey.address.toLowerCase()){
-              const commitment = await contract.commitments(this.state.account.signingKey.address)
-              if(commitment.reportedValue.gte(commitment.goalValue)){
-                this.setState({loading: false})
-                this.props.next(7)
-              } else {
-                this.setState({loading: false})
-                alert("Goal not yet achieved. Keep going!")
-              }
-            }
-        });
+      });
     } catch (error) {
-        console.log(error)
-        this.setState({loading: false})
+      console.log(error);
+      this.setState({ loading: false });
     }
   }
 
   render() {
     return (
-        <View style={{backgroundColor: '#D45353', flex: 1, alignItems: 'center', justifyContent: 'space-around'}}>
-            {this.state.loading ? <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 0, left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2}}><Text style={{fontSize: 25}}>⌛</Text></View> : undefined}
-            <View style={{alignItems: 'center'}}>
-                <Text style={{fontSize: 50, color: 'white', marginBottom: 70}}>Track</Text>
-                <AnimatedCircularProgress
-                    size={180}
-                    width={15}
-                    rotation={0}
-                    fill={this.state.fill}
-                    tintColor="white"
-                    onAnimationComplete={() => console.log('onAnimationComplete')}
-                    backgroundColor="#D45353" >
-                    {
-                        (fill) => (
-                        <Text style={{color: 'white', fontSize: 30}}>
-                            {this.state.fill.toFixed(1)}%
-                        </Text>
-                        )
-                    }
-                </AnimatedCircularProgress>
-                <Text style={{fontSize: 22, color: 'white', marginTop: 25}}>{((this.state.fill/100) * this.state.goal).toFixed(1)}/{this.state.goal} Miles</Text>
-            </View>
-            <TouchableOpacity
-                    style={this.state.fill !== 100 ? {width: 300, height: 50, backgroundColor: '#999', alignItems: 'center', justifyContent: 'center'}
-                        : {width: 300, height: 50, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}
-                    onPress={() => this.getUpdatedActivity()}
-                    >
-                <Text style={{fontSize: 30}}>Claim Reward</Text>
-            </TouchableOpacity>
+      <View
+        style={{
+          backgroundColor: "#D45353",
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "space-around",
+        }}
+      >
+        {this.state.loading ? (
+          <View
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              position: "absolute",
+              right: 0,
+              left: 0,
+              top: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0,0,0,0.5)",
+              zIndex: 2,
+            }}
+          >
+            <Text style={{ fontSize: 25 }}>⌛</Text>
+          </View>
+        ) : undefined}
+        <View style={{ alignItems: "center" }}>
+          <Text style={{ fontSize: 50, color: "white", marginBottom: 70 }}>
+            Track
+          </Text>
+          <AnimatedCircularProgress
+            size={180}
+            width={15}
+            rotation={0}
+            fill={this.state.fill}
+            tintColor="white"
+            onAnimationComplete={() => console.log("onAnimationComplete")}
+            backgroundColor="#D45353"
+          >
+            {(fill) => (
+              <Text style={{ color: "white", fontSize: 30 }}>
+                {this.state.fill.toFixed(1)}%
+              </Text>
+            )}
+          </AnimatedCircularProgress>
+          <Text style={{ fontSize: 22, color: "white", marginTop: 25 }}>
+            {((this.state.fill / 100) * this.state.goal).toFixed(1)}/
+            {this.state.goal} Miles
+          </Text>
         </View>
+        <TouchableOpacity
+          style={
+            this.state.fill !== 100
+              ? {
+                  width: 300,
+                  height: 50,
+                  backgroundColor: "#999",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }
+              : {
+                  width: 300,
+                  height: 50,
+                  backgroundColor: "white",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }
+          }
+          onPress={() => this.getUpdatedActivity()}
+        >
+          <Text style={{ fontSize: 30 }}>Claim Reward</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 }

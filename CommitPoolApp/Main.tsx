@@ -12,14 +12,14 @@ import { Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default class Main extends Component<
-  { account: any; stravaOAuth: any; code: string },
-  { step: Number; account: any }
+  { provider: any; stravaOAuth: any; code: string },
+  { step: Number;  }
 > {
   constructor(props) {
     super(props);
     this.state = {
       step: 1,
-      account: undefined,
+      provider: undefined,
     };
   }
 
@@ -56,7 +56,7 @@ export default class Main extends Component<
             colors={["#D45353", "#D45353", "white"]}
             style={styles.linearGradient}
           >
-            <Wallet next={this.onClick} account={this.props.account}></Wallet>
+            <Wallet next={this.onClick} provider={this.props.provider}></Wallet>
           </LinearGradient>
         );
       // case 5:
@@ -76,7 +76,7 @@ export default class Main extends Component<
           >
             <MakeCommitment
               next={this.onClick}
-              account={this.props.account}
+              provider={this.props.provider}
               code={this.props.code}
             ></MakeCommitment>
           </LinearGradient>
@@ -85,13 +85,13 @@ export default class Main extends Component<
         return (
           <Track
             next={this.onClick}
-            account={this.props.account}
+            provider={this.props.provider}
             code={this.props.code}
           ></Track>
         );
       case 7:
         return (
-          <Complete next={this.onClick} account={this.props.account}></Complete>
+          <Complete next={this.onClick} provider={this.props.provider}></Complete>
         );
     }
   };

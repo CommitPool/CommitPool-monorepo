@@ -1,18 +1,22 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image, Text, Button, TouchableOpacity, TextInput } from "react-native";
+import { View,  Text, TouchableOpacity, TextInput } from "react-native";
 import { ethers, utils } from 'ethers';
 import abi from '../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
 import daiAbi from './daiAbi.json'
 import { Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-export default class MakeCommitment extends Component <{next: any, account: any, code: any}, {txSent: Boolean, loading: Boolean, distance: Number, stake: Number,daysToStart: Number, duration: Number,  activity: {}, activities: any}> {
+export default class MakeCommitment extends Component <{next: any, provider: any, code: any}, {account: any, txSent: Boolean, loading: Boolean, distance: Number, stake: Number,daysToStart: Number, duration: Number,  activity: {}, activities: any}> {
   contract: any;
+  contractAddress: string;
   daiContract: any;
+  daiContractAddress: string
   constructor(props) {
     super(props);
-    
+    this.contractAddress = "0x104caee222E39eAd76F646daf601FD2302CBf164";
+    this.daiContractAddress = "0x70d1f773a9f81c852087b77f6ae6d3032b02d2ab";
     this.state = {
+      account: undefined,
       distance: 0,
       stake: 0,
       daysToStart: 0,
@@ -25,24 +29,15 @@ export default class MakeCommitment extends Component <{next: any, account: any,
   }
 
   async componentDidMount() {
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
-
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    
-    let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
-    
-    wallet = wallet.connect(provider);
-    
-    let contractAddress = '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b';
-    let contract = new ethers.Contract(contractAddress, abi, provider);
-
-    let daiAddress = '0x70d1f773a9f81c852087b77f6ae6d3032b02d2ab';
-    let daiContract = new ethers.Contract(daiAddress, daiAbi, provider);
-    
-    this.contract = contract.connect(wallet);
-    this.daiContract = daiContract.connect(wallet);
-
+    await this.props.provider
+    .listAccounts()
+    .then((accounts) => {
+      this.setState({ account: accounts[0] });
+    })
+;
+    const signer = await this.props.provider.getSigner()
+    this.contract = await new ethers.Contract(this.contractAddress, abi, signer);
+    this.daiContract = await new ethers.Contract(this.daiContractAddress, daiAbi, signer);
 
     let activities = [];
     let exists = true;
@@ -115,11 +110,11 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     const stakeAmount = utils.parseEther(this.state.stake.toString());
     this.setState({loading: true})
     
-    const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b');
+    const allowance = await this.daiContract.allowance(this.state.account, '0x104caee222E39eAd76F646daf601FD2302CBf164');
     if(allowance.gte(stakeAmount)) {
       await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     } else {
-      await this.daiContract.approve('0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b', stakeAmount)
+      await this.daiContract.approve('0x104caee222E39eAd76F646daf601FD2302CBf164', stakeAmount)
       await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     }
 

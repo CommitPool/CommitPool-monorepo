@@ -462,6 +462,7 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         public
         recordChainlinkFulfillment(_requestId)
     {
+        validateChainlinkCallback(_requestId);
         address userAddress = jobAddresses[_requestId];
         emit RequestActivityDistanceFulfilled(_requestId, _distance, userAddress);
         commitments[userAddress].reportedValue = _distance;

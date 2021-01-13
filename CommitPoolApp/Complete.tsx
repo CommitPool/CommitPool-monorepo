@@ -24,7 +24,7 @@ export default class Complete extends Component <{success: boolean, next: any, a
     
     wallet = wallet.connect(provider);
     
-    let contractAddress = '0x0979A5Af01F7E0a8FF7Ce3a2c9Cb5BCe628F244b';
+    let contractAddress = '0xC16FdF275749b7FeaEDc45Bab65EFd7055f7aA86';
     let contract = new ethers.Contract(contractAddress, abi, provider);
     
     contract = contract.connect(wallet);

@@ -38,7 +38,7 @@ Truffle
 Deployment to the Mumbai Testnet is configured in ```./truffle-config.js```
 
 1. ```npm install truffle -g```
-2. Deploy to Mumbai testnet: ```truffle migrate --network matic```
+2. Deploy to Mumbai testnet: ```truffle migrate --network matic_mumbai```
 3. Find your contract based on the address reported by Truffle in the [Matic Explorer](https://explorer-mumbai.maticvigil.com/).
 
 Quite note on deploying to Matic:

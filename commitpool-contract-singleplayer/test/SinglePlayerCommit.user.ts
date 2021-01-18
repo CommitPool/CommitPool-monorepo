@@ -200,7 +200,6 @@ export function userCanManageCommitments(): void {
       //Transaction
       const { activityKey, goal, startTime, endTime, amountToStake, userId } = defaultParams;
 
-
       await expect(
         contractWithUser.makeCommitment(activityKey, goal, startTime, endTime, amountToStake, userId, _overrides),
       ).to.emit(contractWithUser, "NewCommitment")
@@ -210,6 +209,7 @@ export function userCanManageCommitments(): void {
       expect(commitment.met).to.be.false;
       expect(commitment.exists).to.be.true;
 
+      await this.token.mock.balanceOf.withArgs(contractWithUser.address).returns(utils.parseEther("1000"));
       await expect(
         contractWithUser.processCommitmentUser(_overrides)).to.emit(
           contractWithUser, 

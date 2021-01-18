@@ -263,13 +263,11 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @notice Internal function for evaluating commitment and slashing funds if needed
     /// @dev Receive call with commitment object from storage
     function _settleCommitment(Commitment storage commitment) internal returns (bool success) {
+        console.log("Settling commitment");
         commitment.met = commitment.reportedValue >= commitment.goalValue;
 
-        if (!commitment.met) {
-            _slashFunds(commitment.stake, msg.sender);
-        } 
-        
-        commitment.exists = false;
+        commitment.met ? withdraw(commitment.stake) : _slashFunds(commitment.stake, msg.sender);
+        commitment.exists = false;        
         return true;
     }
 
@@ -292,6 +290,7 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @param add Boolean toggle to deposit or withdraw
     /// @dev Based on add param add or substract amount from msg.sender balance and total committerBalance
     function _changeCommitterBalance(address committer, uint256 amount, bool add) internal returns (bool success) {
+        console.log("Changing committer balance");
         if (add) {
             committerBalances[committer] = committerBalances[committer].add(amount);
             totalCommitterBalance = totalCommitterBalance.add(amount);
@@ -308,6 +307,7 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @param committer Address of committer
     /// @dev Substract amount from committer balance and add to slashedBalance
     function _slashFunds(uint256 amount, address committer) internal returns (bool success) {
+        console.log("Slashing funds commitment");
         require(committerBalances[committer] >= amount, "SPC::_slashFunds - funds not available");
         _changeCommitterBalance(committer, amount, false);
         slashedBalance = slashedBalance.add(amount);
@@ -462,7 +462,6 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         public
         recordChainlinkFulfillment(_requestId)
     {
-        validateChainlinkCallback(_requestId);
         address userAddress = jobAddresses[_requestId];
         emit RequestActivityDistanceFulfilled(_requestId, _distance, userAddress);
         commitments[userAddress].reportedValue = _distance;

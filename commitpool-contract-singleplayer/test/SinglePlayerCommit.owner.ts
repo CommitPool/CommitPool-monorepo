@@ -91,8 +91,8 @@ export function ownerCanManageContract(): void {
 
       //Transaction to withdraw slashed funds
       await this.token.mock.transfer.returns(true);
-      await contractWithOwner.ownerWithdraw(_updatedSlashedBalance, _overrides);
-
+      await contractWithOwner.ownerWithdraw(amountToStake, _overrides);
+      
       //Validate balances
       _updatedOwnerBalance= await owner.getBalance();
       _updatedOwnerDaiBalanceInContract= await contractWithOwner.committerBalances(

@@ -266,8 +266,8 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         console.log("Settling commitment");
         commitment.met = commitment.reportedValue >= commitment.goalValue;
 
-        commitment.met ? withdraw(commitment.stake) : _slashFunds(commitment.stake, msg.sender);
         commitment.exists = false;        
+        commitment.met ? withdraw(commitment.stake) : _slashFunds(commitment.stake, msg.sender);
         return true;
     }
 

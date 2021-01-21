@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View, StyleSheet, Image, Text, Button, TouchableOpacity } from "react-native";
 import { ethers, utils } from 'ethers';
-import abi from '../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
+import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
 import ConfettiCannon from 'react-native-confetti-cannon';
 
 export default class Complete extends Component <{success: boolean, next: any, account: any}, {loading: Boolean, step: Number, fill: number}> {
@@ -29,7 +29,7 @@ export default class Complete extends Component <{success: boolean, next: any, a
     
     contract = contract.connect(wallet);
 
-    await contract.processCommitmentUser();
+    await contract.processAndSettleUser();
     this.props.next(4);
   }
 

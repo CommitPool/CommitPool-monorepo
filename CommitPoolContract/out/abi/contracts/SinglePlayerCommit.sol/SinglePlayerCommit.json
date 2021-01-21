@@ -135,9 +135,40 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "committerBalance",
+        "type": "uint256"
       }
     ],
     "name": "Deposit",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "committer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "slashedBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "FundsSlashed",
     "type": "event"
   },
   {
@@ -181,6 +212,31 @@
       }
     ],
     "name": "NewCommitment",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "slashedBalance",
+        "type": "uint256"
+      }
+    ],
+    "name": "OwnerWithdrawal",
     "type": "event"
   },
   {
@@ -240,6 +296,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "committerBalance",
         "type": "uint256"
       }
     ],
@@ -418,25 +480,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "deposit",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "_activityKey",
         "type": "bytes32"
@@ -476,7 +519,7 @@
     "outputs": [
       {
         "internalType": "bool",
-        "name": "success",
+        "name": "commitmentExists",
         "type": "bool"
       }
     ],
@@ -492,13 +535,7 @@
       }
     ],
     "name": "disableActivity",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -572,50 +609,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_activityKey",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_goalValue",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_startTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_endTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_stake",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_userId",
-        "type": "string"
-      }
-    ],
-    "name": "makeCommitment",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -637,6 +630,19 @@
       }
     ],
     "name": "ownerWithdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "commitmentOwner",
+        "type": "address"
+      }
+    ],
+    "name": "processAndSettle",
     "outputs": [
       {
         "internalType": "bool",
@@ -648,22 +654,15 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "processAndSettleUser",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "committer",
-        "type": "address"
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
       }
     ],
-    "name": "processCommitment",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "processCommitmentUser",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -763,13 +762,7 @@
       }
     ],
     "name": "updateActivityAllowed",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -787,32 +780,7 @@
       }
     ],
     "name": "updateActivityOracle",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdraw",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "success",
-        "type": "bool"
-      }
-    ],
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

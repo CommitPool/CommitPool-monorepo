@@ -81,7 +81,7 @@ export function ownerCanManageContract(): void {
 
       //Process commitment (not met => slashing)
       await this.token.mock.balanceOf.withArgs(contractWithOwner.address).returns(utils.parseEther("1000"));
-      await expect(contractWithOwner.processCommitmentUser(_overrides)).to.emit(
+      await expect(contractWithOwner.processAndSettleUser(_overrides)).to.emit(
         contractWithOwner,
         "CommitmentEnded",
       );
@@ -91,8 +91,10 @@ export function ownerCanManageContract(): void {
 
       //Transaction to withdraw slashed funds
       await this.token.mock.transfer.returns(true);
-      await contractWithOwner.ownerWithdraw(amountToStake, _overrides);
-      
+      await expect(contractWithOwner.ownerWithdraw(amountToStake, _overrides)).to.emit(
+        contractWithOwner,
+        "OwnerWithdrawal",
+      );      
       //Validate balances
       _updatedOwnerBalance= await owner.getBalance();
       _updatedOwnerDaiBalanceInContract= await contractWithOwner.committerBalances(

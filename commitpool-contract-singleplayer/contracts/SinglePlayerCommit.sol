@@ -233,21 +233,21 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         return true;
     }
 
-    /// @notice Enables processing of open commitments after endDate that have not been processed by creator
-    /// @param committer address of the creator of the committer to process
-    /// @dev Process commitment by lookup based on address, checking metrics, state and updating balances
-    function processCommitment(address committer) public {
-        console.log("Processing commitment");
-        require(commitments[committer].exists, "SPC::processCommitment - commitment does not exist");
-        Commitment storage commitment = commitments[committer];
+    // /// @notice Enables processing of open commitments after endDate that have not been processed by creator
+    // /// @param committer address of the creator of the committer to process
+    // /// @dev Process commitment by lookup based on address, checking metrics, state and updating balances
+    // function processCommitment(address committer) public {
+    //     console.log("Processing commitment");
+    //     require(commitments[committer].exists, "SPC::processCommitment - commitment does not exist");
+    //     Commitment storage commitment = commitments[committer];
 
-        require(commitment.endTime < block.timestamp, "SPC::processCommitment - commitment is still active");
-        require(commitment.endTime < commitment.lastActivityUpdate, "SPC::processCommitment - update activity");
+    //     require(commitment.endTime < block.timestamp, "SPC::processCommitment - commitment is still active");
+    //     require(commitment.endTime < commitment.lastActivityUpdate, "SPC::processCommitment - update activity");
 
-        require(_settleCommitment(commitment), "SPC::processCommitmentUser - settlement failed");
+    //     require(_settleCommitment(commitment), "SPC::processCommitmentUser - settlement failed");
 
-        emit CommitmentEnded(committer, commitment.met, commitment.stake);
-    }
+    //     emit CommitmentEnded(committer, commitment.met, commitment.stake);
+    // }
 
     /// @notice Enables control of processing own commitment. For instance when completed.
     /// @dev Process commitment by lookup msg.sender, checking metrics, state and updating balances

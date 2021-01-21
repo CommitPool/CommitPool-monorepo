@@ -648,19 +648,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "committer",
-        "type": "address"
-      }
-    ],
-    "name": "processCommitment",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "processCommitmentUser",
     "outputs": [],

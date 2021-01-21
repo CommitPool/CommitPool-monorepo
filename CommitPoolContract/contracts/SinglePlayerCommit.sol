@@ -533,12 +533,12 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     MODIFIERS
     ********/
     modifier noCommitment {
-      require(commitments[msg.sender].exists == false, "SPC::noCommitment - msg.sender has no active commitment");
+      require(commitments[msg.sender].exists == false, "SPC::noCommitment - msg.sender has an active commitment");
       _;
     }
 
     modifier hasCommitment {
-      require(commitments[msg.sender].exists == true, "SPC::hasCommitment - msg.sender has an active commitment");
+      require(commitments[msg.sender].exists == true, "SPC::hasCommitment - msg.sender has no active commitment");
       _;
     }
 

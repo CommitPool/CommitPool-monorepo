@@ -4,7 +4,7 @@ import ConfettiCannon from 'react-native-confetti-cannon';
 import QRCode from 'react-native-qrcode-svg';
 import { ethers } from 'ethers';
 import daiAbi from './daiAbi.json'
-import abi from '../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
+import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
 
 
 export default class Wallet extends Component <{next: any, account: any}, {balance: number, daiBalance: number, commitment: any}> {

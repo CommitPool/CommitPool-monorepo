@@ -29,7 +29,7 @@ export default class Complete extends Component <{success: boolean, next: any, a
     
     contract = contract.connect(wallet);
 
-    await contract.processCommitmentUser();
+    await contract.processAndSettleUser();
     this.props.next(4);
   }
 

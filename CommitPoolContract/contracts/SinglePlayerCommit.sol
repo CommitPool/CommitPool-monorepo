@@ -12,7 +12,7 @@ import "@chainlink/contracts/src/v0.6/vendor/SafeMath.sol";
 /// @title CommitPool single-player mode contract
 /// @notice Enables staking and validating performance. No social/pool functionality.
 contract SinglePlayerCommit is ChainlinkClient, Ownable {
-    using SafeMath for uint256;
+    using SafeMath_Chainlink for uint256;
 
     /******************
     GLOBAL CONSTANTS

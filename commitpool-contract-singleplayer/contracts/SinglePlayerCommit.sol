@@ -19,7 +19,7 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     ******************/
     IERC20 public token;
     uint256 BIGGEST_NUMBER = uint256(-1);
-    uint256 constant private ORACLE_PAYMENT = 1 * LINK;
+    uint256 constant private ORACLE_PAYMENT = 0.1 * 10 ** 18; //0.1 LINK
 
     /***************
     DATA TYPES

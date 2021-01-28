@@ -34,10 +34,10 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     
     wallet = wallet.connect(provider);
     
-    let contractAddress = '0xc129A3E263e05b73685b87cffC69695eB6240eaf';
+    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
     let contract = new ethers.Contract(contractAddress, abi, provider);
 
-    let daiAddress = '0x70d1f773a9f81c852087b77f6ae6d3032b02d2ab';
+    let daiAddress = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
     let daiContract = new ethers.Contract(daiAddress, daiAbi, provider);
     
     this.contract = contract.connect(wallet);
@@ -115,11 +115,11 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     const stakeAmount = utils.parseEther(this.state.stake.toString());
     this.setState({loading: true})
     
-    const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, '0xc129A3E263e05b73685b87cffC69695eB6240eaf');
+    const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, '0xDb28e5521718Cf746a9900DE3Aff12644F699B98');
     if(allowance.gte(stakeAmount)) {
       await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     } else {
-      await this.daiContract.approve('0xc129A3E263e05b73685b87cffC69695eB6240eaf', stakeAmount)
+      await this.daiContract.approve('0xDb28e5521718Cf746a9900DE3Aff12644F699B98', stakeAmount)
       await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     }
 

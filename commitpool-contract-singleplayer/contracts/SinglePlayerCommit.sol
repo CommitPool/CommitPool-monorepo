@@ -95,18 +95,20 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @notice Contract constructor used during deployment
     /// @param _activityList String list of activities reported by oracle
     /// @param _oracleAddress Address of oracle for activity data
-    /// @param _token Address of <token> contract
+    /// @param _daiToken Address of <dai token> contract
+    /// @param _linkToken Address of <link token> contract
     /// @dev Configure token address, add activities to activities mapping by calling _addActivities method
     constructor(
         string[] memory _activityList,
         address _oracleAddress,
-        address _token
+        address _daiToken,
+        address _linkToken
     ) 
         public {
             console.log("Constructor called for SinglePlayerCommit contract");
             require(_activityList.length >= 1, "SPC::constructor - activityList empty");
-            token = IERC20(_token);
-            setChainlinkToken(_token);
+            token = IERC20(_daiToken);
+            setChainlinkToken(_linkToken);
 
             _addActivities(_activityList, _oracleAddress);
     }

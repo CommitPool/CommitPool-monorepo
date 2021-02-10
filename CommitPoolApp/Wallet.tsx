@@ -1,15 +1,22 @@
 import React, { Component } from "react";
-import { View, Linking, StyleSheet, Image, Text, Button, TouchableOpacity, Clipboard } from "react-native";
-import ConfettiCannon from 'react-native-confetti-cannon';
+import { View, Text, TouchableOpacity, Clipboard } from "react-native";
 import QRCode from 'react-native-qrcode-svg';
-import { ethers } from 'ethers';
 import daiAbi from './daiAbi.json'
-import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
-
+import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json';
+import getContract from './components/contract/contract';
+import getWallet from './components/wallet/wallet';
+import getEnvVars from './environment.js';
 
 export default class Wallet extends Component <{next: any, account: any}, {balance: number, daiBalance: number, commitment: any}> {
+  commitPoolContract: any;
+  commitPoolContractAddress: string;
+  daiContract: any;
+  daiContractAddress: string;
   constructor(props) {
     super(props);
+    const { commitPoolContractAddress, daiContractAddress } = getEnvVars();
+    this.commitPoolContractAddress = commitPoolContractAddress;
+    this.daiContractAddress = daiContractAddress;
     this.state = {
       balance: 0.0,
       daiBalance: 0.0,
@@ -17,23 +24,20 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
     };
   }
 
-  async componentDidMount() {
-    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
-
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    
+  async componentDidMount() {    
     let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
-    wallet = wallet.connect(provider);
-    let daiContractAddress = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
-    let daiContract = new ethers.Contract(daiContractAddress, daiAbi, provider);
-    const daiBalance = await daiContract.balanceOf(this.props.account.signingKey.address)
+    let wallet = getWallet(privateKey);
+
+    this.daiContract = getContract(this.daiContractAddress, daiAbi);
+
+    const daiBalance = await this.daiContract.balanceOf(this.props.account.signingKey.address);
     const balance = await wallet.getBalance();
+
     this.setState({balance: balance.div(1000000000000000).toNumber() / 1000})
     this.setState({daiBalance: daiBalance.div(1000000000000000).toNumber() / 1000})
 
     setInterval(async () => {
-      const daiBalance = await daiContract.balanceOf(this.props.account.signingKey.address)
+      const daiBalance = await this.daiContract.balanceOf(this.props.account.signingKey.address)
       const balance = await wallet.getBalance();
       this.setState({balance: balance.div(1000000000000000).toNumber() / 1000})
       this.setState({daiBalance: daiBalance.div(1000000000000000).toNumber() / 1000})
@@ -41,13 +45,10 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
   }
 
   async next() {
-    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    this.commitPoolContract = getContract(this.commitPoolContractAddress, abi);
 
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    let commitPoolContractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
-    let commitPoolContract = new ethers.Contract(commitPoolContractAddress, abi, provider);
     try {
-      const commitment = await commitPoolContract.commitments(this.props.account.signingKey.address);
+      const commitment = await this.commitPoolContract.commitments(this.props.account.signingKey.address);
       console.log(commitment)
       if(commitment.exists){
         this.props.next(6)

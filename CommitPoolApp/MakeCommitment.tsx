@@ -5,13 +5,17 @@ import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/
 import daiAbi from './daiAbi.json'
 import { Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-
+import getWallet from './components/wallet/wallet';
+import getContract from './components/contract/contract';
 export default class MakeCommitment extends Component <{next: any, account: any, code: any}, {txSent: Boolean, loading: Boolean, distance: Number, stake: Number,daysToStart: Number, duration: Number,  activity: {}, activities: any}> {
-  contract: any;
+  commitPoolContract: any;
+  commitPoolContractAddress: string;
   daiContract: any;
+  daiContractAddress: string;
   constructor(props) {
     super(props);
-    
+    this.commitPoolContractAddress = "0x286Bcf38B881743401773a3206B907901b47359E";
+    this.daiContractAddress = "0x70d1F773A9f81C852087B77F6Ae6d3032B02D2AB";
     this.state = {
       distance: 0,
       stake: 0,
@@ -25,24 +29,15 @@ export default class MakeCommitment extends Component <{next: any, account: any,
   }
 
   async componentDidMount() {
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
-
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    
     let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
+    let wallet = getWallet(privateKey);
     
-    wallet = wallet.connect(provider);
-    
-    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
-    let contract = new ethers.Contract(contractAddress, abi, provider);
+    let commitPoolContract = getContract(this.commitPoolContractAddress, abi);
 
-    let daiAddress = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
-    let daiContract = new ethers.Contract(daiAddress, daiAbi, provider);
-    
-    this.contract = contract.connect(wallet);
+    let daiContract = getContract(this.daiContractAddress, daiAbi);
+
+    this.commitPoolContract = commitPoolContract.connect(wallet);
     this.daiContract = daiContract.connect(wallet);
-
 
     let activities = [];
     let exists = true;
@@ -50,8 +45,9 @@ export default class MakeCommitment extends Component <{next: any, account: any,
 
     while (exists){
       try {
-        const key = await this.contract.activityKeyList(index);
-        const activity = await this.contract.activities(key);
+        const key = await this.commitPoolContract.activityKeyList(index);
+        const activity = await this.commitPoolContract.activities(key);
+        console.log("GOT ACTIVITY");
         const clone = Object.assign({}, activity)
         clone.key = key;
         activities.push(clone);
@@ -115,12 +111,12 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     const stakeAmount = utils.parseEther(this.state.stake.toString());
     this.setState({loading: true})
     
-    const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, '0xDb28e5521718Cf746a9900DE3Aff12644F699B98');
+    const allowance = await this.daiContract.allowance(this.props.account.signingKey.address, this.commitPoolContractAddress);
     if(allowance.gte(stakeAmount)) {
-      await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      await this.commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     } else {
-      await this.daiContract.approve('0xDb28e5521718Cf746a9900DE3Aff12644F699B98', stakeAmount)
-      await this.contract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      await this.daiContract.approve(this.commitPoolContractAddress, stakeAmount)
+      await this.commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
     }
 
     this.setState({loading: false, txSent: true})

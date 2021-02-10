@@ -5,7 +5,9 @@ import { ethers } from 'ethers';
 import { AsyncStorage } from 'react-native';
 import { Moment } from 'moment';
 import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
-
+import getWallet from './components/wallet/wallet';
+import getContract from './components/contract/contract';
+import getProvider from './components/provider/provider';
 export default class Track extends Component <{next: any, account: any, code: string}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
   constructor(props) {
     super(props);
@@ -69,21 +71,13 @@ export default class Track extends Component <{next: any, account: any, code: st
   }
 
   async getCommitment() {    
-    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    let commitPoolContractAddress = '0x286Bcf38B881743401773a3206B907901b47359E';
+    let commitPoolContract = getContract(commitPoolContractAddress, abi);
 
-    const provider = new ethers.providers.JsonRpcProvider(url);    
-    let privateKey = this.state.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
-    
-    wallet = wallet.connect(provider);
-    
-    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
-    let contract = new ethers.Contract(contractAddress, abi, provider);
-
-    const commitment = await contract.commitments(this.state.account.signingKey.address)
+    const commitment = await commitPoolContract.commitments(this.state.account.signingKey.address)
     console.log(commitment)
 
-    const type = await contract.activities(commitment['activityKey'])
+    const type = await commitPoolContract.activities(commitment['activityKey'])
     this.setState({
       goal: commitment['goalValue'].toNumber() / 100,
       startTime: commitment['startTime'].toNumber(),
@@ -113,31 +107,24 @@ export default class Track extends Component <{next: any, account: any, code: st
   }
 
   async getUpdatedActivity() {
-    
-    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
-
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    
+    const provider = getProvider();
     let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
+    let wallet = getWallet(privateKey);
     
-    wallet = wallet.connect(provider);
+    let commitPoolContractAddress = '0x286Bcf38B881743401773a3206B907901b47359E';
+    let commitPoolContract = getContract(commitPoolContractAddress, abi);
 
-    
-    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
-    let contract = new ethers.Contract(contractAddress, abi, provider);
-
-    let contractWithSigner = contract.connect(wallet);
+    let contractWithSigner = commitPoolContract.connect(wallet);
     
     this.setState({loading: true})
     try {
         console.log(this.props.account.signingKey.address)
-        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0xD25104281bbBBA463fC1A585ff55f486114902A4', 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0x286Bcf38B881743401773a3206B907901b47359E', 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
 
         let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
 
         let filter = {
-            address: contractAddress,
+            address: commitPoolContractAddress,
             topics: [ topic ]
         }
 

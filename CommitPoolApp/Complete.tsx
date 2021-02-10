@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image, Text, Button, TouchableOpacity } from "react-native";
-import { ethers, utils } from 'ethers';
+import { View, Text, TouchableOpacity } from "react-native";
 import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
 import ConfettiCannon from 'react-native-confetti-cannon';
+import getWallet from './components/wallet/wallet';
+import getContract from './components/contract/contract';
 
 export default class Complete extends Component <{success: boolean, next: any, account: any}, {loading: Boolean, step: Number, fill: number}> {
   constructor(props) {
@@ -15,21 +16,15 @@ export default class Complete extends Component <{success: boolean, next: any, a
   }
 
   async go() {
-    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
-
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    
     let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
+    let wallet = getWallet(privateKey);
     
-    wallet = wallet.connect(provider);
+    let commitPoolContractAddress = '0x286Bcf38B881743401773a3206B907901b47359E';
+    let commitPoolContract = getContract(commitPoolContractAddress, abi);
     
-    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
-    let contract = new ethers.Contract(contractAddress, abi, provider);
-    
-    contract = contract.connect(wallet);
+    commitPoolContract = commitPoolContract.connect(wallet);
 
-    await contract.processCommitmentUser();
+    await commitPoolContract.processCommitmentUser();
     this.props.next(4);
   }
 

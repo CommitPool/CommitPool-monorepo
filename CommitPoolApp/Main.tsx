@@ -42,7 +42,7 @@ export default class Main extends Component<
             code={this.props.code}
           ></Welcome>
         );
-      case 2:
+      case 4:
         return (
           <Login
             next={this.onClick}
@@ -50,7 +50,7 @@ export default class Main extends Component<
             code={this.props.code}
           ></Login>
         );
-      case 4:
+      case 2:
         return (
           <LinearGradient
             colors={["#D45353", "#D45353", "white"]}

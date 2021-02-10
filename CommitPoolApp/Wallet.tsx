@@ -18,14 +18,14 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
   }
 
   async componentDidMount() {
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
 
     const provider = new ethers.providers.JsonRpcProvider(url);
     
     let privateKey = this.props.account.signingKey.privateKey;
     let wallet = new ethers.Wallet(privateKey);
     wallet = wallet.connect(provider);
-    let daiContractAddress = '0x70d1f773a9f81c852087b77f6ae6d3032b02d2ab';
+    let daiContractAddress = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
     let daiContract = new ethers.Contract(daiContractAddress, daiAbi, provider);
     const daiBalance = await daiContract.balanceOf(this.props.account.signingKey.address)
     const balance = await wallet.getBalance();
@@ -41,10 +41,10 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
   }
 
   async next() {
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
 
     const provider = new ethers.providers.JsonRpcProvider(url);
-    let commitPoolContractAddress = '0xc129A3E263e05b73685b87cffC69695eB6240eaf';
+    let commitPoolContractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
     let commitPoolContract = new ethers.Contract(commitPoolContractAddress, abi, provider);
     try {
       const commitment = await commitPoolContract.commitments(this.props.account.signingKey.address);

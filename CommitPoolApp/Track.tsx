@@ -69,7 +69,7 @@ export default class Track extends Component <{next: any, account: any, code: st
   }
 
   async getCommitment() {    
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
 
     const provider = new ethers.providers.JsonRpcProvider(url);    
     let privateKey = this.state.account.signingKey.privateKey;
@@ -77,7 +77,7 @@ export default class Track extends Component <{next: any, account: any, code: st
     
     wallet = wallet.connect(provider);
     
-    let contractAddress = '0xc129A3E263e05b73685b87cffC69695eB6240eaf';
+    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
     let contract = new ethers.Contract(contractAddress, abi, provider);
 
     const commitment = await contract.commitments(this.state.account.signingKey.address)
@@ -114,7 +114,7 @@ export default class Track extends Component <{next: any, account: any, code: st
 
   async getUpdatedActivity() {
     
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
 
     const provider = new ethers.providers.JsonRpcProvider(url);
     
@@ -124,7 +124,7 @@ export default class Track extends Component <{next: any, account: any, code: st
     wallet = wallet.connect(provider);
 
     
-    let contractAddress = '0xc129A3E263e05b73685b87cffC69695eB6240eaf';
+    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
     let contract = new ethers.Contract(contractAddress, abi, provider);
 
     let contractWithSigner = contract.connect(wallet);
@@ -132,7 +132,7 @@ export default class Track extends Component <{next: any, account: any, code: st
     this.setState({loading: true})
     try {
         console.log(this.props.account.signingKey.address)
-        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0x10d914A0586E527247C9530A899D74dC189Dbd80', 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0xD25104281bbBBA463fC1A585ff55f486114902A4', 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
 
         let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
 

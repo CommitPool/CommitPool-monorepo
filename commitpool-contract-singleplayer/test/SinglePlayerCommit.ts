@@ -27,7 +27,8 @@ describe("SinglePlayerCommit", function () {
     this.signers.admin = signers[0];
     this.accounts.admin = await signers[0].getAddress();
     this.oracle = await waffle.deployMockContract(this.signers.admin, chainLinkArtifact);
-    this.token = await waffle.deployMockContract(this.signers.admin, daiArtifact);
+    this.daiToken = await waffle.deployMockContract(this.signers.admin, daiArtifact);
+    this.chainlinkToken = await waffle.deployMockContract(this.signers.admin, chainLinkArtifact);
   });
 
   describe("Unittest", function () {
@@ -39,9 +40,10 @@ describe("SinglePlayerCommit", function () {
       this.singlePlayerCommit = (await deployContract(this.signers.admin, SinglePlayerCommitArtifact, [
         supportedActivities,
         this.oracle.address,
-        this.token.address,
+        this.daiToken.address,
+        this.chainlinkToken.address,
       ])) as SinglePlayerCommit;
-      console.log("SinglePlayerCommit deployed to ", await this.singlePlayerCommit.address);
+      console.log("SinglePlayerCommit deployed to ", this.singlePlayerCommit.address);
     });
 
     shouldDeployWithInitialParameters();

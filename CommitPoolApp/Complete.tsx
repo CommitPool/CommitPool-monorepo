@@ -15,7 +15,7 @@ export default class Complete extends Component <{success: boolean, next: any, a
   }
 
   async go() {
-    const url = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
 
     const provider = new ethers.providers.JsonRpcProvider(url);
     
@@ -24,7 +24,7 @@ export default class Complete extends Component <{success: boolean, next: any, a
     
     wallet = wallet.connect(provider);
     
-    let contractAddress = '0xc129A3E263e05b73685b87cffC69695eB6240eaf';
+    let contractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
     let contract = new ethers.Contract(contractAddress, abi, provider);
     
     contract = contract.connect(wallet);

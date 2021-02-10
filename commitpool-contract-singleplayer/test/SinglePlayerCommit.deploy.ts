@@ -51,13 +51,17 @@ export function shouldDeployWithInitialParameters(): void {
     await expect(this.singlePlayerCommit.activityKeyList(2)).to.be.reverted;
   });
 
-  it("is aware of the ChainLink oracle contract", async function () {
-    expect(await this.singlePlayerCommit.getChainlinkToken()).to.be.properAddress;
-  });
+  // it("is aware of the ChainLink oracle contract", async function () {
+  //   expect(await this.singlePlayerCommit._oracleAddress()).to.be.properAddress;
+  // });
 
   it("is aware of the DAI token contract", async function () {
     expect(await this.singlePlayerCommit.token()).to.be.properAddress;
   });
+
+  it("is aware of the LINK token contract", async function () {
+    expect(await this.singlePlayerCommit.getChainlinkToken()).to.be.properAddress;
+  })
 
   it("has empty balances", async function () {
     const _tokenBalanceInContract: BigNumber = await this.singlePlayerCommit.totalCommitterBalance();

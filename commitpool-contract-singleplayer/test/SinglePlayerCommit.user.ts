@@ -52,7 +52,7 @@ export function userCanManageCommitments(): void {
 
       //Transaction to deposit
       const { amountToDeposit } = defaultParams;
-      await this.token.mock.transferFrom.returns(true);
+      await this.daiToken.mock.transferFrom.returns(true);
 
       await expect(contractWithUser.deposit(amountToDeposit, _overrides))
         .to.emit(contractWithUser, "Deposit")
@@ -60,7 +60,7 @@ export function userCanManageCommitments(): void {
       // expect("transferFrom").to.be.calledOnContract(this.token);
       
       //Transaction to withdraw
-      await this.token.mock.transfer.returns(true);
+      await this.daiToken.mock.transfer.returns(true);
       await expect(contractWithUser.withdraw(amountToDeposit, _overrides))
         .to.emit(contractWithUser, "Withdrawal")
         .withArgs(userAddress, amountToDeposit);
@@ -78,7 +78,7 @@ export function userCanManageCommitments(): void {
     it("Can make one -and only one- commitment", async function () {
       // Deposit funds in contract
       const _amountToDeposit: BigNumber = utils.parseEther("100.0");
-      await this.token.mock.transferFrom.returns(true);
+      await this.daiToken.mock.transferFrom.returns(true);
       await expect(contractWithUser.deposit(_amountToDeposit, _overrides))
         .to.emit(contractWithUser, "Deposit")
         .withArgs(await user.getAddress(), _amountToDeposit);
@@ -111,7 +111,7 @@ export function userCanManageCommitments(): void {
       //Transaction to deposit funds
       const _amountToDeposit: BigNumber = utils.parseEther("100.0");
 
-      await this.token.mock.transferFrom.returns(true);
+      await this.daiToken.mock.transferFrom.returns(true);
       await expect(contractWithUser.deposit(_amountToDeposit, _overrides))
         .to.emit(contractWithUser, "Deposit")
         .withArgs(await user.getAddress(), _amountToDeposit);
@@ -138,7 +138,7 @@ export function userCanManageCommitments(): void {
 
       goal = 50;
 
-      await this.token.mock.transfer.returns(true);
+      await this.daiToken.mock.transfer.returns(true);
       // expect("transfer").to.be.calledOnContract(this.token);
     });
 
@@ -152,7 +152,7 @@ export function userCanManageCommitments(): void {
 
       // Deposit funds in contract
       const _amountToDeposit: BigNumber = utils.parseEther("100.0");
-      await this.token.mock.transferFrom.returns(true);
+      await this.daiToken.mock.transferFrom.returns(true);
       await expect(contractWithUser.deposit(_amountToDeposit, _overrides))
         .to.emit(contractWithUser, "Deposit")
         .withArgs(await user.getAddress(), _amountToDeposit);
@@ -161,7 +161,7 @@ export function userCanManageCommitments(): void {
       //Transaction
       const { activityKey, goal, startTime, endTime, amountToStake, userId } = defaultParams;
 
-      await this.token.mock.transfer.returns(true);
+      await this.daiToken.mock.transfer.returns(true);
       await expect(
         contractWithUser.makeCommitment(activityKey, goal, startTime, endTime, amountToStake, userId, _overrides),
       ).to.emit(contractWithUser, "NewCommitment");
@@ -192,7 +192,7 @@ export function userCanManageCommitments(): void {
       const _slashedBalance: BigNumber = await contractWithUser.slashedBalance();
       // Deposit funds in contract
       const _amountToDeposit: BigNumber = utils.parseEther("100.0");
-      await this.token.mock.transferFrom.returns(true);
+      await this.daiToken.mock.transferFrom.returns(true);
       await expect(contractWithUser.deposit(_amountToDeposit, _overrides))
         .to.emit(contractWithUser, "Deposit")
         .withArgs(await user.getAddress(), _amountToDeposit);
@@ -209,7 +209,7 @@ export function userCanManageCommitments(): void {
       expect(commitment.met).to.be.false;
       expect(commitment.exists).to.be.true;
 
-      await this.token.mock.balanceOf.withArgs(contractWithUser.address).returns(utils.parseEther("1000"));
+      await this.daiToken.mock.balanceOf.withArgs(contractWithUser.address).returns(utils.parseEther("1000"));
       await expect(
         contractWithUser.processCommitmentUser(_overrides)).to.emit(
           contractWithUser, 
@@ -254,7 +254,7 @@ export function userCanManageCommitments(): void {
       //Transaction
       const { activityKey, goal, startTime, endTime, amountToDeposit, amountToStake, userId } = defaultParams;
 
-      await this.token.mock.transfer.returns(true);
+      await this.daiToken.mock.transfer.returns(true);
       await expect(
         contractWithUser.depositAndCommit(
           activityKey,

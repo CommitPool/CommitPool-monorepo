@@ -1,8 +1,6 @@
 import { ethers } from 'ethers';
-import getProvider from '../provider/provider';
 
-const wallet = (privateKey) => {
-    const provider = getProvider();
+const wallet = (privateKey, provider) => {
     const _wallet = new ethers.Wallet(privateKey);
     console.log("returning wallet");
 

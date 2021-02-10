@@ -1,6 +1,5 @@
-import React, { useState, useEffect }  from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Account from "@tasit/account";
+import React, { useState }  from 'react';
+import { StyleSheet } from 'react-native';
 import { Dimensions } from 'react-native';
 import { AsyncStorage } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
@@ -15,8 +14,6 @@ const discovery = {
   tokenEndpoint: 'https://www.strava.com/oauth/token',
   revocationEndpoint: 'https://www.strava.com/oauth/deauthorize',
 };
-
-import * as Random from "expo-random";
 
 export default function App() {  
   const [code, setCode] = useState(true); 
@@ -84,63 +81,9 @@ class Home extends React.Component <{stravaOauth: any, code: string}, {}> {
     account: undefined
   };
 
-  async componentDidMount() {
-    const accountString = await this._retrieveData('account')
-
-    if(!accountString) {
-      this.getAccount();
-    } else {
-      this.setAccount(accountString);
-    }
-  }
-
-  async getAccount() {
-    async function makeAccount() {
-      const randomBytes = await Random.getRandomBytesAsync(16);
-  
-      const account = Account.createUsingRandomness(randomBytes);
-      const address = account.address;
-      return {address, account}
-    }
-    const {address, account} = await makeAccount();
-    this._storeData('account', JSON.stringify(account))
-
-    this.setState({address: address, account: account})
-  }
-
-  setAccount(accountString: string) {
-    const account = JSON.parse(accountString)
-    console.log(account)
-
-    this.setState({address: account.signingKey.address, account: account})
-  }
-
-  _storeData = async (key: string, value: string) => {
-    try {
-      await AsyncStorage.setItem(
-        key,
-        value
-      );
-    } catch (error) {
-      // Error saving data
-    }
-  };
-
-  _retrieveData = async (key: string) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        // We have data!!
-        return value;
-      }
-    } catch (error) {
-      // Error retrieving data
-    }
-  };
-
   render() {
     return (
-      <Main account={this.state.account} stravaOAuth={this.props.stravaOauth} code={this.props.code}></Main>
+      <Main stravaOAuth={this.props.stravaOauth} code={this.props.code}></Main>
     );
   }
 }

@@ -7,20 +7,27 @@ import MakeCommitment from "./MakeCommitment";
 import Complete from "./Complete";
 import Wallet from "./Wallet";
 import Welcome from "./Welcome";
+import web3Helper from "./components/web3-helper/web3-helper.js";
+
 
 import { Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default class Main extends Component<
-  { account: any; stravaOAuth: any; code: string },
-  { step: Number; account: any }
+  { stravaOAuth: any; code: string },
+  { step: Number; account: any, web3Helper: any }
 > {
   constructor(props) {
     super(props);
     this.state = {
       step: 1,
       account: undefined,
+      web3Helper: undefined,
     };
+  }
+
+  componentDidMount() {
+    this.setState({web3Helper: web3Helper});
   }
 
   componentWillReceiveProps(newProps) {
@@ -42,7 +49,7 @@ export default class Main extends Component<
             code={this.props.code}
           ></Welcome>
         );
-      case 4:
+      case 2:
         return (
           <Login
             next={this.onClick}
@@ -50,13 +57,13 @@ export default class Main extends Component<
             code={this.props.code}
           ></Login>
         );
-      case 2:
+      case 4:
         return (
           <LinearGradient
             colors={["#D45353", "#D45353", "white"]}
             style={styles.linearGradient}
           >
-            <Wallet next={this.onClick} account={this.props.account}></Wallet>
+            <Wallet next={this.onClick} account={this.state.account} web3Helper={this.state.web3Helper}></Wallet>
           </LinearGradient>
         );
       // case 5:
@@ -76,8 +83,9 @@ export default class Main extends Component<
           >
             <MakeCommitment
               next={this.onClick}
-              account={this.props.account}
+              account={this.state.account}
               code={this.props.code}
+              web3Helper={this.state.web3Helper}
             ></MakeCommitment>
           </LinearGradient>
         );
@@ -91,11 +99,11 @@ export default class Main extends Component<
         );
       case 7:
         return (
-          <Complete success={true} next={this.onClick} account={this.props.account}></Complete>
+          <Complete success={true} next={this.onClick} account={this.state.account}></Complete>
         );
       case 8:
         return (
-          <Complete success={false} next={this.onClick} account={this.props.account}></Complete>
+          <Complete success={false} next={this.onClick} account={this.state.account}></Complete>
         );
     }
   };

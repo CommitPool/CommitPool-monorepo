@@ -6652,6 +6652,11 @@ hard-rejection@^2.1.0:
   resolved "https://registry.npmjs.org/hard-rejection/-/hard-rejection-2.1.0.tgz#1c6eda5c1685c63942766d79bb40ae773cecd883"
   integrity sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==
 
+hardhat-abi-exporter@^2.0.7:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/hardhat-abi-exporter/-/hardhat-abi-exporter-2.0.8.tgz#03ec54a5f51256c4bb447ce016c3a3041660071a"
+  integrity sha512-8Q2SH//RSzuzjHlnfaQkpfbZXVHkWKM1dWIyVwGVzREBdYfBW5SC/3safvU7KGy5gmLH/P3fgq4uuqNmGvDUrw==
+
 hardhat-typechain@^0.3.3:
   version "0.3.4"
   resolved "https://registry.yarnpkg.com/hardhat-typechain/-/hardhat-typechain-0.3.4.tgz#6d7d86184152b5a3c83bde0fbbb26224b6fbfd70"

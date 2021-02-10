@@ -8,29 +8,29 @@ Our MVP focuses on a single goal type for individuals, hence the Single Player m
 
 Currently Ganache and Node 14 are not playing well together. To get started:
 
-1. Use node 12 (using nvm is recommended)
-2. ```npm install```
-3. ```npm run-script build```
-4. ```npm test``` (to verify the build)
+1. Use node 12 (using yarn is recommended)
+2. ```yarn install```
+3. ```yarn build```
+4. ```yarn test``` (to verify the build)
 
 Note: [Hardhat guide](https://hardhat.org/guides/vscode-tests.html) on running test in VSCode
 
 #### Deploying to local node
 Buidler
 
-1. Use node 12 (using nvm is recommended)
-2. ```npx buidler node```
-3. In second terminal```npx buidler run --network localhost scripts/deploy.ts  ```
+1. Use node 12 (using yarn is recommended)
+2. ```yarn hardhat node```
+3. In second terminal```yarn hardhat run --network localhost scripts/deploy.ts  ```
 
 Buidler & Ganache
 
-1. Use node 12 (using nvm is recommended)
+1. Use node 12 (using yarn is recommended)
 2. Start Ganache on port 8545
-3. In second terminal```npx buidler run --network localhost scripts/deploy.ts  ```
+3. In second terminal```yarn hardhat run --network localhost scripts/deploy.ts  ```
 
 Truffle
 
-1. Use node 12 (using nvm is recommended)
+1. Use node 12 (using yarn is recommended)
 2. Start Ganache on port 8545
 3. In terminal```truffle migrate```
 
@@ -55,7 +55,7 @@ Interaction with the contract on Matic via Truffle:
 
 #### Interacting with the contract using Buidler
 After deploying to a local node
-1. ```npx buidler console --network localhost     ```
+1. ```yarn buidler console --network localhost     ```
 2. ```const CommitPool = await ethers.getContractFactory("SinglePlayerCommit")```
 3. ```const commitPool = await CommitPool.attach("<<CONTRACT ADDRESS FROM DEPLOYMENT>>")```
 

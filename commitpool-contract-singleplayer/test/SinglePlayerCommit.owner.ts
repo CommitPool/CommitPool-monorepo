@@ -53,7 +53,7 @@ export function ownerCanManageContract(): void {
       //Transaction to deposit and commit
       const { activityKey, goal, startTime, endTime, amountToDeposit, amountToStake, userId } = defaultParams;
 
-      await this.token.mock.transferFrom.returns(true);
+      await this.daiToken.mock.transferFrom.returns(true);
       await expect(
         contractWithOwner.depositAndCommit(
           activityKey,
@@ -80,7 +80,7 @@ export function ownerCanManageContract(): void {
       expect(_updatedSlashedBalance.eq(utils.parseEther("0.0"))).to.be.true;
 
       //Process commitment (not met => slashing)
-      await this.token.mock.balanceOf.withArgs(contractWithOwner.address).returns(utils.parseEther("1000"));
+      await this.daiToken.mock.balanceOf.withArgs(contractWithOwner.address).returns(utils.parseEther("1000"));
       await expect(contractWithOwner.processCommitmentUser(_overrides)).to.emit(
         contractWithOwner,
         "CommitmentEnded",
@@ -90,7 +90,7 @@ export function ownerCanManageContract(): void {
       expect(_updatedSlashedBalance.eq(amountToStake)).to.be.true;
 
       //Transaction to withdraw slashed funds
-      await this.token.mock.transfer.returns(true);
+      await this.daiToken.mock.transfer.returns(true);
       await contractWithOwner.ownerWithdraw(amountToStake, _overrides);
       
       //Validate balances

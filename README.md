@@ -23,7 +23,7 @@ By minimizing that counterparty risk with smart contracts and decentralized orac
 
 ## How we built it
 
-CommitPool users register commitments with our [smart contract](./commitpool-contract-singleplayer). Those commitments include an activity (biking or running), a time period (e.g. 2 days), a distance goal (e.g. 5 miles), and a stake amount (e.g. 5 DAI).
+CommitPool users register commitments with our [smart contract](./CommitPoolContract). Those commitments include an activity (biking or running), a time period (e.g. 2 days), a distance goal (e.g. 5 miles), and a stake amount (e.g. 5 DAI).
 
 We use Chainlink to bring their activity distance data on-chain, where our contract checks whether they met their distance goal. If so, they get their stake back; but if not, their stake gets slashed.
 
@@ -35,7 +35,7 @@ We built a [web app](./CommitPoolApp) for users to create a commitment, track th
 
 Our app spins up an in-browser wallet for users using the [TasitSDK](https://github.com/tasitlabs/tasit-sdk).
 
-<img src="./commitpool-contract-singleplayer/documentation/architecture.png" alt="architecture" width="555" height="355">
+<img src=".//documentation/architecture.png" alt="architecture" width="555" height="355">
 
 ## Where we ran into challenges
 

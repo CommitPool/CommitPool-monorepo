@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View, StyleSheet, Image, Text, Button, TouchableOpacity, TextInput } from "react-native";
 import { ethers, utils } from 'ethers';
-import abi from '../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
+import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
 import daiAbi from './daiAbi.json'
 import { Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';

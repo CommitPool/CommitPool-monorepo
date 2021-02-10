@@ -1,4 +1,4 @@
-import { Accounts, Signers } from "./";
+import { Accounts, Signers } from ".";
 import { SinglePlayerCommit } from "../typechain/SinglePlayerCommit";
 
 declare module "mocha" {

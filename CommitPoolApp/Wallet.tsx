@@ -1,22 +1,25 @@
 import React, { Component } from "react";
 import { View, Text, TouchableOpacity, Clipboard } from "react-native";
 import QRCode from 'react-native-qrcode-svg';
-import daiAbi from './daiAbi.json'
-import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json';
 import getContract from './components/contract/contract';
 import getWallet from './components/wallet/wallet';
 import getEnvVars from './environment.js';
 
 export default class Wallet extends Component <{next: any, account: any}, {balance: number, daiBalance: number, commitment: any}> {
-  commitPoolContract: any;
+  abi: any;
   commitPoolContractAddress: string;
-  daiContract: any;
+  daiAbi: any;
   daiContractAddress: string;
+
   constructor(props) {
     super(props);
-    const { commitPoolContractAddress, daiContractAddress } = getEnvVars();
+    
+    const { commitPoolContractAddress, daiContractAddress, abi, daiAbi } = getEnvVars();
     this.commitPoolContractAddress = commitPoolContractAddress;
     this.daiContractAddress = daiContractAddress;
+    this.abi = abi;
+    this.daiAbi = daiAbi;
+
     this.state = {
       balance: 0.0,
       daiBalance: 0.0,
@@ -28,16 +31,16 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
     let privateKey = this.props.account.signingKey.privateKey;
     let wallet = getWallet(privateKey);
 
-    this.daiContract = getContract(this.daiContractAddress, daiAbi);
+    const daiContract = getContract(this.daiContractAddress, this.daiAbi);
 
-    const daiBalance = await this.daiContract.balanceOf(this.props.account.signingKey.address);
+    const daiBalance = await daiContract.balanceOf(this.props.account.signingKey.address);
     const balance = await wallet.getBalance();
 
     this.setState({balance: balance.div(1000000000000000).toNumber() / 1000})
     this.setState({daiBalance: daiBalance.div(1000000000000000).toNumber() / 1000})
 
     setInterval(async () => {
-      const daiBalance = await this.daiContract.balanceOf(this.props.account.signingKey.address)
+      const daiBalance = await daiContract.balanceOf(this.props.account.signingKey.address)
       const balance = await wallet.getBalance();
       this.setState({balance: balance.div(1000000000000000).toNumber() / 1000})
       this.setState({daiBalance: daiBalance.div(1000000000000000).toNumber() / 1000})
@@ -45,10 +48,10 @@ export default class Wallet extends Component <{next: any, account: any}, {balan
   }
 
   async next() {
-    this.commitPoolContract = getContract(this.commitPoolContractAddress, abi);
+    const commitPoolContract = getContract(this.commitPoolContractAddress, this.abi);
 
     try {
-      const commitment = await this.commitPoolContract.commitments(this.props.account.signingKey.address);
+      const commitment = await commitPoolContract.commitments(this.props.account.signingKey.address);
       console.log(commitment)
       if(commitment.exists){
         this.props.next(6)

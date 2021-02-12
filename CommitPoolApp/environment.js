@@ -6,11 +6,12 @@ const ENV = {
   dev: {
     commitPoolContractAddress: "0x286Bcf38B881743401773a3206B907901b47359E",
     daiContractAddress: "0x70d1F773A9f81C852087B77F6Ae6d3032B02D2AB",
-    linkContractAddress: "0x70d1F773A9f81C852087B77F6Ae6d3032B02D2A",
+    linkContractAddress: "0x70d1F773A9f81C852087B77F6Ae6d3032B02D2AB",
     rpcUrl:
       "https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56",
     abi: abi,
     daiAbi: daiAbi,
+    torusLogging: true,
   },
   prod: {
     commitPoolContractAddress: "0xDb28e5521718Cf746a9900DE3Aff12644F699B98",
@@ -20,6 +21,7 @@ const ENV = {
       "https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56",
     abi: abi,
     daiAbi: daiAbi,
+    torusLogging: false,
   },
 };
 const getEnvVars = (env = Constants.manifest.releaseChannel) => {

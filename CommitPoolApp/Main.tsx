@@ -93,8 +93,9 @@ export default class Main extends Component<
         return (
           <Track
             next={this.onClick}
-            account={this.props.account}
+            account={this.state.account}
             code={this.props.code}
+            web3Helper={this.state.web3Helper}
           ></Track>
         );
       case 7:

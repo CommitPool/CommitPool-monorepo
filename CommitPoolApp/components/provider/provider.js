@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 
 const provider = (provider) => {
-  // const { rpcUrl } = getEnvVars();
   let currentProvider = getCurrentProvider();
   if (currentProvider !== 'unknown') {
     console.log("Web3 found", window.web3.currentProvider);

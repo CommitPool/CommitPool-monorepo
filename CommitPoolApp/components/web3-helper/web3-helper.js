@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import getEnvVars from "../../environment.js";
 import getContract from "../contract/contract";
-import getWallet from '../wallet/wallet';
 import Torus from "@toruslabs/torus-embed";
 
 const {
@@ -9,46 +8,53 @@ const {
   daiContractAddress,
   abi,
   daiAbi,
+  torusLogging
 } = getEnvVars();
 
 const web3Helper = {
+  account: undefined,
   contracts: {
+    commitPool: {},
     dai: {},
-    spc: {},
   },
-  web3Provider: {},
+  provider: {},
   setWeb3Provider: function (provider) {
-    const _web3Provider = new ethers.providers.Web3Provider(provider);
-    web3Helper.web3Provider = _web3Provider;
+    web3Helper.provider = new ethers.providers.Web3Provider(provider);
     web3Helper.contracts.dai = getContract(
       daiContractAddress,
       daiAbi,
-      _web3Provider
+      web3Helper.provider
     );
-    web3Helper.contracts.spc = getContract(
+    
+    web3Helper.contracts.commitPool = getContract(
       commitPoolContractAddress,
       abi,
-      _web3Provider
+      web3Helper.provider
     );
+
   },
   torus: {},
   wallet: {},
   initialize: async function () {
-    const torus = new Torus();
-    await torus.init({
-      buildEnv: "production", // default: production
-      enableLogging: true, // default: false
-      network: {
-        host: "mumbai", // default: mainnet
-        chainId: 80001, // default: 1
-        networkName: "Mumbai Test Network", // default: Main Ethereum Network
-      },
-      showTorusButton: true, // default: true
+    const torus = new Torus({
+      buttonPosition: "bottom-left"
     });
-    await torus.login(); // await torus.ethereum.enable()
+
+    await torus.init({
+      buildEnv: "production", 
+      enableLogging: torusLogging, 
+      network: {
+        host: "mumbai", 
+        chainId: 80001, 
+        networkName: "Mumbai Test Network", 
+      },
+      showTorusButton: true,
+    });
+
+    await torus.login(); 
+    web3Helper.account = torus.provider.selectedAddress;
     web3Helper.setWeb3Provider(torus.provider);
     web3Helper.torus = torus;
-    console.log("TORUS INIT SUCCESS");
   },
 };
 

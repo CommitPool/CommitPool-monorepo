@@ -2,18 +2,20 @@ import React, { Component } from "react";
 import { View, Text, TouchableOpacity, Clipboard } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { utils } from "ethers";
+
+//TODO refresh on login
 export default class Wallet extends Component<
   { next: any; account: any; web3Helper: any },
-  { user: any; balance: string; daiBalance: string; commitment: any }
+  { account: any; balance: string; daiBalance: string; refresh: any }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      user: undefined,
+      account: undefined,
       balance: "0.0",
       daiBalance: "0.0",
-      commitment: undefined,
+      refresh: undefined,
     };
   }
 
@@ -25,49 +27,78 @@ export default class Wallet extends Component<
         this.setStateInfo();
       })
       .then(() => {
-        setInterval(async () => {
-          if (this.state.user) {
-            const web3 = this.props.web3Helper;
-            const daiBalance = await web3.contracts.dai.balanceOf(
-              this.state.user
-            );
-            const balance = await web3.web3Provider.getBalance(this.state.user);
-            this.setState({ balance: utils.formatEther(balance) });
-            this.setState({ daiBalance: utils.formatEther(daiBalance) });
-          }
-        }, 2500);
+        this.setStateRefresh();
       });
   }
 
-  //TODO Control over provider and get accounts
+  componentWillUnmount() {
+    clearInterval(this.state.refresh);
+  }
+
   setStateInfo = async () => {
     const web3 = this.props.web3Helper;
-    const _user = web3.web3Provider.provider.selectedAddress;
-    this.setState({ user: _user });
-    const balance = await web3.web3Provider.getBalance(_user);
-    const daiBalance = await web3.contracts.dai.balanceOf(_user);
 
-    this.setState({ balance: utils.formatEther(balance) });
-    this.setState({ daiBalance: utils.formatEther(daiBalance) });
+    const account = web3.account;
+    this.setState({ account: account });
+
+    await web3.provider
+      .getBalance(account)
+      .then((balance) =>
+        this.setState({ balance: utils.formatEther(balance) })
+      );
+
+    await web3.contracts.dai
+      .balanceOf(account)
+      .then((daiBalance) =>
+        this.setState({ daiBalance: utils.formatEther(daiBalance) })
+      );
+  };
+
+  setStateRefresh = () => {
+    const refresh = setInterval(async () => {
+      if (this.state.account) {
+        const web3 = this.props.web3Helper;
+
+        await web3.provider
+          .getBalance(this.state.account)
+          .then((balance) =>
+            this.setState({ balance: utils.formatEther(balance) })
+          );
+
+        await web3.contracts.dai
+          .balanceOf(this.state.account)
+          .then((daiBalance) =>
+            this.setState({ daiBalance: utils.formatEther(daiBalance) })
+          );
+      }
+    }, 2500);
+    this.setState({ refresh: refresh });
   };
 
   async next() {
-    const commitPoolContract = this.props.web3Helper.contracts.spc;
-
+    console.log("HELPER:", this.props.web3Helper);
+    const commitPoolContract = this.props.web3Helper.contracts.commitPool;
+    console.log("CONTRACT:", commitPoolContract)
     try {
-      const commitment = await commitPoolContract.commitments(this.state.user);
-      console.log(commitment);
+      const commitment = await commitPoolContract.commitments(
+        this.state.account
+      );
       if (commitment.exists) {
+        console.log("COMMITMENT EXISTS");
         this.props.next(6);
       } else {
+        console.log("COMMITMENT DOES NOT EXIST");
         this.props.next(5);
       }
     } catch (error) {
+      console.log("ERROR RETRIEVING COMMITMENT:", error);
       this.props.next(5);
     }
   }
 
   render() {
+    const { account } = this.state;
+    console.log("ACCOUNT", account);
     return (
       <View
         style={{
@@ -88,21 +119,17 @@ export default class Wallet extends Component<
               marginBottom: 10,
             }}
           >
-            This is your local wallet. We've created one for you here in your
-            browser.
-            {"\n"}
-            All you need to do is add funds by transferring them to this
-            wallet's adddress below.
+            Login to your wallet via Torus by clicking the blue button below.
           </Text>
           <Text style={{ fontSize: 15, color: "white", marginBottom: 70 }}>
             You can get funds on testnet from https://faucet.matic.network
           </Text>
-          <QRCode value="this.state.user" size={225} />
+          <QRCode value="account" size={225} />
           <Text
-            onPress={() => Clipboard.setString(this.state.user)}
+            onPress={() => Clipboard.setString(account)}
             style={{ fontSize: 14, color: "white", marginTop: 10 }}
           >
-            {this.state.user}
+            {account}
           </Text>
           <Text
             style={{

@@ -23,14 +23,11 @@ export default class MakeCommitment extends Component <{next: any, account: any,
   }
 
   async componentDidMount() {
-    const helper = this.props.web3Helper;
-    // let privateKey = this.props.account.signingKey.privateKey;
-    // let wallet = getWallet(privateKey);
+    const web3 = this.props.web3Helper;
     
-    let commitPoolContract = helper.contracts.spc;
+    let commitPoolContract = web3.contracts.commitPool;
 
-    let daiContract = helper.contracts.dai;
-
+    console.log("SPC:", commitPoolContract);
     let activities = [];
     let exists = true;
     let index = 0;
@@ -39,15 +36,14 @@ export default class MakeCommitment extends Component <{next: any, account: any,
       try {
         const key = await commitPoolContract.activityKeyList(index);
         const activity = await commitPoolContract.activities(key);
-        console.log("GOT ACTIVITY");
         const clone = Object.assign({}, activity)
         clone.key = key;
         activities.push(clone);
         index++;
       } catch (error) {
-        console.log(error)
         exists = false;
       }
+      console.log("GOT ACTIVITIES", activities);
     }
 
     const formattedActivities = activities.map(act => {
@@ -95,18 +91,20 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     return result;
   }
 
+  //TODO Commitment is not created
   async createCommitment() {   
-    const helper = this.props.web3Helper;
-    const _user = helper.web3Provider.provider.selectedAddress;
-    const commitPoolContract = helper.contracts.spc;
-    commitPoolContract.connect(_user);
-    const daiContract = helper.contracts.dai;
-    daiContract.connect(_user)
-    console.log("HELPER:", helper)
+    const web3 = this.props.web3Helper;
+    const account = web3.account;
+
+    let commitPoolContract = web3.contracts.commitPool;
+    commitPoolContract = commitPoolContract.connect(web3.provider.getSigner());
+
+    let daiContract = web3.contracts.dai;
+    daiContract = daiContract.connect(web3.provider.getSigner());
  
     const {
       commitPoolContractAddress,
-    } = getEnvVars()
+    } = getEnvVars();
 
     const distanceInMiles = Math.floor(this.state.distance);
     const startTime = this.calculateStart(this.state.daysToStart);
@@ -115,14 +113,15 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     const stakeAmount = utils.parseEther(this.state.stake.toString());
     this.setState({loading: true})
     
-    //TODO add wallet to sign transactions
-    const allowance = await daiContract.allowance(_user, commitPoolContractAddress);
+    const allowance = await daiContract.allowance(account, commitPoolContractAddress);
     if(allowance.gte(stakeAmount)) {
-      await commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      const dcReceipt = await commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      console.log("RECEIPT D&C:", dcReceipt);
     } else {
-      await daiContract.approve(commitPoolContractAddress, stakeAmount).send({from: _user})
-      // helper.torus.web3.currentProvider.send
-      await commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      const daiReceipt = await daiContract.approve(commitPoolContractAddress, stakeAmount);
+      const dcReceipt = await commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
+      console.log("RECEIPT DAI:", daiReceipt);
+      console.log("RECEIPT D&C:", dcReceipt);
     }
 
     this.setState({loading: false, txSent: true})

@@ -1,14 +1,11 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Image, Text, Button, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { ethers } from 'ethers';
 import { AsyncStorage } from 'react-native';
-import { Moment } from 'moment';
-import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
-import getWallet from './components/wallet/wallet';
-import getContract from './components/contract/contract';
-import getProvider from './components/provider/provider';
-export default class Track extends Component <{next: any, account: any, code: string}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
+import getEnvVars from "./environment.js";
+
+export default class Track extends Component <{next: any, account: any, code: string, web3Helper: any}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
   constructor(props) {
     super(props);
     this.state = {
@@ -30,8 +27,7 @@ export default class Track extends Component <{next: any, account: any, code: st
     const refreshToken: any = await this._retrieveData('rt')
     console.log(refreshToken)
     this.setState({refreshToken: refreshToken})
-    const accountString: any = await this._retrieveData('account')
-    this.setAccount(accountString);
+    this.setAccount();
 
     fetch('https://www.strava.com/api/v3/oauth/token', {
         method: 'POST',
@@ -64,18 +60,16 @@ export default class Track extends Component <{next: any, account: any, code: st
     }
   };
 
-  setAccount(accountString: string) {
-    const account = JSON.parse(accountString)
-    console.log(account)
-    this.setState({account: account})
+  setAccount() {
+    const web3 = this.props.web3Helper;
+    this.setState({account: web3.account})
   }
 
   async getCommitment() {    
-    let commitPoolContractAddress = '0x286Bcf38B881743401773a3206B907901b47359E';
-    let commitPoolContract = getContract(commitPoolContractAddress, abi);
+    const web3  = this.props.web3Helper;
+    let commitPoolContract = web3.contracts.commitPool;
 
-    const commitment = await commitPoolContract.commitments(this.state.account.signingKey.address)
-    console.log(commitment)
+    const commitment = await commitPoolContract.commitments(this.state.account);
 
     const type = await commitPoolContract.activities(commitment['activityKey'])
     this.setState({
@@ -107,19 +101,16 @@ export default class Track extends Component <{next: any, account: any, code: st
   }
 
   async getUpdatedActivity() {
-    const provider = getProvider();
-    let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = getWallet(privateKey);
-    
-    let commitPoolContractAddress = '0x286Bcf38B881743401773a3206B907901b47359E';
-    let commitPoolContract = getContract(commitPoolContractAddress, abi);
+    const web3 = this.props.web3Helper;
+    const { account } = this.state;
+    let commitPoolContract = web3.contracts.commitPool;
+    const {commitPoolContractAddress} = getEnvVars();
 
-    let contractWithSigner = commitPoolContract.connect(wallet);
+    let contractWithSigner = commitPoolContract.connect(web3.provider.getSigner(0));
     
     this.setState({loading: true})
     try {
-        console.log(this.props.account.signingKey.address)
-        await contractWithSigner.requestActivityDistance(this.props.account.signingKey.address, '0x286Bcf38B881743401773a3206B907901b47359E', 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+        await contractWithSigner.requestActivityDistance(account, commitPoolContractAddress, 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
 
         let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
 
@@ -128,11 +119,11 @@ export default class Track extends Component <{next: any, account: any, code: st
             topics: [ topic ]
         }
 
-        provider.on(filter, async (result, event) => {
+        web3.provider.on(filter, async (result, event) => {
             const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
             const now = new Date().getTime();
             if(address === this.props.account.signingKey.address.toLowerCase()){
-              const commitment = await contract.commitments(this.state.account.signingKey.address)
+              const commitment = await commitPoolContract.commitments(account)
               if(commitment.reportedValue.gte(commitment.goalValue)){
                 this.setState({loading: false})
                 this.props.next(7)

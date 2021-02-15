@@ -63,7 +63,7 @@ export default class Main extends Component<
             colors={["#D45353", "#D45353", "white"]}
             style={styles.linearGradient}
           >
-            <Wallet next={this.onClick} account={this.state.account} web3Helper={this.state.web3Helper}></Wallet>
+            <Wallet next={this.onClick} web3Helper={this.state.web3Helper}></Wallet>
           </LinearGradient>
         );
       // case 5:

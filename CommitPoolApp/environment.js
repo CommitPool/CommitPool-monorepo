@@ -4,7 +4,7 @@ import abi from "../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/
 
 const ENV = {
   dev: {
-    commitPoolContractAddress: "0x286Bcf38B881743401773a3206B907901b47359E",
+    commitPoolContractAddress: "0xC95d8FfeC670Ce663DA7d7821141567205E39F2E",
     daiContractAddress: "0x70d1F773A9f81C852087B77F6Ae6d3032B02D2AB",
     linkContractAddress: "0x70d1F773A9f81C852087B77F6Ae6d3032B02D2AB",
     rpcUrl:

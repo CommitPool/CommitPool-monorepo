@@ -55,6 +55,7 @@ const web3Helper = {
     web3Helper.account = torus.provider.selectedAddress;
     web3Helper.setWeb3Provider(torus.provider);
     web3Helper.torus = torus;
+    return web3Helper;
   },
 };
 

@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import { View, Text, TouchableOpacity, TextInput } from "react-native";
+import { TextInput } from "react-native";
+import { StyledView, StyledViewRow, StyledText, StyledTouchableOpacityRed } from "./components/styles";
+
 import { utils } from 'ethers';
 import { Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -90,7 +92,6 @@ export default class MakeCommitment extends Component <{next: any, code: any, we
     return result;
   }
 
-  //TODO Commitment is not created
   async createCommitment() {   
     const {web3} = this.props;
     const account = web3.provider.provider.selectedAddress;
@@ -132,17 +133,17 @@ export default class MakeCommitment extends Component <{next: any, code: any, we
     const { width } = Dimensions.get('window');
 
     return (
-        <View style={{flex: 1, width, alignItems: 'center', justifyContent: 'space-around'}}>
-            {this.state.loading ? <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 0, left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2}}><Text style={{fontSize: 25}}>⌛</Text></View> : undefined}
+        <StyledView style={{flex: 1, width, justifyContent: 'space-around'}}>
+            {this.state.loading ? <StyledView style={{justifyContent: 'center', position: 'absolute', right: 0, left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2}}><StyledText >⌛</StyledText></StyledView> : undefined}
             {!this.state.txSent ? 
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'space-around'}}>
-                <View style={{alignItems: 'center'}}>
-                <Text style={{ color: 'white', fontSize: 30, textAlign: 'center', marginBottom: 25}}>
+            <StyledView style={{flex: 1, justifyContent: 'space-around'}}>
+                <StyledView>
+                <StyledText>
                {"Now that you've connected Strava and have funds in your wallet, you can set up your commitment!"} 
-            </Text>
-                    <Text style={{fontSize: 30, color: 'white', marginBottom: 25, textAlign: 'center'}}>Create Commitment</Text>
-                    <View style={{flexDirection: "row", width: 300, padding: 10, zIndex: 5000}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Activity:</Text>
+            </StyledText>
+                    <StyledText >Create Commitment</StyledText>
+                    <StyledView style={{flexDirection: "row", width: 300, padding: 10, zIndex: 5000}}>
+                        <StyledText style={{flex: 1, fontWeight: 'bold'}}>Activity:</StyledText>
                         <DropDownPicker
                             items={this.state.activities}
                             containerStyle={{height: 40}}
@@ -156,74 +157,72 @@ export default class MakeCommitment extends Component <{next: any, code: any, we
                                 this.setState({activity: item.value})
                             }}
                         />
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Distance:</Text>
-                        <View style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
-                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({distance: Number(text)})}></TextInput><Text style={{flex: 1, color: 'white', fontSize: 28}}> Miles</Text>
-                        </View>                    
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Stake:</Text>
-                        <View style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
-                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({stake: Number(text)})}></TextInput><Text style={{flex: 1, color: 'white', fontSize: 28}}> Dai</Text>
-                        </View>
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Starting in</Text>
-                        <View style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
-                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({daysToStart: Number(text)})}></TextInput><Text style={{flex: 1, color: 'white', fontSize: 28}}> day(s)</Text>
-                        </View>                    
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>for</Text>
-                        <View style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
-                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({duration: Number(text)})}></TextInput><Text style={{flex: 1, color: 'white', fontSize: 28}}> day(s)</Text>
-                        </View>                    
-                    </View>
-                </View>
+                    </StyledView>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, fontWeight: 'bold'}}>Distance:</StyledText>
+                        <StyledView style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
+                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({distance: Number(text)})}></TextInput><StyledText > Miles</StyledText>
+                        </StyledView>                    
+                    </StyledViewRow>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, fontWeight: 'bold'}}>Stake:</StyledText>
+                        <StyledView style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
+                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({stake: Number(text)})}></TextInput><StyledText > Dai</StyledText>
+                        </StyledView>
+                    </StyledViewRow>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Starting in</StyledText>
+                        <StyledView style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
+                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({daysToStart: Number(text)})}></TextInput><StyledText > day(s)</StyledText>
+                        </StyledView>                    
+                    </StyledViewRow>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>for</StyledText>
+                        <StyledView style={{flex: 1, flexDirection: 'row', marginLeft: 10}}>
+                            <TextInput style={{textAlign:'center', borderRadius: 5, backgroundColor: 'white', fontSize: 28, color: 'black', width: 30 + '%'}} onChangeText={text => this.setState({duration: Number(text)})}></TextInput><StyledText style={{flex: 1 }}> day(s)</StyledText>
+                        </StyledView>                    
+                    </StyledViewRow>
+                </StyledView>
 
-                <TouchableOpacity
-                        style={{width: 300, height: 50, backgroundColor: '#D45353', alignItems: 'center', justifyContent: 'center'}}
+                <StyledTouchableOpacityRed
                         onPress={() => this.createCommitment()}>
-                    <Text style={{fontSize: 30, color: 'white'}}>Stake and Commit</Text>
-                </TouchableOpacity>
-            </View>
+                    <StyledText>Stake and Commit</StyledText>
+                </StyledTouchableOpacityRed>
+            </StyledView>
             :
-            <View style={{backgroundColor: '#D45353', flex: 1, alignItems: 'center', justifyContent: 'space-around'}}>
-                {this.state.loading ? <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 0, left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2}}><Text style={{fontSize: 25}}>⌛</Text></View> : undefined}
-                <View style={{alignItems: 'center'}}>
-                    <Text style={{fontSize: 50, color: 'white', marginBottom: 25, textAlign: 'center'}}>Commitment Created</Text>
-                    <Text style={{fontSize: 50, marginBottom: 25}}>✔️</Text>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Activity:</Text>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.getActivityName()}</Text>
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Distance:</Text>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.state.distance} Miles</Text>                 
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Stake:</Text>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.state.stake} Dai</Text>
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>Starting in </Text>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.state.daysToStart} day(s)</Text>
-                    </View>
-                    <View style={{flexDirection: "row", width: 300, padding: 10}}>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, fontWeight: 'bold'}}>for</Text>
-                        <Text style={{flex: 1, color: 'white', fontSize: 28, marginLeft: 10}}>{this.state.duration} day(s)</Text>
-                    </View>
-                </View>
+            <StyledView style={{backgroundColor: '#D45353', flex: 1, justifyContent: 'space-around'}}>
+                {this.state.loading ? <StyledView style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 0, left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2}}><StyledText>⌛</StyledText></StyledView> : undefined}
+                <StyledView >
+                    <StyledText style={{fontSize: 50 }}>Commitment Created</StyledText>
+                    <StyledText style={{fontSize: 50 }}>✔️</StyledText>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, fontWeight: 'bold'}}>Activity:</StyledText>
+                        <StyledText style={{flex: 1, marginLeft: 10}}>{this.getActivityName()}</StyledText>
+                    </StyledViewRow>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, fontWeight: 'bold'}}>Distance:</StyledText>
+                        <StyledText style={{flex: 1, marginLeft: 10}}>{this.state.distance} Miles</StyledText>                 
+                    </StyledViewRow>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, fontWeight: 'bold'}}>Stake:</StyledText>
+                        <StyledText style={{flex: 1, marginLeft: 10}}>{this.state.stake} Dai</StyledText>
+                    </StyledViewRow>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1,fontWeight: 'bold'}}>Starting in </StyledText>
+                        <StyledText style={{flex: 1, marginLeft: 10}}>{this.state.daysToStart} day(s)</StyledText>
+                    </StyledViewRow>
+                    <StyledViewRow >
+                        <StyledText style={{flex: 1, fontWeight: 'bold'}}>for</StyledText>
+                        <StyledText style={{flex: 1, marginLeft: 10}}>{this.state.duration} day(s)</StyledText>
+                    </StyledViewRow>
+                </StyledView>
 
-                <TouchableOpacity
-                        style={{width: 300, height: 50, backgroundColor: '#D45353', alignItems: 'center', justifyContent: 'center'}}
+                <StyledTouchableOpacityRed
                         onPress={() => this.props.next(6)}>
-                    <Text style={{fontSize: 30, color:'white'}}>Track Progress</Text>
-                </TouchableOpacity>
-            </View>}
-        </View>
+                    <StyledText >Track Progress</StyledText>
+                </StyledTouchableOpacityRed>
+            </StyledView>}
+        </StyledView>
         
     );
   }

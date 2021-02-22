@@ -1,16 +1,14 @@
 import React, { Component } from "react";
-import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
+import { StyledView } from "./components/styles";
 import Login from "./Login";
-// import Commit from "./Commit";
 import Track from "./Track";
 import MakeCommitment from "./MakeCommitment";
 import Complete from "./Complete";
 import Wallet from "./Wallet";
 import Welcome from "./Welcome";
-
+import {LinearGradient} from "expo-linear-gradient";
 import { Dimensions } from "react-native";
-import { StyledLinearGradient } from "./components/styles";
-
 export default class Main extends Component<
   { web3: any; stravaOAuth: any; code: string },
   { step: Number }
@@ -41,19 +39,7 @@ export default class Main extends Component<
           <Login next={this.onClick} stravaOAuth={this.props.stravaOAuth} />
         );
       case 4:
-        return (
-
-            <Wallet next={this.onClick} web3={this.props.web3}></Wallet>
-        );
-      // case 5:
-      //   return (
-      //     <LinearGradient
-      //       colors={["#D45353", "#D45353", "white"]}
-      //       style={styles.linearGradient}
-      //     >
-      //       <Commit next={this.onClick}></Commit>
-      //     </LinearGradient>
-      //   );
+        return <Wallet next={this.onClick} web3={this.props.web3}></Wallet>;
       case 5:
         return (
           <MakeCommitment
@@ -87,14 +73,14 @@ export default class Main extends Component<
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <StyledLinearGradient
+      <StyledView style={{ flex: 1 }}>
+        <LinearGradient
           colors={["#D45353", "#D45353", "white"]}
           style={styles.linearGradient}
         >
           {this.renderSwitch()}
-        </StyledLinearGradient>
-      </View>
+        </LinearGradient>
+      </StyledView>
     );
   }
 }

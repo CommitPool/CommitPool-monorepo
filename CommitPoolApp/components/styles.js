@@ -1,8 +1,7 @@
 import React from "react";
 
 import styled from "styled-components/native";
-import { Dimensions, TouchableOpacity, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { TouchableOpacity, Text, View } from "react-native";
 
 export const StyledText = styled(Text)`
   text-align: center;
@@ -27,13 +26,8 @@ export const StyledView = styled(View)`
   align-items: center;
 `;
 
-const { width, height } = Dimensions.get("window");
-
-export const StyledLinearGradient = styled(LinearGradient)`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  ${width},
-  ${height},
-  borderRadius: 5,
+export const StyledViewRow = styled(View)`
+    flexDirection: row; 
+    width: 300; 
+    padding: 10;
 `;

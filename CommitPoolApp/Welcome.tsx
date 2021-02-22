@@ -17,7 +17,7 @@ export default class Welcome extends React.Component<
           }}
         >
           <StyledView>
-            <StyledText style={{ marginBottom: 25 }}>
+            <StyledText >
               {"Hey there,"}
               {"\n"}
               {"You have personal goals, but sticking to them is hard."}

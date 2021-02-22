@@ -8,13 +8,12 @@ import Complete from "./Complete";
 import Wallet from "./Wallet";
 import Welcome from "./Welcome";
 
-
 import { Dimensions } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { StyledLinearGradient } from "./components/styles";
 
 export default class Main extends Component<
   { web3: any; stravaOAuth: any; code: string },
-  { step: Number; }
+  { step: Number }
 > {
   constructor(props) {
     super(props);
@@ -22,10 +21,6 @@ export default class Main extends Component<
       step: 1,
     };
   }
-
-  // componentDidMount() {
-  //   this.setState({web3: web3Helper});
-  // }
 
   componentWillReceiveProps(newProps) {
     if (newProps.code !== this.props.code) {
@@ -40,28 +35,15 @@ export default class Main extends Component<
   renderSwitch = () => {
     switch (this.state.step) {
       case 1:
-        return (
-          <Welcome
-            next={this.onClick}
-            code={this.props.code}
-          ></Welcome>
-        );
+        return <Welcome next={this.onClick} />;
       case 2:
         return (
-          <Login
-            next={this.onClick}
-            stravaOAuth={this.props.stravaOAuth}
-            code={this.props.code}
-          ></Login>
+          <Login next={this.onClick} stravaOAuth={this.props.stravaOAuth} />
         );
       case 4:
         return (
-          <LinearGradient
-            colors={["#D45353", "#D45353", "white"]}
-            style={styles.linearGradient}
-          >
-            <Wallet next={this.onClick} web3={this.props.web3} ></Wallet>
-          </LinearGradient>
+
+            <Wallet next={this.onClick} web3={this.props.web3}></Wallet>
         );
       // case 5:
       //   return (
@@ -74,16 +56,11 @@ export default class Main extends Component<
       //   );
       case 5:
         return (
-          <LinearGradient
-            colors={["#D45353", "#D45353", "white"]}
-            style={styles.linearGradient}
-          >
-            <MakeCommitment
-              next={this.onClick}
-              code={this.props.code}
-              web3={this.props.web3}
-            ></MakeCommitment>
-          </LinearGradient>
+          <MakeCommitment
+            next={this.onClick}
+            code={this.props.code}
+            web3={this.props.web3}
+          ></MakeCommitment>
         );
       case 6:
         return (
@@ -91,21 +68,34 @@ export default class Main extends Component<
             next={this.onClick}
             code={this.props.code}
             web3={this.props.web3}
-          ></Track>
+          />
         );
       case 7:
         return (
-          <Complete success={true} next={this.onClick} web3={this.props.web3}></Complete>
+          <Complete success={true} next={this.onClick} web3={this.props.web3} />
         );
       case 8:
         return (
-          <Complete success={false} next={this.onClick} web3={this.props.web3}></Complete>
+          <Complete
+            success={false}
+            next={this.onClick}
+            web3={this.props.web3}
+          />
         );
     }
   };
 
   render() {
-    return <View style={{ flex: 1 }}>{this.renderSwitch()}</View>;
+    return (
+      <View style={{ flex: 1 }}>
+        <StyledLinearGradient
+          colors={["#D45353", "#D45353", "white"]}
+          style={styles.linearGradient}
+        >
+          {this.renderSwitch()}
+        </StyledLinearGradient>
+      </View>
+    );
   }
 }
 

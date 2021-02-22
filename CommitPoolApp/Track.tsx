@@ -117,10 +117,14 @@ export default class Track extends Component <{next: any, code: string, web3: an
             address: commitPoolContract.address,
             topics: [ topic ]
         }
-        web3.provider.on(filter, async (result, event) => {
+
+        console.log("CONTRACT ADDRESS", commitPoolContract.address)
+        web3.provider.on("RequestActivityDistanceFulfilled", async (result, event) => {
             const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
             const now = new Date().getTime();
-            if(address === this.props.web3.provider.provider.selectedAddress.toLowerCase()){
+            console.log("ADDRESS", address);
+            console.log("PROV_ADDRESS", web3.provider.provider.selectedAddress)
+            if(address === web3.provider.provider.selectedAddress.toLowerCase()){
               const commitment = await commitPoolContract.commitments(account);
               if(commitment.reportedValue.gte(commitment.goalValue)){
                 this.setState({loading: false})

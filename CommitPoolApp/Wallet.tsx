@@ -1,9 +1,13 @@
 import React, { Component } from "react";
-import { View, Text, TouchableOpacity, Clipboard } from "react-native";
+import { Clipboard } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { utils } from "ethers";
+import {
+  StyledTouchableOpacityRed,
+  StyledText,
+  StyledView,
+} from "./components/styles";
 
-//TODO refresh on login
 export default class Wallet extends Component<
   { next: any; web3: any },
   { balance: string; daiBalance: string; refresh: any }
@@ -93,90 +97,62 @@ export default class Wallet extends Component<
 
   render() {
     const { web3 } = this.props;
-    const account =
-    web3.torus.isLoggedIn ? web3.provider.provider.selectedAddress : "";
-    console.log("ACCOUNT", account);
+    const account = web3.torus.isLoggedIn
+      ? web3.provider.provider.selectedAddress
+      : "";
     return (
-      <View
+      <StyledView
         style={{
           flex: 1,
-          alignItems: "center",
           justifyContent: "space-around",
         }}
       >
-        <View style={{ alignItems: "center" }}>
-          <Text style={{ fontSize: 50, color: "white", marginBottom: 70 }}>
+        <StyledView>
+          <StyledText style={{ fontSize: 50, marginBottom: 70 }}>
             Add Funds
-          </Text>
-          <Text
+          </StyledText>
+          <StyledText
             style={{
-              fontSize: 20,
-              textAlign: "center",
-              color: "white",
               marginBottom: 10,
             }}
           >
             Login to your wallet via Torus by clicking the blue button below.
-          </Text>
-          <Text style={{ fontSize: 15, color: "white", marginBottom: 70 }}>
+          </StyledText>
+          <StyledText style={{ fontSize: 15, marginBottom: 70 }}>
             You can get funds on testnet from https://faucet.matic.network
-          </Text>
+          </StyledText>
           <QRCode value="account" size={225} />
-          <Text
+          <StyledText
             onPress={() => Clipboard.setString(account)}
-            style={{ fontSize: 14, color: "white", marginTop: 10 }}
+            style={{ fontSize: 16, marginTop: 10 }}
           >
             {account}
-          </Text>
-          <Text
+          </StyledText>
+          <StyledText
             style={{
-              fontSize: 30,
-              color: "white",
               marginTop: 25,
               fontWeight: "bold",
             }}
           >
             Balances:
-          </Text>
-          <Text style={{ fontSize: 30, color: "white", marginTop: 25 }}>
-            {this.state.balance} MATIC
-          </Text>
-          <Text style={{ fontSize: 30, color: "white", marginTop: 25 }}>
-            {this.state.daiBalance} MATIC Dai
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={{
-            width: 300,
-            height: 50,
-            backgroundColor: "#D45353",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onPress={() => this.next()}
-        >
-          <Text style={{ fontSize: 30, color: "white" }}>Get Started!</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            width: 300,
-            height: 50,
-            backgroundColor: "#D45353",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          </StyledText>
+          <StyledText>{this.state.balance} MATIC</StyledText>
+          <StyledText>{this.state.daiBalance} MATIC Dai</StyledText>
+        </StyledView>
+        <StyledTouchableOpacityRed onPress={() => this.next()}>
+          <StyledText>Get Started!</StyledText>
+        </StyledTouchableOpacityRed>
+        <StyledTouchableOpacityRed
           onPress={() =>
-            this.props.web3.torus.isLoggedIn
-              ? this.logout()
-              : this.props.web3.initialize()
+            web3.torus.isLoggedIn ? this.logout() : web3.initialize()
           }
         >
-          <Text style={{ fontSize: 30, color: "white" }}>
+          <StyledText>
             {" "}
-            {this.props.web3.torus.isLoggedIn ? "LOG OUT" : " LOG IN"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+            {web3.torus.isLoggedIn ? "Log out" : " Log in"}
+          </StyledText>
+        </StyledTouchableOpacityRed>
+      </StyledView>
     );
   }
 }

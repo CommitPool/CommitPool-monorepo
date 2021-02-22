@@ -72,12 +72,6 @@ export default function App() {
     });
   }
 
-  //Web3 instance
-  // const loadWeb3 = async () => {
-  //     await web3.initialize();
-  //     return web3;
-  // }
-
   React.useEffect(() => {
     if (web3.provider !== undefined) {
       setWeb3(web3);
@@ -100,7 +94,7 @@ class Home extends React.Component <{web3: any, stravaOauth: any, code: string},
 
   render() {
     return (
-      <Main web3={this.props.web3} stravaOAuth={this.props.stravaOauth} code={this.props.code}></Main>
+      <Main web3={this.props.web3} stravaOAuth={this.props.stravaOauth} code={this.props.code} />
     );
   }
 }

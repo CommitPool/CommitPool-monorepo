@@ -41,16 +41,12 @@ const web3Helper = {
     );
   },
   torus: {},
-  showTorus: function (){
+  wallet: {},
+  initialize: async function () {
     const torus = new Torus({
       buttonPosition: "bottom-left",
     })
     web3Helper.torus = torus;
-  },
-  wallet: {},
-  initialize: async function () {
-    web3Helper.showTorus();
-
     await web3Helper.torus.init({
       buildEnv: "production", 
       enableLogging: torusLogging, 

@@ -1,63 +1,42 @@
 import * as React from "react";
-import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Dimensions } from "react-native";
-
+import { Image} from "react-native";
+import { StyledTouchableOpacity, StyledText, StyledView } from "./components/styles";
 export default class Login extends React.Component<
-  { stravaOAuth: any; next: any; code: string },
+  { stravaOAuth: any; next: any; },
   {}
 > {
   render() {
     return (
-      <LinearGradient
-        colors={["#D45353", "#D45353", "white"]}
-        style={styles.linearGradient}
-      >
-        <View
+        <StyledView
           style={{
             flex: 1,
-            alignItems: "center",
             justifyContent: "space-around",
           }}
         >
-          <View style={{ alignItems: "center" }}>
+          <StyledView>
             <Image
               style={{ width: 200, height: 200 }}
               source={require("./assets/commit.png")}
             />
-            <Text style={{ color: "white", fontSize: 50 , marginTop: 15, marginBottom: 25}}>
+            <StyledText style={{ fontSize: 50 , marginTop: 15}}>
               Login to Strava 
-            </Text>
+            </StyledText>
 
-            <Text style={{ color: "white", fontSize: 20 }}>
+            <StyledText>
               To track your progress and verify that you've met your goal, we rely on activity data that you share with Strava. 
               {"\n"}
-            </Text>
-            <Text style={{ color: "white", fontSize: 20 }}>
+            </StyledText>
+            <StyledText>
               Connect your Strava account below.
-            </Text>
-          </View>
-          <TouchableOpacity onPress={this.props.stravaOAuth}>
+            </StyledText>
+          </StyledView>
+          <StyledTouchableOpacity onPress={this.props.stravaOAuth}>
             <Image
               style={{ width: 300, height: 50 }}
               source={require("./assets/strava.svg")}
             />
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
+          </StyledTouchableOpacity>
+        </StyledView>
     );
   }
 }
-
-const { width, height } = Dimensions.get("window");
-
-const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    width,
-    height,
-    borderRadius: 5,
-  },
-});

@@ -93,7 +93,7 @@ export default class MakeCommitment extends Component <{next: any, code: any, we
   //TODO Commitment is not created
   async createCommitment() {   
     const {web3} = this.props;
-    const account = web3.account;
+    const account = web3.provider.provider.selectedAddress;
 
     let commitPoolContract = web3.contracts.commitPool;
     commitPoolContract = commitPoolContract.connect(web3.provider.getSigner());

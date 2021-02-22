@@ -12,14 +12,22 @@ const {
 } = getEnvVars();
 
 const web3Helper = {
-  account: undefined,
+  // account: undefined,
+  // setAccount: function(provider) {
+  //   web3Helper.account = provider.selectedAddress;
+  //   console.log("WEB3HELPER account", web3Helper.account)
+  // },
   contracts: {
     commitPool: {},
     dai: {},
   },
-  provider: {},
-  setWeb3Provider: function (provider) {
-    web3Helper.provider = new ethers.providers.Web3Provider(provider);
+  logOut: function(){
+    web3Helper.torus.cleanUp();
+    web3Helper.initialize();
+  },
+  provider: undefined,
+  setWeb3Provider: function () {
+    web3Helper.provider = new ethers.providers.Web3Provider(web3Helper.torus.provider);
     web3Helper.contracts.dai = getContract(
       daiContractAddress,
       daiAbi,
@@ -31,16 +39,19 @@ const web3Helper = {
       abi,
       web3Helper.provider
     );
-
   },
   torus: {},
+  showTorus: function (){
+    const torus = new Torus({
+      buttonPosition: "bottom-left",
+    })
+    web3Helper.torus = torus;
+  },
   wallet: {},
   initialize: async function () {
-    const torus = new Torus({
-      buttonPosition: "bottom-left"
-    });
+    web3Helper.showTorus();
 
-    await torus.init({
+    await web3Helper.torus.init({
       buildEnv: "production", 
       enableLogging: torusLogging, 
       network: {
@@ -51,10 +62,8 @@ const web3Helper = {
       showTorusButton: true,
     });
 
-    await torus.login(); 
-    web3Helper.account = torus.provider.selectedAddress;
-    web3Helper.setWeb3Provider(torus.provider);
-    web3Helper.torus = torus;
+    await web3Helper.torus.login(); 
+    web3Helper.setWeb3Provider();
     return web3Helper;
   },
 };

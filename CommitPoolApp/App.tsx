@@ -4,7 +4,9 @@ import { Dimensions } from 'react-native';
 import { AsyncStorage } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
-import Main from './Main'
+import web3Helper from "./components/web3-helper/web3-helper.js";
+
+import Main from './Main';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -17,8 +19,11 @@ const discovery = {
 
 export default function App() {  
   const [code, setCode] = useState(true); 
+  const [web3, setWeb3] = useState(web3Helper); 
   const { width } = Dimensions.get('window');
 
+
+  //Strava login
   const [request, response, promptAsync] = useAuthRequest(
     {
       clientId: '51548',
@@ -66,24 +71,36 @@ export default function App() {
       body: JSON.stringify({address: address, token: token})
     });
   }
-  
+
+  //Web3 instance
+  // const loadWeb3 = async () => {
+  //     await web3.initialize();
+  //     return web3;
+  // }
+
+  React.useEffect(() => {
+    if (web3.provider !== undefined) {
+      setWeb3(web3);
+    }
+  }, [web3])
+
   return (
-    <Home stravaOauth={stravaOauth} code={code}></Home>
+    <Home web3={web3} stravaOauth={stravaOauth} code={code}></Home>
   )
 
 }
 
-class Home extends React.Component <{stravaOauth: any, code: string}, {}> {
+class Home extends React.Component <{web3: any, stravaOauth: any, code: string}, {}> {
   state = {
     accessToken: "",
-    message: "Awaiting accesstoken",
-    address: "",
-    account: undefined
+    // message: "Awaiting accesstoken",
+    // address: "",
+    // account: undefined
   };
 
   render() {
     return (
-      <Main stravaOAuth={this.props.stravaOauth} code={this.props.code}></Main>
+      <Main web3={this.props.web3} stravaOAuth={this.props.stravaOauth} code={this.props.code}></Main>
     );
   }
 }

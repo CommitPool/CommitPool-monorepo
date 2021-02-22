@@ -3,9 +3,8 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { ethers } from 'ethers';
 import { AsyncStorage } from 'react-native';
-import getEnvVars from "./environment.js";
 
-export default class Track extends Component <{next: any, account: any, code: string, web3Helper: any}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
+export default class Track extends Component <{next: any, code: string, web3: any}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
   constructor(props) {
     super(props);
     this.state = {
@@ -61,15 +60,16 @@ export default class Track extends Component <{next: any, account: any, code: st
   };
 
   setAccount() {
-    const web3 = this.props.web3Helper;
-    this.setState({account: web3.account})
+    const { web3 } = this.props;
+    this.setState({account: web3.provider.provider.selectedAddress})
   }
 
   async getCommitment() {    
-    const web3  = this.props.web3Helper;
+    const {web3}  = this.props;
+    const account = web3.provider.provider.selectedAddress;
     let commitPoolContract = web3.contracts.commitPool;
 
-    const commitment = await commitPoolContract.commitments(this.state.account);
+    const commitment = await commitPoolContract.commitments(account);
 
     const type = await commitPoolContract.activities(commitment['activityKey'])
     this.setState({
@@ -101,29 +101,27 @@ export default class Track extends Component <{next: any, account: any, code: st
   }
 
   async getUpdatedActivity() {
-    const web3 = this.props.web3Helper;
-    const { account } = this.state;
-    let commitPoolContract = web3.contracts.commitPool;
-    const {commitPoolContractAddress} = getEnvVars();
+    const { web3 } = this.props;
+    console.log("WEB3", web3)
+    const account = web3.provider.provider.selectedAddress;
+    const commitPoolContract = web3.contracts.commitPool;
 
-    let contractWithSigner = commitPoolContract.connect(web3.provider.getSigner(0));
-    
+    let contractWithSigner = commitPoolContract.connect(web3.provider.getSigner());
     this.setState({loading: true})
     try {
-        await contractWithSigner.requestActivityDistance(account, commitPoolContractAddress, 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+        await contractWithSigner.requestActivityDistance(account, commitPoolContract.address, 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
 
         let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
 
         let filter = {
-            address: commitPoolContractAddress,
+            address: commitPoolContract.address,
             topics: [ topic ]
         }
-
         web3.provider.on(filter, async (result, event) => {
             const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
             const now = new Date().getTime();
-            if(address === this.props.account.signingKey.address.toLowerCase()){
-              const commitment = await commitPoolContract.commitments(account)
+            if(address === this.props.web3.provider.provider.selectedAddress.toLowerCase()){
+              const commitment = await commitPoolContract.commitments(account);
               if(commitment.reportedValue.gte(commitment.goalValue)){
                 this.setState({loading: false})
                 this.props.next(7)

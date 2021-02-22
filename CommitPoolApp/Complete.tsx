@@ -1,11 +1,8 @@
 import React, { Component } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import abi from '../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
 import ConfettiCannon from 'react-native-confetti-cannon';
-import getWallet from './components/wallet/wallet';
-import getContract from './components/contract/contract';
 
-export default class Complete extends Component <{success: boolean, next: any, account: any}, {loading: Boolean, step: Number, fill: number}> {
+export default class Complete extends Component <{success: boolean, next: any, web3: any}, {loading: Boolean, step: Number, fill: number}> {
   constructor(props) {
     super(props);
     this.state = {
@@ -16,13 +13,10 @@ export default class Complete extends Component <{success: boolean, next: any, a
   }
 
   async go() {
-    let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = getWallet(privateKey);
-    
-    let commitPoolContractAddress = '0x286Bcf38B881743401773a3206B907901b47359E';
-    let commitPoolContract = getContract(commitPoolContractAddress, abi);
-    
-    commitPoolContract = commitPoolContract.connect(wallet);
+    const {web3} = this.props;
+
+    let commitPoolContract = web3.contracts.commitPool;
+    commitPoolContract = commitPoolContract.connect(web3.provider.getSigner());
 
     await commitPoolContract.processCommitmentUser();
     this.props.next(4);

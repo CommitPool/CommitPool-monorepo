@@ -5,13 +5,12 @@ import { utils } from "ethers";
 
 //TODO refresh on login
 export default class Wallet extends Component<
-  { next: any; web3Helper: any },
-  { balance: string; daiBalance: string; refresh: any; web3: any;  }
+  { next: any; web3: any },
+  { balance: string; daiBalance: string; refresh: any }
 > {
   constructor(props) {
     super(props);
     this.state = {
-      web3: this.props.web3Helper,
       balance: "0.0",
       daiBalance: "0.0",
       refresh: undefined,
@@ -19,18 +18,18 @@ export default class Wallet extends Component<
   }
 
   async componentDidMount() {
-    const web3init = await this.state.web3.initialize();
-    this.setState({web3: web3init})
-    this.setStateInfo(web3init);
-    this.setStateRefresh(web3init);
+    const web3 = await this.props.web3.initialize();
+    this.setStateInfo(web3);
+    this.setStateRefresh(web3);
   }
 
   componentWillUnmount() {
     clearInterval(this.state.refresh);
   }
 
-  setStateInfo = async (web3) => {
-    const { account } = web3;
+  async setStateInfo(web3: any) {
+    console.log("WEB STATE", web3);
+    const account = web3.provider.provider.selectedAddress;
 
     await web3.provider
       .getBalance(account)
@@ -43,13 +42,12 @@ export default class Wallet extends Component<
       .then((daiBalance) =>
         this.setState({ daiBalance: utils.formatEther(daiBalance) })
       );
-  };
+  }
 
-  setStateRefresh = (web3) => {
+  async setStateRefresh(web3: any) {
     const refresh = setInterval(async () => {
-      if (web3 !== undefined) {
-        const { web3 } = this.state;
-        const { account } = web3
+      if (web3.provider !== undefined) {
+        const account = web3.provider.provider.selectedAddress;
 
         await web3.provider
           .getBalance(account)
@@ -65,24 +63,21 @@ export default class Wallet extends Component<
       }
     }, 2500);
     this.setState({ refresh: refresh });
-  };
-
-  logout = () => {
-    this.state.web3.torus.cleanUp().then(() => {
-      this.setState({ web3: '', balance: "0", daiBalance: "0" })
-      sessionStorage.setItem('pageUsingTorus', false)
-    })
-    clearInterval(this.state.refresh);
   }
 
+  logout = () => {
+    this.props.web3.logOut();
+    this.setState({ balance: "0", daiBalance: "0" });
+    clearInterval(this.state.refresh);
+  };
+
   async next() {
-    console.log("HELPER:", this.state.web3);
-    const commitPoolContract = this.state.web3.contracts.commitPool;
-    console.log("CONTRACT:", commitPoolContract)
+    const { web3 } = this.props;
+    const account = web3.provider.provider.selectedAddress;
+    const commitPoolContract = web3.contracts.commitPool;
+
     try {
-      const commitment = await commitPoolContract.commitments(
-        this.state.web3.account
-      );
+      const commitment = await commitPoolContract.commitments(account);
       if (commitment.exists) {
         console.log("COMMITMENT EXISTS");
         this.props.next(6);
@@ -97,7 +92,9 @@ export default class Wallet extends Component<
   }
 
   render() {
-    const { account } = this.state.web3 === undefined ? "" : this.state.web3;
+    const { web3 } = this.props;
+    const account =
+    web3.torus.isLoggedIn ? web3.provider.provider.selectedAddress : "";
     console.log("ACCOUNT", account);
     return (
       <View
@@ -168,9 +165,16 @@ export default class Wallet extends Component<
             alignItems: "center",
             justifyContent: "center",
           }}
-          onPress={() => this.logout()}
+          onPress={() =>
+            this.props.web3.torus.isLoggedIn
+              ? this.logout()
+              : this.props.web3.initialize()
+          }
         >
-          <Text style={{ fontSize: 30, color: "white" }}>LOG OUT!</Text>
+          <Text style={{ fontSize: 30, color: "white" }}>
+            {" "}
+            {this.props.web3.torus.isLoggedIn ? "LOG OUT" : " LOG IN"}
+          </Text>
         </TouchableOpacity>
       </View>
     );

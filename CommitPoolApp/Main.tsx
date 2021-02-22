@@ -7,28 +7,25 @@ import MakeCommitment from "./MakeCommitment";
 import Complete from "./Complete";
 import Wallet from "./Wallet";
 import Welcome from "./Welcome";
-import web3Helper from "./components/web3-helper/web3-helper.js";
 
 
 import { Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default class Main extends Component<
-  { stravaOAuth: any; code: string },
-  { step: Number; account: any, web3Helper: any }
+  { web3: any; stravaOAuth: any; code: string },
+  { step: Number; }
 > {
   constructor(props) {
     super(props);
     this.state = {
       step: 1,
-      account: undefined,
-      web3Helper: undefined,
     };
   }
 
-  componentDidMount() {
-    this.setState({web3Helper: web3Helper});
-  }
+  // componentDidMount() {
+  //   this.setState({web3: web3Helper});
+  // }
 
   componentWillReceiveProps(newProps) {
     if (newProps.code !== this.props.code) {
@@ -63,7 +60,7 @@ export default class Main extends Component<
             colors={["#D45353", "#D45353", "white"]}
             style={styles.linearGradient}
           >
-            <Wallet next={this.onClick} web3Helper={this.state.web3Helper}></Wallet>
+            <Wallet next={this.onClick} web3={this.props.web3} ></Wallet>
           </LinearGradient>
         );
       // case 5:
@@ -83,9 +80,8 @@ export default class Main extends Component<
           >
             <MakeCommitment
               next={this.onClick}
-              account={this.state.account}
               code={this.props.code}
-              web3Helper={this.state.web3Helper}
+              web3={this.props.web3}
             ></MakeCommitment>
           </LinearGradient>
         );
@@ -93,18 +89,17 @@ export default class Main extends Component<
         return (
           <Track
             next={this.onClick}
-            account={this.state.account}
             code={this.props.code}
-            web3Helper={this.state.web3Helper}
+            web3={this.props.web3}
           ></Track>
         );
       case 7:
         return (
-          <Complete success={true} next={this.onClick} account={this.state.account}></Complete>
+          <Complete success={true} next={this.onClick} web3={this.props.web3}></Complete>
         );
       case 8:
         return (
-          <Complete success={false} next={this.onClick} account={this.state.account}></Complete>
+          <Complete success={false} next={this.onClick} web3={this.props.web3}></Complete>
         );
     }
   };

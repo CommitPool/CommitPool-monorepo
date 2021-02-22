@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import getEnvVars from "./environment.js";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
-import { ethers, utils } from 'ethers';
+import { utils } from 'ethers';
 import { Dimensions } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 
-export default class MakeCommitment extends Component <{next: any, account: any, code: any, web3Helper: any}, {txSent: Boolean, loading: Boolean, distance: Number, stake: Number,daysToStart: Number, duration: Number,  activity: {}, activities: any}> {
+export default class MakeCommitment extends Component <{next: any, code: any, web3: any}, {txSent: Boolean, loading: Boolean, distance: Number, stake: Number,daysToStart: Number, duration: Number,  activity: {}, activities: any}> {
 ;
   constructor(props) {
     super(props);
@@ -23,7 +22,7 @@ export default class MakeCommitment extends Component <{next: any, account: any,
   }
 
   async componentDidMount() {
-    const web3 = this.props.web3Helper;
+    const {web3} = this.props;
     
     let commitPoolContract = web3.contracts.commitPool;
 
@@ -93,7 +92,7 @@ export default class MakeCommitment extends Component <{next: any, account: any,
 
   //TODO Commitment is not created
   async createCommitment() {   
-    const web3 = this.props.web3Helper;
+    const {web3} = this.props;
     const account = web3.account;
 
     let commitPoolContract = web3.contracts.commitPool;
@@ -102,10 +101,6 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     let daiContract = web3.contracts.dai;
     daiContract = daiContract.connect(web3.provider.getSigner());
  
-    const {
-      commitPoolContractAddress,
-    } = getEnvVars();
-
     const distanceInMiles = Math.floor(this.state.distance);
     const startTime = this.calculateStart(this.state.daysToStart);
     const startTimestamp = Math.ceil(startTime.valueOf() /1000); //to seconds
@@ -113,12 +108,12 @@ export default class MakeCommitment extends Component <{next: any, account: any,
     const stakeAmount = utils.parseEther(this.state.stake.toString());
     this.setState({loading: true})
     
-    const allowance = await daiContract.allowance(account, commitPoolContractAddress);
+    const allowance = await daiContract.allowance(account, commitPoolContract.address);
     if(allowance.gte(stakeAmount)) {
       const dcReceipt = await commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
       console.log("RECEIPT D&C:", dcReceipt);
     } else {
-      const daiReceipt = await daiContract.approve(commitPoolContractAddress, stakeAmount);
+      const daiReceipt = await daiContract.approve(commitPoolContract.address, stakeAmount);
       const dcReceipt = await commitPoolContract.depositAndCommit(this.state.activity, distanceInMiles * 100, startTimestamp, endTimestamp, stakeAmount, stakeAmount, String(this.props.code.athlete.id), {gasLimit: 5000000});
       console.log("RECEIPT DAI:", daiReceipt);
       console.log("RECEIPT D&C:", dcReceipt);

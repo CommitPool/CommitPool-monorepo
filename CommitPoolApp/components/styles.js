@@ -1,8 +1,7 @@
 import React from "react";
 
 import styled from "styled-components/native";
-import { TouchableOpacity, Text, View } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
+import { TouchableOpacity, Text, View, TextInput } from "react-native";
 
 export const StyledText = styled(Text)`
   font-family: Helvetica;
@@ -13,11 +12,12 @@ export const StyledText = styled(Text)`
 `;
 
 export const StyledTextInput = styled(TextInput)`
-  textalign: center;
-  borderradius: 5;
-  backgroundcolor: white;
-  fontsize: 25;
+  text-align: center;
+  border-radius: 5;
+  background-color: white;
+  font-size: 25;
   color: black;
+  height: 30px;
   width: 30%;
 `;
 
@@ -53,7 +53,7 @@ export const StyledViewContainer = styled(StyledView)`
 `;
 
 export const StyledViewRow = styled(View)`
-  flexdirection: row;
+  flex-direction: row;
   width: 300px;
   padding: 10px;
 `;

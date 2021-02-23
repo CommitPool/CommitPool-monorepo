@@ -289,7 +289,7 @@ export default class MakeCommitment extends Component<
             </StyledView>
 
             <StyledTouchableOpacityRed onPress={() => this.createCommitment()}>
-              <StyledText>Stake and Commit</StyledText>
+              <StyledText style={{marginBottom: 0}}>Stake and Commit</StyledText>
             </StyledTouchableOpacityRed>
           </StyledViewContainer>
         ) : (
@@ -357,7 +357,7 @@ export default class MakeCommitment extends Component<
             </StyledView>
 
             <StyledTouchableOpacityRed onPress={() => this.props.next(6)}>
-              <StyledText>Track Progress</StyledText>
+              <StyledText style={{marginBottom: 0}}>Track Progress</StyledText>
             </StyledTouchableOpacityRed>
           </StyledViewContainer>
         )}

@@ -1,9 +1,12 @@
 import React, { Component } from "react";
-import { TextInput } from "react-native";
 import {
+  StyledBackdropDark,
   StyledView,
+  StyledViewContainer,
   StyledViewRow,
   StyledText,
+  StyledTextInput,
+  StyledTextLarge,
   StyledTouchableOpacityRed,
 } from "./components/styles";
 
@@ -42,7 +45,7 @@ export default class MakeCommitment extends Component<
   async componentDidMount() {
     const { web3 } = this.props;
 
-    let commitPoolContract = web3.contracts.commitPool;
+    const commitPoolContract = web3.contracts.commitPool;
 
     console.log("SPC:", commitPoolContract);
     let activities = [];
@@ -178,25 +181,14 @@ export default class MakeCommitment extends Component<
     const { width } = Dimensions.get("window");
 
     return (
-      <StyledView style={{ flex: 1, width, justifyContent: "space-around" }}>
+      <StyledViewContainer>
         {this.state.loading ? (
-          <StyledView
-            style={{
-              justifyContent: "center",
-              position: "absolute",
-              right: 0,
-              left: 0,
-              top: 0,
-              bottom: 0,
-              backgroundColor: "rgba(0,0,0,0.5)",
-              zIndex: 2,
-            }}
-          >
+          <StyledBackdropDark>
             <StyledText>⌛</StyledText>
-          </StyledView>
+          </StyledBackdropDark>
         ) : undefined}
         {!this.state.txSent ? (
-          <StyledView style={{ flex: 1, justifyContent: "space-around" }}>
+          <StyledViewContainer>
             <StyledView>
               <StyledText>
                 {
@@ -204,11 +196,8 @@ export default class MakeCommitment extends Component<
                 }
               </StyledText>
               <StyledText>Create Commitment</StyledText>
-              <StyledView
+              <StyledViewRow
                 style={{
-                  flexDirection: "row",
-                  width: 300,
-                  padding: 10,
                   zIndex: 5000,
                 }}
               >
@@ -228,7 +217,7 @@ export default class MakeCommitment extends Component<
                     this.setState({ activity: item.value });
                   }}
                 />
-              </StyledView>
+              </StyledViewRow>
               <StyledViewRow>
                 <StyledText style={{ flex: 1, fontWeight: "bold" }}>
                   Distance:
@@ -236,19 +225,11 @@ export default class MakeCommitment extends Component<
                 <StyledView
                   style={{ flex: 1, flexDirection: "row", marginLeft: 10 }}
                 >
-                  <TextInput
-                    style={{
-                      textAlign: "center",
-                      borderRadius: 5,
-                      backgroundColor: "white",
-                      fontSize: 28,
-                      color: "black",
-                      width: 30 + "%",
-                    }}
+                  <StyledTextInput
                     onChangeText={(text) =>
                       this.setState({ distance: Number(text) })
                     }
-                  ></TextInput>
+                  ></StyledTextInput>
                   <StyledText> Miles</StyledText>
                 </StyledView>
               </StyledViewRow>
@@ -259,19 +240,11 @@ export default class MakeCommitment extends Component<
                 <StyledView
                   style={{ flex: 1, flexDirection: "row", marginLeft: 10 }}
                 >
-                  <TextInput
-                    style={{
-                      textAlign: "center",
-                      borderRadius: 5,
-                      backgroundColor: "white",
-                      fontSize: 28,
-                      color: "black",
-                      width: 30 + "%",
-                    }}
+                  <StyledTextInput
                     onChangeText={(text) =>
                       this.setState({ stake: Number(text) })
                     }
-                  ></TextInput>
+                  ></StyledTextInput>
                   <StyledText> Dai</StyledText>
                 </StyledView>
               </StyledViewRow>
@@ -286,69 +259,41 @@ export default class MakeCommitment extends Component<
                 >
                   Starting in
                 </StyledText>
-                <StyledView
-                  style={{ flex: 1, flexDirection: "row", marginLeft: 10 }}
-                >
-                  <TextInput
-                    style={{
-                      textAlign: "center",
-                      borderRadius: 5,
-                      backgroundColor: "white",
-                      fontSize: 28,
-                      color: "black",
-                      width: 30 + "%",
-                    }}
+                <StyledViewRow style={{ flex: 1, marginLeft: 10 }}>
+                  <StyledTextInput
                     onChangeText={(text) =>
                       this.setState({ daysToStart: Number(text) })
                     }
-                  ></TextInput>
+                  ></StyledTextInput>
                   <StyledText> day(s)</StyledText>
-                </StyledView>
+                </StyledViewRow>
               </StyledViewRow>
               <StyledViewRow>
                 <StyledText
                   style={{
                     flex: 1,
-                    color: "white",
-                    fontSize: 28,
                     fontWeight: "bold",
                   }}
                 >
                   for
                 </StyledText>
-                <StyledView
-                  style={{ flex: 1, flexDirection: "row", marginLeft: 10 }}
-                >
-                  <TextInput
-                    style={{
-                      textAlign: "center",
-                      borderRadius: 5,
-                      backgroundColor: "white",
-                      fontSize: 28,
-                      color: "black",
-                      width: 30 + "%",
-                    }}
+                <StyledViewRow style={{ flex: 1, marginLeft: 10 }}>
+                  <StyledTextInput
                     onChangeText={(text) =>
                       this.setState({ duration: Number(text) })
                     }
-                  ></TextInput>
+                  ></StyledTextInput>
                   <StyledText style={{ flex: 1 }}> day(s)</StyledText>
-                </StyledView>
+                </StyledViewRow>
               </StyledViewRow>
             </StyledView>
 
             <StyledTouchableOpacityRed onPress={() => this.createCommitment()}>
               <StyledText>Stake and Commit</StyledText>
             </StyledTouchableOpacityRed>
-          </StyledView>
+          </StyledViewContainer>
         ) : (
-          <StyledView
-            style={{
-              backgroundColor: "#D45353",
-              flex: 1,
-              justifyContent: "space-around",
-            }}
-          >
+          <StyledViewContainer>
             {this.state.loading ? (
               <StyledView
                 style={{
@@ -367,10 +312,8 @@ export default class MakeCommitment extends Component<
               </StyledView>
             ) : undefined}
             <StyledView>
-              <StyledText style={{ fontSize: 50 }}>
-                Commitment Created
-              </StyledText>
-              <StyledText style={{ fontSize: 50 }}>✔️</StyledText>
+              <StyledTextLarge>Commitment Created</StyledTextLarge>
+              <StyledTextLarge>✔️</StyledTextLarge>
               <StyledViewRow>
                 <StyledText style={{ flex: 1, fontWeight: "bold" }}>
                   Activity:
@@ -416,9 +359,9 @@ export default class MakeCommitment extends Component<
             <StyledTouchableOpacityRed onPress={() => this.props.next(6)}>
               <StyledText>Track Progress</StyledText>
             </StyledTouchableOpacityRed>
-          </StyledView>
+          </StyledViewContainer>
         )}
-      </StyledView>
+      </StyledViewContainer>
     );
   }
 }

@@ -1,16 +1,38 @@
 import React, { Component } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { ethers } from 'ethers';
-import { AsyncStorage } from 'react-native';
+import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { ethers } from "ethers";
+import { AsyncStorage } from "react-native";
 import getEnvVars from "./environment.js";
+import {
+  StyledBackdropDark,
+  StyledTouchableOpacityRed,
+  StyledText,
+  StyledTextLarge,
+  StyledView,
+  StyledViewContainer,
+} from "./components/styles";
 
-export default class Track extends Component <{next: any, code: string, web3: any}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
+export default class Track extends Component<
+  { next: any; code: string; web3: any },
+  {
+    refreshToken: string;
+    type: string;
+    account: any;
+    total: number;
+    startTime: Number;
+    endTime: Number;
+    loading: Boolean;
+    step: Number;
+    fill: number;
+    goal: number;
+    accessToken: String;
+  }
+> {
   constructor(props) {
     super(props);
     this.state = {
       account: {},
-      refreshToken: '',
+      refreshToken: "",
       step: 1,
       fill: 0,
       loading: false,
@@ -18,34 +40,35 @@ export default class Track extends Component <{next: any, code: string, web3: an
       total: 0,
       startTime: 0,
       endTime: 0,
-      type: '',
-      accessToken: ''
+      type: "",
+      accessToken: "",
     };
   }
 
   async componentDidMount() {
-    const refreshToken: any = await this._retrieveData('rt')
-    console.log(refreshToken)
-    this.setState({refreshToken: refreshToken})
+    const refreshToken: any = await this._retrieveData("rt");
+    console.log(refreshToken);
+    this.setState({ refreshToken: refreshToken });
     this.setAccount();
 
-    fetch('https://www.strava.com/api/v3/oauth/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          client_id: 51548,
-          client_secret: '28d56211b9ca33972055bf61010074fbedc3c7c2',
-          refresh_token: this.state.refreshToken,
-          grant_type: 'refresh_token'
-        })
-    }).then(res => res.json())
-    .then((json) => {
-      this.setState({accessToken: json.access_token});
+    fetch("https://www.strava.com/api/v3/oauth/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        client_id: 51548,
+        client_secret: "28d56211b9ca33972055bf61010074fbedc3c7c2",
+        refresh_token: this.state.refreshToken,
+        grant_type: "refresh_token",
+      }),
     })
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({ accessToken: json.access_token });
+      });
 
-    this.getCommitment()
+    this.getCommitment();
   }
 
   _retrieveData = async (key: string) => {
@@ -63,122 +86,156 @@ export default class Track extends Component <{next: any, code: string, web3: an
   setAccount() {
     const { web3 } = this.props;
     console.log(web3.provider.provider.selectedAddress);
-    this.setState({account: web3.provider.provider.selectedAddress});
+    this.setState({ account: web3.provider.provider.selectedAddress });
   }
 
-  async getCommitment() {    
-    const {web3}  = this.props;
+  async getCommitment() {
+    const { web3 } = this.props;
     const account = web3.provider.provider.selectedAddress;
     let commitPoolContract = web3.contracts.commitPool;
 
-    const commitment = await commitPoolContract.commitments(account);
+    const commitment = await commitPoolContract
+      .commitments(account)
+      .then((comm) => {
+        console.log("COMMITMENT", comm);
+        return comm;
+      });
 
-    const type = await commitPoolContract.activities(commitment['activityKey'])
+    const type = await commitPoolContract.activities(commitment["activityKey"]);
     this.setState({
-      goal: commitment['goalValue'].toNumber() / 100,
-      startTime: commitment['startTime'].toNumber(),
-      endTime: commitment['endTime'].toNumber(),
-      type: type[0]
-    })
+      goal: commitment["goalValue"].toNumber() / 100,
+      startTime: commitment["startTime"].toNumber(),
+      endTime: commitment["endTime"].toNumber(),
+      type: type[0],
+    });
 
     this.getActivity();
 
-    this.setState({fill: this.state.total / this.state.goal})
+    this.setState({ fill: this.state.total / this.state.goal });
   }
 
   async getActivity() {
-    fetch('https://test2.dcl.properties/activities?startTime=' + this.state.startTime + '&endTime=' + this.state.endTime + '&type=' + this.state.type + '&accessToken=' + this.state.accessToken,
+    fetch(
+      "https://test2.dcl.properties/activities?startTime=" +
+        this.state.startTime +
+        "&endTime=" +
+        this.state.endTime +
+        "&type=" +
+        this.state.type +
+        "&accessToken=" +
+        this.state.accessToken,
       {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer: ' + this.state.accessToken
-        }
-      })
-      .then(res => res.json())
+          "Content-Type": "application/json",
+          Authorization: "Bearer: " + this.state.accessToken,
+        },
+      }
+    )
+      .then((res) => res.json())
       .then((json) => {
-        this.setState({total: json.total})
-        this.setState({fill: this.state.total / this.state.goal})
-      })
+        this.setState({ total: json.total });
+        this.setState({ fill: this.state.total / this.state.goal });
+      });
   }
 
   async getUpdatedActivity() {
     const { web3 } = this.props;
-    console.log("WEB3", web3)
+    console.log("WEB3", web3);
     const account = web3.provider.provider.selectedAddress;
     const commitPoolContract = web3.contracts.commitPool;
     const { linkContractAddress } = getEnvVars();
 
-    let contractWithSigner = commitPoolContract.connect(web3.provider.getSigner());
-    this.setState({loading: true})
+    let contractWithSigner = commitPoolContract.connect(
+      web3.provider.getSigner()
+    );
+    this.setState({ loading: true });
     try {
-        await contractWithSigner.requestActivityDistance(account, linkContractAddress, 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+      await contractWithSigner.requestActivityDistance(
+        account,
+        linkContractAddress,
+        "e21d39b70cad42d6bc6b42c64b853007",
+        { gasLimit: 500000 }
+      );
 
-        let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
+      let topic = ethers.utils.id(
+        "RequestActivityDistanceFulfilled(bytes32,uint256,address)"
+      );
 
-        let filter = {
-            address: commitPoolContract.address,
-            topics: [ topic ]
+      let filter = {
+        address: commitPoolContract.address,
+        topics: [topic],
+      };
+
+      console.log("EVENT FILTER SET", filter);
+      web3.provider.on(filter, async (result, event) => {
+        console.log("EVENT FOUND", event)
+        const address = "0x" + result.topics[3].substr(26, 66).toLowerCase();
+        const now = new Date().getTime();
+        if (address === web3.provider.provider.selectedAddress.toLowerCase()) {
+          const commitment = await commitPoolContract.commitments(account);
+          if (commitment.reportedValue.gte(commitment.goalValue)) {
+            this.setState({ loading: false });
+            this.props.next(7);
+          } else if (now < commitment.endTime * 1000) {
+            this.setState({ loading: false });
+            alert("Goal not yet achieved. Keep going!");
+          } else {
+            this.setState({ loading: false });
+            this.props.next(8);
+          }
         }
-
-        console.log("FILTER SET", filter)
-        web3.provider.on(filter, async (result, event) => {
-            const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
-            const now = new Date().getTime();
-            console.log("ADDRESS", address);
-            console.log("PROV_ADDRESS", web3.provider.provider.selectedAddress)
-            if(address === web3.provider.provider.selectedAddress.toLowerCase()){
-              const commitment = await commitPoolContract.commitments(account);
-              if(commitment.reportedValue.gte(commitment.goalValue)){
-                this.setState({loading: false})
-                this.props.next(7)
-              } else if(now < commitment.endTime * 1000) {
-                this.setState({loading: false})
-                alert("Goal not yet achieved. Keep going!")
-              } else {
-                this.setState({loading: false});
-                this.props.next(8);
-              }
-            }
-        });
+      });
     } catch (error) {
-        console.log(error)
-        this.setState({loading: false})
+      console.log(error);
+      this.setState({ loading: false });
     }
   }
 
   render() {
     return (
-        <View style={{backgroundColor: '#D45353', flex: 1, alignItems: 'center', justifyContent: 'space-around'}}>
-            {this.state.loading ? <View style={{alignItems: 'center', justifyContent: 'center', position: 'absolute', right: 0, left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 2}}><Text style={{fontSize: 25}}>⌛</Text></View> : undefined}
-            <View style={{alignItems: 'center'}}>
-                <Text style={{fontSize: 50, color: 'white', marginBottom: 70}}>Track</Text>
-                <AnimatedCircularProgress
-                    size={180}
-                    width={15}
-                    rotation={0}
-                    fill={this.state.fill}
-                    tintColor="white"
-                    onAnimationComplete={() => console.log('onAnimationComplete')}
-                    backgroundColor="#D45353" >
-                    {
-                        (fill) => (
-                        <Text style={{color: 'white', fontSize: 30}}>
-                            {this.state.fill.toFixed(1)}%
-                        </Text>
-                        )
-                    }
-                </AnimatedCircularProgress>
-                <Text style={{fontSize: 22, color: 'white', marginTop: 25}}>{((this.state.fill/100) * this.state.goal).toFixed(1)}/{this.state.goal} Miles</Text>
-            </View>
-            <TouchableOpacity
-                    style={this.state.fill !== 100 ? {width: 300, height: 50, backgroundColor: '#999', alignItems: 'center', justifyContent: 'center'}
-                        : {width: 300, height: 50, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}
-                    onPress={() => this.getUpdatedActivity()}
-                    >
-                <Text style={{fontSize: 30}}>Complete Goal</Text>
-            </TouchableOpacity>
-        </View>
+      <StyledViewContainer>
+        {this.state.loading ? (
+          <StyledBackdropDark>
+            <StyledText>⌛</StyledText>
+          </StyledBackdropDark>
+        ) : undefined}
+        <StyledView>
+          <StyledTextLarge style={{ marginBottom: 70 }}>Track</StyledTextLarge>
+          <AnimatedCircularProgress
+            size={180}
+            width={15}
+            rotation={0}
+            fill={this.state.fill}
+            tintColor="white"
+            onAnimationComplete={() => console.log("onAnimationComplete")}
+            backgroundColor="#D45353"
+          >
+            {(fill) => (
+              <StyledText style={{ marginBottom: 0 }}>
+                {this.state.fill.toFixed(1)}%
+              </StyledText>
+            )}
+          </AnimatedCircularProgress>
+          <StyledText>
+            {((this.state.fill / 100) * this.state.goal).toFixed(1)}/
+            {this.state.goal} Miles
+          </StyledText>
+        </StyledView>
+        <StyledTouchableOpacityRed
+          style={
+            this.state.fill < 100
+              ? {
+                  backgroundColor: "#999",
+                  borderColor: "#999",
+                }
+              : {}
+          }
+          onPress={() => this.getUpdatedActivity()}
+        >
+          <StyledText style={{ marginBottom: 0 }}>Complete Goal</StyledText>
+        </StyledTouchableOpacityRed>
+      </StyledViewContainer>
     );
   }
 }

@@ -7,7 +7,7 @@ import MakeCommitment from "./MakeCommitment";
 import Complete from "./Complete";
 import Wallet from "./Wallet";
 import Welcome from "./Welcome";
-import {LinearGradient} from "expo-linear-gradient";
+import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions } from "react-native";
 export default class Main extends Component<
   { web3: any; stravaOAuth: any; code: string },
@@ -73,14 +73,12 @@ export default class Main extends Component<
 
   render() {
     return (
-      <StyledView style={{ flex: 1 }}>
-        <LinearGradient
-          colors={["#D45353", "#D45353", "white"]}
-          style={styles.linearGradient}
-        >
-          {this.renderSwitch()}
-        </LinearGradient>
-      </StyledView>
+      <LinearGradient
+        colors={["#D45353", "#D45353", "white"]}
+        style={styles.linearGradient}
+      >
+        {this.renderSwitch()}
+      </LinearGradient>
     );
   }
 }

@@ -5,7 +5,10 @@ import { utils } from "ethers";
 import {
   StyledTouchableOpacityRed,
   StyledText,
+  StyledTextLarge,
+  StyledTextSmall,
   StyledView,
+  StyledViewContainer,
 } from "./components/styles";
 
 export default class Wallet extends Component<
@@ -32,7 +35,6 @@ export default class Wallet extends Component<
   }
 
   async setStateInfo(web3: any) {
-    console.log("WEB STATE", web3);
     const account = web3.provider.provider.selectedAddress;
 
     await web3.provider
@@ -83,14 +85,11 @@ export default class Wallet extends Component<
     try {
       const commitment = await commitPoolContract.commitments(account);
       if (commitment.exists) {
-        console.log("COMMITMENT EXISTS");
         this.props.next(6);
       } else {
-        console.log("COMMITMENT DOES NOT EXIST");
         this.props.next(5);
       }
     } catch (error) {
-      console.log("ERROR RETRIEVING COMMITMENT:", error);
       this.props.next(5);
     }
   }
@@ -101,16 +100,11 @@ export default class Wallet extends Component<
       ? web3.provider.provider.selectedAddress
       : "";
     return (
-      <StyledView
-        style={{
-          flex: 1,
-          justifyContent: "space-around",
-        }}
-      >
+      <StyledViewContainer>
         <StyledView>
-          <StyledText style={{ fontSize: 50, marginBottom: 70 }}>
+          <StyledTextLarge style={{ marginBottom: 70 }}>
             Add Funds
-          </StyledText>
+          </StyledTextLarge>
           <StyledText
             style={{
               marginBottom: 10,
@@ -118,16 +112,16 @@ export default class Wallet extends Component<
           >
             Login to your wallet via Torus by clicking the blue button below.
           </StyledText>
-          <StyledText style={{ fontSize: 15, marginBottom: 70 }}>
+          <StyledTextSmall style={{ marginBottom: 70 }}>
             You can get funds on testnet from https://faucet.matic.network
-          </StyledText>
+          </StyledTextSmall>
           <QRCode value="account" size={225} />
-          <StyledText
+          <StyledTextSmall
             onPress={() => Clipboard.setString(account)}
-            style={{ fontSize: 16, marginTop: 10 }}
+            style={{ marginTop: 10 }}
           >
             {account}
-          </StyledText>
+          </StyledTextSmall>
           <StyledText
             style={{
               marginTop: 25,
@@ -140,19 +134,18 @@ export default class Wallet extends Component<
           <StyledText>{this.state.daiBalance} MATIC Dai</StyledText>
         </StyledView>
         <StyledTouchableOpacityRed onPress={() => this.next()}>
-          <StyledText>Get Started!</StyledText>
+          <StyledText style={{ marginBottom: 0 }}>Get Started!</StyledText>
         </StyledTouchableOpacityRed>
         <StyledTouchableOpacityRed
           onPress={() =>
             web3.torus.isLoggedIn ? this.logout() : web3.initialize()
           }
         >
-          <StyledText>
-            {" "}
+          <StyledText style={{ marginBottom: 0 }}>
             {web3.torus.isLoggedIn ? "Log out" : " Log in"}
           </StyledText>
         </StyledTouchableOpacityRed>
-      </StyledView>
+      </StyledViewContainer>
     );
   }
 }

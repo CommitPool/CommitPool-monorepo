@@ -1,6 +1,4 @@
 import React, { useState }  from 'react';
-import { StyleSheet } from 'react-native';
-import { Dimensions } from 'react-native';
 import { AsyncStorage } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
@@ -20,8 +18,6 @@ const discovery = {
 export default function App() {  
   const [code, setCode] = useState(true); 
   const [web3, setWeb3] = useState(web3Helper); 
-  const { width } = Dimensions.get('window');
-
 
   //Strava login
   const [request, response, promptAsync] = useAuthRequest(
@@ -84,13 +80,8 @@ export default function App() {
 
 }
 
+//TODO This layer can go?
 class Home extends React.Component <{web3: any, stravaOauth: any, code: string}, {}> {
-  state = {
-    accessToken: "",
-    // message: "Awaiting accesstoken",
-    // address: "",
-    // account: undefined
-  };
 
   render() {
     return (
@@ -98,34 +89,3 @@ class Home extends React.Component <{web3: any, stravaOauth: any, code: string},
     );
   }
 }
-
-const { width } = Dimensions.get('window');
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
-    //backgroundColor: '#282c34',
-    color: 'whitesmoke',
-  },
-
-linearGradient: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width,
-    borderRadius: 5
-  },
-
-  AppHeader: {
-    backgroundColor: '#282c34',
-    // min-height: 80vh;
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // font-size: calc(10px + 2vmin);
-    color: 'white'
-  }
-});

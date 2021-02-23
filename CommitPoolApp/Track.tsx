@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { ethers } from 'ethers';
 import { AsyncStorage } from 'react-native';
+import getEnvVars from "./environment.js";
 
 export default class Track extends Component <{next: any, code: string, web3: any}, {refreshToken: string, type: string, account:any, total: number, startTime: Number, endTime: Number, loading: Boolean, step: Number, fill: number, goal: number, accessToken: String}> {
   constructor(props) {
@@ -61,7 +62,8 @@ export default class Track extends Component <{next: any, code: string, web3: an
 
   setAccount() {
     const { web3 } = this.props;
-    this.setState({account: web3.provider.provider.selectedAddress})
+    console.log(web3.provider.provider.selectedAddress);
+    this.setState({account: web3.provider.provider.selectedAddress});
   }
 
   async getCommitment() {    
@@ -105,11 +107,12 @@ export default class Track extends Component <{next: any, code: string, web3: an
     console.log("WEB3", web3)
     const account = web3.provider.provider.selectedAddress;
     const commitPoolContract = web3.contracts.commitPool;
+    const { linkContractAddress } = getEnvVars();
 
     let contractWithSigner = commitPoolContract.connect(web3.provider.getSigner());
     this.setState({loading: true})
     try {
-        await contractWithSigner.requestActivityDistance(account, commitPoolContract.address, 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
+        await contractWithSigner.requestActivityDistance(account, linkContractAddress, 'e21d39b70cad42d6bc6b42c64b853007', {gasLimit: 500000});
 
         let topic = ethers.utils.id("RequestActivityDistanceFulfilled(bytes32,uint256,address)");
 
@@ -118,8 +121,8 @@ export default class Track extends Component <{next: any, code: string, web3: an
             topics: [ topic ]
         }
 
-        console.log("CONTRACT ADDRESS", commitPoolContract.address)
-        web3.provider.on("RequestActivityDistanceFulfilled", async (result, event) => {
+        console.log("FILTER SET", filter)
+        web3.provider.on(filter, async (result, event) => {
             const address = "0x" + result.topics[3].substr(26,66).toLowerCase()
             const now = new Date().getTime();
             console.log("ADDRESS", address);

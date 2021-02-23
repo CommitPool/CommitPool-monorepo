@@ -15,8 +15,8 @@ export const StyledTouchableOpacity = styled(TouchableOpacity)`
 `;
 
 export const StyledTouchableOpacityRed = styled(TouchableOpacity)`
-  width: 300;
-  height: 50;
+  width: 300px;
+  height: 50px;
   background-color: #d45353;
   align-items: center;
   justify-content: center;
@@ -28,6 +28,6 @@ export const StyledView = styled(View)`
 
 export const StyledViewRow = styled(View)`
     flexDirection: row; 
-    width: 300; 
-    padding: 10;
+    width: 300px; 
+    padding: 10px;
 `;

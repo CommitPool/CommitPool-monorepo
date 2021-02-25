@@ -21,6 +21,7 @@ const chainIds = {
   mainnet: 1,
   rinkeby: 4,
   ropsten: 3,
+  matic_mumbai: 80001,
 };
 
 // Ensure that we have all the environment variables we need.
@@ -74,6 +75,7 @@ const config: HardhatUserConfig = {
     kovan: createTestnetConfig("kovan"),
     rinkeby: createTestnetConfig("rinkeby"),
     ropsten: createTestnetConfig("ropsten"),
+    matic_mumbai: createTestnetConfig("matic_mumbai"),
   },
   paths: {
     artifacts: "./artifacts",

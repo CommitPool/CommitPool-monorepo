@@ -19,14 +19,14 @@ export default class Login extends React.Component<
             style={{ width: 200, height: 200 }}
             source={require("./assets/commit.png")}
           />
-          <StyledTextLarge style={{ marginTop: 15 }}>
+          <StyledTextLarge style={{ margin: 25 }}>
             Login to Strava
           </StyledTextLarge>
 
           <StyledText>
             To track your progress and verify that you've met your goal, we rely
             on activity data that you share with Strava.
-            {"\n"}
+            {"\n\n\n"}
           </StyledText>
           <StyledText>Connect your Strava account below.</StyledText>
         </StyledView>

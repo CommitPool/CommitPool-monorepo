@@ -8,13 +8,15 @@ export const StyledText = styled(Text)`
   text-align: center;
   color: white;
   font-size: 25px;
-  margin-bottom: 25px;
+  width: 100%;
 `;
 
 export const StyledTextInput = styled(TextInput)`
   text-align: center;
   border-radius: 5;
   background-color: white;
+  margin-left: 15px;
+  margin-right: 15px;
   font-size: 25;
   color: black;
   height: 30px;
@@ -45,16 +47,26 @@ export const StyledTouchableOpacityRed = styled(StyledTouchableOpacity)`
 
 export const StyledView = styled(View)`
   align-items: center;
+  margin-: 25px
 `;
 
 export const StyledViewContainer = styled(StyledView)`
   flex: 1;
   justify-content: space-around;
+  width: 75%;
 `;
 
 export const StyledViewRow = styled(View)`
   flex-direction: row;
-  width: 300px;
+  justify-content: space-around;
+  width: 350px;
+  padding: 10px;
+`;
+
+export const StyledViewRowContainer = styled(StyledViewRow)`
+  flex-direction: row;
+  justify-content: space-around;
+  width: 400px;
   padding: 10px;
 `;
 

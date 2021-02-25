@@ -187,179 +187,134 @@ export default class MakeCommitment extends Component<
             <StyledText>⌛</StyledText>
           </StyledBackdropDark>
         ) : undefined}
-        {!this.state.txSent ? (
-          <StyledViewContainer>
-            <StyledView>
-              <StyledText>
-                {
-                  "Now that you've connected Strava and have funds in your wallet, you can set up your commitment!"
-                }
-              </StyledText>
-              <StyledText>Create Commitment</StyledText>
-              <StyledViewRow
-                style={{
-                  zIndex: 5000,
-                }}
-              >
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  Activity:
-                </StyledText>
-                <DropDownPicker
-                  items={this.state.activities}
-                  containerStyle={{ height: 40 }}
-                  style={{ backgroundColor: "#fafafa", width: 135 }}
-                  itemStyle={{
-                    justifyContent: "flex-start",
-                  }}
-                  dropDownStyle={{ backgroundColor: "#fafafa" }}
-                  onChangeItem={(item) => {
-                    console.log("change", item);
-                    this.setState({ activity: item.value });
-                  }}
-                />
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  Distance:
-                </StyledText>
-                <StyledView
-                  style={{ flex: 1, flexDirection: "row", marginLeft: 10 }}
-                >
-                  <StyledTextInput
-                    onChangeText={(text) =>
-                      this.setState({ distance: Number(text) })
-                    }
-                  ></StyledTextInput>
-                  <StyledText> Miles</StyledText>
-                </StyledView>
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  Stake:
-                </StyledText>
-                <StyledView
-                  style={{ flex: 1, flexDirection: "row", marginLeft: 10 }}
-                >
-                  <StyledTextInput
-                    onChangeText={(text) =>
-                      this.setState({ stake: Number(text) })
-                    }
-                  ></StyledTextInput>
-                  <StyledText> Dai</StyledText>
-                </StyledView>
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText
-                  style={{
-                    flex: 1,
-                    color: "white",
-                    fontSize: 28,
-                    fontWeight: "bold",
-                  }}
-                >
-                  Starting in
-                </StyledText>
-                <StyledViewRow style={{ flex: 1, marginLeft: 10 }}>
-                  <StyledTextInput
-                    onChangeText={(text) =>
-                      this.setState({ daysToStart: Number(text) })
-                    }
-                  ></StyledTextInput>
-                  <StyledText> day(s)</StyledText>
-                </StyledViewRow>
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText
-                  style={{
-                    flex: 1,
-                    fontWeight: "bold",
-                  }}
-                >
-                  for
-                </StyledText>
-                <StyledViewRow style={{ flex: 1, marginLeft: 10 }}>
-                  <StyledTextInput
-                    onChangeText={(text) =>
-                      this.setState({ duration: Number(text) })
-                    }
-                  ></StyledTextInput>
-                  <StyledText style={{ flex: 1 }}> day(s)</StyledText>
-                </StyledViewRow>
-              </StyledViewRow>
-            </StyledView>
 
-            <StyledTouchableOpacityRed onPress={() => this.createCommitment()}>
-              <StyledText style={{marginBottom: 0}}>Stake and Commit</StyledText>
-            </StyledTouchableOpacityRed>
-          </StyledViewContainer>
-        ) : (
-          <StyledViewContainer>
-            {this.state.loading ? (
-              <StyledView
+        {!this.state.txSent ? (
+          <StyledView>
+            <StyledTextLarge style={{ fontWeight: "bold" }}>
+              Create Commitment {"\n\n"}
+            </StyledTextLarge>
+            <StyledText>
+              {
+                "Now that you've connected Strava and have funds in your wallet, you can set up your commitment! \n\n"
+              }
+            </StyledText>
+            <StyledViewRow
+              style={{
+                zIndex: 5000,
+              }}
+            >
+              <StyledText style={{ fontWeight: "bold" }}>Activity:</StyledText>
+              <DropDownPicker
+                items={this.state.activities}
+                containerStyle={{ height: 40 }}
+                style={{ backgroundColor: "#fafafa", width: 135 }}
+                itemStyle={{
+                  justifyContent: "flex-start",
+                }}
+                dropDownStyle={{ backgroundColor: "#fafafa" }}
+                onChangeItem={(item) => {
+                  console.log("change", item);
+                  this.setState({ activity: item.value });
+                }}
+              />
+            </StyledViewRow>
+            <StyledViewRow>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>
+                Distance:
+              </StyledText>
+              <StyledTextInput
+                onChangeText={(text) =>
+                  this.setState({ distance: Number(text) })
+                }
+              ></StyledTextInput>
+              <StyledText style={{ textAlign: "left" }}> Miles</StyledText>
+            </StyledViewRow>
+            <StyledViewRow>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>
+                Stake:
+              </StyledText>
+              <StyledTextInput
+                onChangeText={(text) => this.setState({ stake: Number(text) })}
+              ></StyledTextInput>
+              <StyledText style={{ textAlign: "left" }}> DAI</StyledText>
+            </StyledViewRow>
+            <StyledViewRow>
+              <StyledText
                 style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "absolute",
-                  right: 0,
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  zIndex: 2,
+                  fontWeight: "bold",
                 }}
               >
+                Starting in
+              </StyledText>
+              <StyledTextInput
+                onChangeText={(text) =>
+                  this.setState({ daysToStart: Number(text) })
+                }
+              ></StyledTextInput>
+              <StyledText style={{ textAlign: "left" }}>day(s)</StyledText>
+            </StyledViewRow>
+
+            <StyledViewRow>
+              <StyledText>for</StyledText>
+              <StyledTextInput
+                onChangeText={(text) =>
+                  this.setState({ duration: Number(text) })
+                }
+              ></StyledTextInput>
+              <StyledText style={{ textAlign: "left" }}> day(s)</StyledText>
+            </StyledViewRow>
+            <StyledTouchableOpacityRed onPress={() => this.createCommitment()}>
+              <StyledText>Stake and Commit</StyledText>
+            </StyledTouchableOpacityRed>
+          </StyledView>
+        ) : (
+          <StyledView>
+            {this.state.loading ? (
+              <StyledBackdropDark>
                 <StyledText>⌛</StyledText>
-              </StyledView>
+              </StyledBackdropDark>
             ) : undefined}
-            <StyledView>
-              <StyledTextLarge>Commitment Created</StyledTextLarge>
-              <StyledTextLarge>✔️</StyledTextLarge>
-              <StyledViewRow>
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  Activity:
-                </StyledText>
-                <StyledText style={{ flex: 1, marginLeft: 10 }}>
-                  {this.getActivityName()}
-                </StyledText>
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  Distance:
-                </StyledText>
-                <StyledText style={{ flex: 1, marginLeft: 10 }}>
-                  {this.state.distance} Miles
-                </StyledText>
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  Stake:
-                </StyledText>
-                <StyledText style={{ flex: 1, marginLeft: 10 }}>
-                  {this.state.stake} Dai
-                </StyledText>
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  Starting in{" "}
-                </StyledText>
-                <StyledText style={{ flex: 1, marginLeft: 10 }}>
-                  {this.state.daysToStart} day(s)
-                </StyledText>
-              </StyledViewRow>
-              <StyledViewRow>
-                <StyledText style={{ flex: 1, fontWeight: "bold" }}>
-                  for
-                </StyledText>
-                <StyledText style={{ flex: 1, marginLeft: 10 }}>
-                  {this.state.duration} day(s)
-                </StyledText>
-              </StyledViewRow>
-            </StyledView>
+            <StyledTextLarge>Commitment Created</StyledTextLarge>
+            <StyledTextLarge>✔️</StyledTextLarge>
+            <StyledViewRow>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>Activity:</StyledText>
+              <StyledText style={{ marginLeft: 10 }}>
+                {this.getActivityName()}
+              </StyledText>
+            </StyledViewRow>
+            <StyledViewRow>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>Distance:</StyledText>
+              <StyledText style={{ marginLeft: 10 }}>
+                {this.state.distance} Miles
+              </StyledText>
+            </StyledViewRow>
+            <StyledViewRow>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>Stake:</StyledText>
+              <StyledText style={{ marginLeft: 10 }}>
+                {this.state.stake} DAI
+              </StyledText>
+            </StyledViewRow>
+            <StyledViewRow>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>
+                Starting in{" "}
+              </StyledText>
+              <StyledText style={{ marginLeft: 10 }}>
+                {this.state.daysToStart} day(s)
+              </StyledText>
+            </StyledViewRow>
+            <StyledViewRow>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>for</StyledText>
+              <StyledText style={{ marginLeft: 10 }}>
+                {this.state.duration} day(s)
+              </StyledText>
+            </StyledViewRow>
 
             <StyledTouchableOpacityRed onPress={() => this.props.next(6)}>
-              <StyledText style={{marginBottom: 0}}>Track Progress</StyledText>
+              <StyledText style={{ marginBottom: 0 }}>
+                Track Progress
+              </StyledText>
             </StyledTouchableOpacityRed>
-          </StyledViewContainer>
+          </StyledView>
         )}
       </StyledViewContainer>
     );

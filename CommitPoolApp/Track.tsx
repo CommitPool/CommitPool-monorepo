@@ -168,7 +168,7 @@ export default class Track extends Component<
       };
 
       console.log("EVENT FILTER SET", filter);
-      web3.provider.on(filter, async (result, event) => {
+      web3.provider.provider.on(filter, async (result, event) => {
         console.log("EVENT FOUND", event)
         const address = "0x" + result.topics[3].substr(26, 66).toLowerCase();
         const now = new Date().getTime();

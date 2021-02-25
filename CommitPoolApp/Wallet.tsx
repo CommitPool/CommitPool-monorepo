@@ -96,52 +96,50 @@ export default class Wallet extends Component<
 
   render() {
     const { web3 } = this.props;
+    console.log("WEB3", web3);
     const account = web3.torus.isLoggedIn
       ? web3.provider.provider.selectedAddress
       : "";
     return (
       <StyledViewContainer>
         <StyledView>
-          <StyledTextLarge style={{ marginBottom: 70 }}>
-            Add Funds
-          </StyledTextLarge>
-          <StyledText
-            style={{
-              marginBottom: 10,
-            }}
-          >
+          <StyledTextLarge style={{ margin: 15 }}>Add Funds</StyledTextLarge>
+          <StyledText style={{ margin: 15 }}>
             Login to your wallet via Torus by clicking the blue button below.
           </StyledText>
-          <StyledTextSmall style={{ marginBottom: 70 }}>
+          <StyledTextSmall style={{ margin: 15 }}>
             You can get funds on testnet from https://faucet.matic.network
           </StyledTextSmall>
           <QRCode value="account" size={225} />
           <StyledTextSmall
+            style={{ margin: 15 }}
             onPress={() => Clipboard.setString(account)}
-            style={{ marginTop: 10 }}
           >
             {account}
           </StyledTextSmall>
           <StyledText
             style={{
-              marginTop: 25,
               fontWeight: "bold",
             }}
           >
             Balances:
           </StyledText>
-          <StyledText>{this.state.balance} MATIC</StyledText>
-          <StyledText>{this.state.daiBalance} MATIC Dai</StyledText>
+          <StyledText style={{ margin: 15 }}>
+            {this.state.balance} MATIC
+          </StyledText>
+          <StyledText style={{ marginBottom: 15 }}>
+            {this.state.daiBalance} MATIC Dai
+          </StyledText>
         </StyledView>
         <StyledTouchableOpacityRed onPress={() => this.next()}>
-          <StyledText style={{ marginBottom: 0 }}>Get Started!</StyledText>
+          <StyledText>Get Started!</StyledText>
         </StyledTouchableOpacityRed>
         <StyledTouchableOpacityRed
           onPress={() =>
             web3.torus.isLoggedIn ? this.logout() : web3.initialize()
           }
         >
-          <StyledText style={{ marginBottom: 0 }}>
+          <StyledText>
             {web3.torus.isLoggedIn ? "Log out" : " Log in"}
           </StyledText>
         </StyledTouchableOpacityRed>

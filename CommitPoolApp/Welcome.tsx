@@ -41,7 +41,7 @@ export default class Welcome extends React.Component<{ next: any }, {}> {
             {"and I'm staking $10 on my succes\""}
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacity x onPress={() => this.props.next(2)}>
+        <StyledTouchableOpacity onPress={() => this.props.next(2)}>
           <Image
             style={{ width: 100, height: 100 }}
             source={require("./assets/commit.png")}

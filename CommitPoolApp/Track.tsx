@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { AsyncStorage } from "react-native";
 import getEnvVars from "./environment.js";
 import {
@@ -94,12 +94,7 @@ export default class Track extends Component<
     const account = web3.provider.provider.selectedAddress;
     let commitPoolContract = web3.contracts.commitPool;
 
-    const commitment = await commitPoolContract
-      .commitments(account)
-      .then((comm) => {
-        console.log("COMMITMENT", comm);
-        return comm;
-      });
+    const commitment = await commitPoolContract.commitments(account);
 
     const type = await commitPoolContract.activities(commitment["activityKey"]);
     this.setState({
@@ -141,10 +136,9 @@ export default class Track extends Component<
 
   async getUpdatedActivity() {
     const { web3 } = this.props;
-    console.log("WEB3", web3);
     const account = web3.provider.provider.selectedAddress;
     const commitPoolContract = web3.contracts.commitPool;
-    const { linkContractAddress } = getEnvVars();
+    const { oracleAddress, jobId } = getEnvVars();
 
     let contractWithSigner = commitPoolContract.connect(
       web3.provider.getSigner()
@@ -153,39 +147,34 @@ export default class Track extends Component<
     try {
       await contractWithSigner.requestActivityDistance(
         account,
-        linkContractAddress,
-        "e21d39b70cad42d6bc6b42c64b853007",
+        oracleAddress,
+        jobId,
         { gasLimit: 500000 }
       );
 
-      let topic = ethers.utils.id(
-        "RequestActivityDistanceFulfilled(bytes32,uint256,address)"
-      );
+      contractWithSigner.on(
+        "RequestActivityDistanceFulfilled",
+        async (id: string, distance: BigNumber, committer: string) => {
+          const now = new Date().getTime();
 
-      let filter = {
-        address: commitPoolContract.address,
-        topics: [topic],
-      };
-
-      console.log("EVENT FILTER SET", filter);
-      web3.provider.provider.on(filter, async (result, event) => {
-        console.log("EVENT FOUND", event)
-        const address = "0x" + result.topics[3].substr(26, 66).toLowerCase();
-        const now = new Date().getTime();
-        if (address === web3.provider.provider.selectedAddress.toLowerCase()) {
-          const commitment = await commitPoolContract.commitments(account);
-          if (commitment.reportedValue.gte(commitment.goalValue)) {
-            this.setState({ loading: false });
-            this.props.next(7);
-          } else if (now < commitment.endTime * 1000) {
-            this.setState({ loading: false });
-            alert("Goal not yet achieved. Keep going!");
-          } else {
-            this.setState({ loading: false });
-            this.props.next(8);
+          if (
+            committer.toLowerCase() ===
+            web3.provider.provider.selectedAddress.toLowerCase()
+          ) {
+            const commitment = await contractWithSigner.commitments(account);
+            if (commitment.reportedValue.gte(commitment.goalValue)) {
+              this.setState({ loading: false });
+              this.props.next(7);
+            } else if (now < commitment.endTime * 1000) {
+              this.setState({ loading: false });
+              alert("Goal not yet achieved. Keep going!");
+            } else {
+              this.setState({ loading: false });
+              this.props.next(8);
+            }
           }
         }
-      });
+      );
     } catch (error) {
       console.log(error);
       this.setState({ loading: false });
@@ -211,11 +200,7 @@ export default class Track extends Component<
             onAnimationComplete={() => console.log("onAnimationComplete")}
             backgroundColor="#D45353"
           >
-            {(fill) => (
-              <StyledText style={{ marginBottom: 0 }}>
-                {this.state.fill.toFixed(1)}%
-              </StyledText>
-            )}
+            {(fill) => <StyledText>{this.state.fill.toFixed(1)}%</StyledText>}
           </AnimatedCircularProgress>
           <StyledText>
             {((this.state.fill / 100) * this.state.goal).toFixed(1)}/
@@ -233,7 +218,7 @@ export default class Track extends Component<
           }
           onPress={() => this.getUpdatedActivity()}
         >
-          <StyledText style={{ marginBottom: 0 }}>Complete Goal</StyledText>
+          <StyledText>Complete Goal</StyledText>
         </StyledTouchableOpacityRed>
       </StyledViewContainer>
     );

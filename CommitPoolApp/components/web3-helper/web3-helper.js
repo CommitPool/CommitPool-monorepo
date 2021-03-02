@@ -51,9 +51,9 @@ const web3Helper = {
       buildEnv: "production", 
       enableLogging: torusLogging, 
       network: {
-        host: "mumbai", 
-        chainId: 80001, 
-        networkName: "Mumbai Test Network", 
+        host: "rinkeby", 
+        // chainId: 80001, 
+        // networkName: "Mumbai Test Network", 
       },
       showTorusButton: true,
     });

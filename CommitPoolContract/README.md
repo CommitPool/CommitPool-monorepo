@@ -4,6 +4,10 @@
 
 Our MVP focuses on a single goal type for individuals, hence the Single Player mode.
 
+Current address:
+
+**Rinkeby** [0x0e92528803F04A82e96Af5d43D5b9faEaF8F28D8](https://rinkeby.etherscan.io/address/0x0e92528803f04a82e96af5d43d5b9faeaf8f28d8)
+
 ## Getting started
 
 Currently Ganache and Node 14 are not playing well together. To get started:

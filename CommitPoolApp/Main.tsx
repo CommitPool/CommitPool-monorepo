@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { StyleSheet } from "react-native";
-import { StyledView } from "./components/styles";
 import Login from "./Login";
 import Track from "./Track";
 import MakeCommitment from "./MakeCommitment";

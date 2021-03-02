@@ -36,9 +36,7 @@ export default class Complete extends Component<
       <StyledViewContainer>
         {this.props.success ? (
           <ConfettiCannon count={100} origin={{ x: 100, y: 0 }} />
-        ) : (
-          ""
-        )}
+        ) : undefined}
         {this.props.success ? (
           <StyledView>
             <StyledTextLarge>Congrats!</StyledTextLarge>
@@ -49,7 +47,7 @@ export default class Complete extends Component<
           <StyledView>
             <StyledTextLarge>Doh!</StyledTextLarge>
             <StyledText>Commitment Missed</StyledText>
-            <StyledTextLarge></StyledTextLarge>
+            <StyledTextLarge>❌</StyledTextLarge>
           </StyledView>
         )}
         <StyledTouchableOpacityRed onPress={() => this.go()}>
@@ -57,7 +55,7 @@ export default class Complete extends Component<
             {this.props.success ? "Claim Reward" : "Re-Commit"}
           </StyledText>
         </StyledTouchableOpacityRed>
-      </StyledViewContainer>
+       </StyledViewContainer>
     );
   }
 }

@@ -277,19 +277,25 @@ export default class MakeCommitment extends Component<
             <StyledTextLarge>Commitment Created</StyledTextLarge>
             <StyledTextLarge>✔️</StyledTextLarge>
             <StyledViewRow>
-              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>Activity:</StyledText>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>
+                Activity:
+              </StyledText>
               <StyledText style={{ marginLeft: 10 }}>
                 {this.getActivityName()}
               </StyledText>
             </StyledViewRow>
             <StyledViewRow>
-              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>Distance:</StyledText>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>
+                Distance:
+              </StyledText>
               <StyledText style={{ marginLeft: 10 }}>
                 {this.state.distance} Miles
               </StyledText>
             </StyledViewRow>
             <StyledViewRow>
-              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>Stake:</StyledText>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>
+                Stake:
+              </StyledText>
               <StyledText style={{ marginLeft: 10 }}>
                 {this.state.stake} DAI
               </StyledText>
@@ -303,7 +309,9 @@ export default class MakeCommitment extends Component<
               </StyledText>
             </StyledViewRow>
             <StyledViewRow>
-              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>for</StyledText>
+              <StyledText style={{ textAlign: "right", fontWeight: "bold" }}>
+                for
+              </StyledText>
               <StyledText style={{ marginLeft: 10 }}>
                 {this.state.duration} day(s)
               </StyledText>

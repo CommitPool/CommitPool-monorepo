@@ -71,8 +71,6 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         address oracle, 
         bool allowed,
         bool exists);
-    //TODO Error events
-
 
     /******************
     INTERNAL ACCOUNTING
@@ -452,7 +450,6 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         req.add("endTime", uint2str(commitment.endTime));
         req.add("userId", commitment.userId);
 
-        //TODO
         bytes32 requestId = sendChainlinkRequestTo(_oracle, req, ORACLE_PAYMENT);
         jobAddresses[requestId] = _committer;
     }

@@ -2,7 +2,7 @@
 pragma solidity 0.6.10;
 pragma experimental ABIEncoderV2;
 
-// import "@hardhat/console.sol";
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
@@ -14,6 +14,16 @@ import "@opengsn/gsn/contracts/BaseRelayRecipient.sol";
 /// @notice Enables staking and validating performance. No social/pool functionality.
 contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     using SafeMath for uint256;
+
+    function _msgSender() internal override(Context, BaseRelayRecipient)
+  view returns (address payable) {
+    return BaseRelayRecipient._msgSender();
+  }
+
+  function _msgData() internal override(Context,BaseRelayRecipient)
+  view returns (bytes memory ret) {
+    return BaseRelayRecipient._msgData();
+  }
 
     /******************
     GLOBAL CONSTANTS
@@ -99,7 +109,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
         address _linkToken,
         address _trustedForwarder
     ) public {
-        // console.log("Constructor called for SinglePlayerCommit contract");
+        console.log("Constructor called for SinglePlayerCommit contract");
         require(_activityList.length >= 1, "SPC::constructor - activityList empty");
         require(setTrustedForwarder(_trustedForwarder), "SPC::constructor - activityList empty");
         token = IERC20(_daiToken);
@@ -121,7 +131,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /// @param amount Size of deposit
     /// @dev Transfer amount to <token> contract, update balance, emit event
     function deposit(uint256 amount) public returns (bool success) {
-        // console.log("Received call for depositing amount %s from sender %s", amount, _msgSender());
+        console.log("Received call for depositing amount %s from sender %s", amount, _msgSender());
         require(token.transferFrom(_msgSender(), address(this), amount), "SPC::deposit - token transfer failed");
 
         _changeCommitterBalance(_msgSender(), amount, true);
@@ -135,7 +145,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /// @param amount Amount of <token> to withdraw
     /// @dev Check balances and active stake, withdraw from balances, emit event
     function withdraw(uint256 amount) public returns (bool success) {
-        // console.log("Received call for withdrawing amount %s from sender %s", amount, _msgSender());
+        console.log("Received call for withdrawing amount %s from sender %s", amount, _msgSender());
         uint256 available = committerBalances[_msgSender()];
         Commitment storage commitment = commitments[_msgSender()];
 
@@ -170,17 +180,18 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
         uint256 _stake,
         string memory _userId
     ) public returns (bool success) {
-        // console.log("makeCommitment called by %s", _msgSender());
+        console.log("makeCommitment called by %s", _msgSender());
 
-        require(!commitments[_msgSender()].exists, "SPC::makeCommitment - _msgSender() already has a commitment");
+        address sender = _msgSender();
+        require(!commitments[sender].exists, "SPC::makeCommitment - sender already has a commitment");
         require(activities[_activityKey].allowed, "SPC::makeCommitment - activity doesn't exist or isn't allowed");
         require(_endTime > _startTime, "SPC::makeCommitment - endTime before startTime");
         require(_goalValue > 1, "SPC::makeCommitment - goal is too low");
-        require(committerBalances[_msgSender()] >= _stake, "SPC::makeCommitment - insufficient token balance");
+        require(committerBalances[sender] >= _stake, "SPC::makeCommitment - insufficient token balance");
 
         Commitment memory commitment =
             Commitment({
-                committer: _msgSender(),
+                committer: sender,
                 activityKey: _activityKey,
                 goalValue: _goalValue,
                 startTime: _startTime,
@@ -246,7 +257,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /// @notice Enables control of processing own commitment. For instance when completed.
     /// @dev Process commitment by lookup _msgSender(), checking metrics, state and updating balances
     function processCommitmentUser() public {
-        // console.log("Processing commitment");
+        console.log("Processing commitment");
         require(commitments[_msgSender()].exists, "SPC::processCommitmentUser - commitment does not exist");
         Commitment storage commitment = commitments[_msgSender()];
 
@@ -257,7 +268,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /// @notice Internal function for evaluating commitment and slashing funds if needed
     /// @dev Receive call with commitment object from storage
     function _settleCommitment(Commitment storage commitment) internal returns (bool success) {
-        // console.log("Settling commitment");
+        console.log("Settling commitment");
         commitment.met = commitment.reportedValue >= commitment.goalValue;
 
         commitment.exists = false;
@@ -269,12 +280,12 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /// @param amount Amount of <token> to withdraw
     /// @dev Check amount against slashedBalance, transfer amount and update slashedBalance
     function ownerWithdraw(uint256 amount) public onlyOwner returns (bool success) {
-        // console.log("Received call for owner withdrawal for amount %s", amount);
+        console.log("Received call for owner withdrawal for amount %s", amount);
 
         require(amount <= slashedBalance, "SPC::ownerWithdraw - not enough available balance");
         slashedBalance = slashedBalance.sub(amount);
 
-        require(token.transfer(_msgSender, amount), "SPC::ownerWithdraw - token transfer failed");
+        require(token.transfer(_msgSender(), amount), "SPC::ownerWithdraw - token transfer failed");
 
         return true;
     }
@@ -288,7 +299,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
         uint256 amount,
         bool add
     ) internal returns (bool success) {
-        // console.log("Changing committer balance");
+        console.log("Changing committer balance");
         if (add) {
             committerBalances[committer] = committerBalances[committer].add(amount);
             totalCommitterBalance = totalCommitterBalance.add(amount);
@@ -305,7 +316,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /// @param committer Address of committer
     /// @dev Substract amount from committer balance and add to slashedBalance
     function _slashFunds(uint256 amount, address committer) internal returns (bool success) {
-        // console.log("Slashing funds commitment");
+        console.log("Slashing funds commitment");
         require(committerBalances[committer] >= amount, "SPC::_slashFunds - funds not available");
         _changeCommitterBalance(committer, amount, false);
         slashedBalance = slashedBalance.add(amount);
@@ -324,7 +335,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
             _addActivity(_activityList[i], oracleAddress);
         }
 
-        // console.log("All provided activities added");
+        console.log("All provided activities added");
     }
 
     /// @notice Add activity to contract's activityKeyList
@@ -340,7 +351,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
         Activity memory activity =
             Activity({ name: _activityName, oracle: _oracleAddress, allowed: true, exists: true });
 
-        // console.log("Registered activity %s", _activityName);
+        console.log("Registered activity %s", _activityName);
 
         activities[_activityKey] = activity;
         activityKeyList.push(_activityKey);
@@ -433,7 +444,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /// @notice Withdraw ChainLink token from contract to contract owner
     function withdrawLink() public onlyOwner {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
-        require(link.transfer(_msgSender, link.balanceOf(address(this))), "Unable to transfer");
+        require(link.transfer(_msgSender(), link.balanceOf(address(this))), "Unable to transfer");
     }
 
     function cancelRequest(

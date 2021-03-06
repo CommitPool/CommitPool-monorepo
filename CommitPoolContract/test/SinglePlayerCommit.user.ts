@@ -95,7 +95,7 @@ export function userCanManageCommitments(): void {
 
       await expect(
         contractWithUser.makeCommitment(activityKey, goal, startTime, endTime, amountToStake, userId, _overrides),
-      ).to.be.revertedWith("SPC::makeCommitment - msg.sender already has a commitment");
+      ).to.be.revertedWith("SPC::makeCommitment - sender already has a commitment");
     });
 
     it("cannot make a commitment without deposited funds", async function () {

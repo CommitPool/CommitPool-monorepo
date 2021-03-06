@@ -2,16 +2,17 @@
 pragma solidity 0.6.10;
 pragma experimental ABIEncoderV2;
 
-import { console } from "@nomiclabs/buidler/console.sol";
+// import "@hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
 //https://github.com/smartcontractkit/chainlink/issues/3153#issuecomment-655241638
 import "@chainlink/contracts/src/v0.6/vendor/SafeMath.sol";
+import "@opengsn/gsn/contracts/BaseRelayRecipient.sol";
 
 /// @title CommitPool single-player mode contract
 /// @notice Enables staking and validating performance. No social/pool functionality.
-contract SinglePlayerCommit is ChainlinkClient, Ownable {
+contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     using SafeMath for uint256;
 
     /******************
@@ -19,12 +20,12 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     ******************/
     IERC20 public token;
     uint256 BIGGEST_NUMBER = uint256(-1);
-    uint256 constant private ORACLE_PAYMENT = 0.1 * 10 ** 18; //0.1 LINK
+    uint256 private constant ORACLE_PAYMENT = 0.1 * 10**18; //0.1 LINK
 
     /***************
     DATA TYPES
     ***************/
-    /// @notice Activity as part of commitment with oracle address. E.g. "cycling" with ChainLink Strava node 
+    /// @notice Activity as part of commitment with oracle address. E.g. "cycling" with ChainLink Strava node
     struct Activity {
         string name;
         address oracle;
@@ -65,12 +66,7 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         uint256 indexed distance,
         address indexed committer
     );
-    event ActivityUpdated(
-        string name, 
-        bytes32 activityKey, 
-        address oracle, 
-        bool allowed,
-        bool exists);
+    event ActivityUpdated(string name, bytes32 activityKey, address oracle, bool allowed, bool exists);
 
     /******************
     INTERNAL ACCOUNTING
@@ -100,15 +96,16 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         string[] memory _activityList,
         address _oracleAddress,
         address _daiToken,
-        address _linkToken
-    ) 
-        public {
-            console.log("Constructor called for SinglePlayerCommit contract");
-            require(_activityList.length >= 1, "SPC::constructor - activityList empty");
-            token = IERC20(_daiToken);
-            setChainlinkToken(_linkToken);
+        address _linkToken,
+        address _trustedForwarder
+    ) public {
+        // console.log("Constructor called for SinglePlayerCommit contract");
+        require(_activityList.length >= 1, "SPC::constructor - activityList empty");
+        require(setTrustedForwarder(_trustedForwarder), "SPC::constructor - activityList empty");
+        token = IERC20(_daiToken);
+        setChainlinkToken(_linkToken);
 
-            _addActivities(_activityList, _oracleAddress);
+        _addActivities(_activityList, _oracleAddress);
     }
 
     // view functions
@@ -124,15 +121,12 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @param amount Size of deposit
     /// @dev Transfer amount to <token> contract, update balance, emit event
     function deposit(uint256 amount) public returns (bool success) {
-        console.log("Received call for depositing amount %s from sender %s", amount, msg.sender);
-        require(
-            token.transferFrom(msg.sender, address(this), amount), 
-            "SPC::deposit - token transfer failed"
-        );
+        // console.log("Received call for depositing amount %s from sender %s", amount, _msgSender());
+        require(token.transferFrom(_msgSender(), address(this), amount), "SPC::deposit - token transfer failed");
 
-        _changeCommitterBalance(msg.sender, amount, true);
+        _changeCommitterBalance(_msgSender(), amount, true);
 
-        emit Deposit(msg.sender, amount);
+        emit Deposit(_msgSender(), amount);
 
         return true;
     }
@@ -141,21 +135,21 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @param amount Amount of <token> to withdraw
     /// @dev Check balances and active stake, withdraw from balances, emit event
     function withdraw(uint256 amount) public returns (bool success) {
-        console.log("Received call for withdrawing amount %s from sender %s", amount, msg.sender);
-        uint256 available = committerBalances[msg.sender];
-        Commitment storage commitment = commitments[msg.sender];
+        // console.log("Received call for withdrawing amount %s from sender %s", amount, _msgSender());
+        uint256 available = committerBalances[_msgSender()];
+        Commitment storage commitment = commitments[_msgSender()];
 
-        if(commitment.exists == true){
+        if (commitment.exists == true) {
             available = available.sub(commitment.stake);
         }
 
         require(amount <= available, "SPC::withdraw - not enough (unstaked) balance available");
 
-        _changeCommitterBalance(msg.sender, amount, false);
+        _changeCommitterBalance(_msgSender(), amount, false);
 
-        require(token.transfer(msg.sender, amount), "SPC::withdraw - token transfer failed");
+        require(token.transfer(_msgSender(), amount), "SPC::withdraw - token transfer failed");
 
-        emit Withdrawal(msg.sender, amount);
+        emit Withdrawal(_msgSender(), amount);
 
         return true;
     }
@@ -176,17 +170,17 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         uint256 _stake,
         string memory _userId
     ) public returns (bool success) {
-        console.log("makeCommitment called by %s", msg.sender);
+        // console.log("makeCommitment called by %s", _msgSender());
 
-        require(!commitments[msg.sender].exists, "SPC::makeCommitment - msg.sender already has a commitment");
+        require(!commitments[_msgSender()].exists, "SPC::makeCommitment - _msgSender() already has a commitment");
         require(activities[_activityKey].allowed, "SPC::makeCommitment - activity doesn't exist or isn't allowed");
         require(_endTime > _startTime, "SPC::makeCommitment - endTime before startTime");
         require(_goalValue > 1, "SPC::makeCommitment - goal is too low");
-        require(committerBalances[msg.sender] >= _stake, "SPC::makeCommitment - insufficient token balance");
+        require(committerBalances[_msgSender()] >= _stake, "SPC::makeCommitment - insufficient token balance");
 
         Commitment memory commitment =
             Commitment({
-                committer: msg.sender,
+                committer: _msgSender(),
                 activityKey: _activityKey,
                 goalValue: _goalValue,
                 startTime: _startTime,
@@ -199,9 +193,9 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
                 exists: true
             });
 
-        commitments[msg.sender] = commitment;
+        commitments[_msgSender()] = commitment;
 
-        emit NewCommitment(msg.sender, activities[_activityKey].name, _goalValue, _startTime, _endTime, _stake);
+        emit NewCommitment(_msgSender(), activities[_activityKey].name, _goalValue, _startTime, _endTime, _stake);
 
         return true;
     }
@@ -250,24 +244,24 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     // }
 
     /// @notice Enables control of processing own commitment. For instance when completed.
-    /// @dev Process commitment by lookup msg.sender, checking metrics, state and updating balances
+    /// @dev Process commitment by lookup _msgSender(), checking metrics, state and updating balances
     function processCommitmentUser() public {
-        console.log("Processing commitment");
-        require(commitments[msg.sender].exists, "SPC::processCommitmentUser - commitment does not exist");
-        Commitment storage commitment = commitments[msg.sender];
+        // console.log("Processing commitment");
+        require(commitments[_msgSender()].exists, "SPC::processCommitmentUser - commitment does not exist");
+        Commitment storage commitment = commitments[_msgSender()];
 
         require(_settleCommitment(commitment), "SPC::processCommitmentUser - settlement failed");
-        emit CommitmentEnded(msg.sender, commitment.met, commitment.stake);
+        emit CommitmentEnded(_msgSender(), commitment.met, commitment.stake);
     }
 
     /// @notice Internal function for evaluating commitment and slashing funds if needed
     /// @dev Receive call with commitment object from storage
     function _settleCommitment(Commitment storage commitment) internal returns (bool success) {
-        console.log("Settling commitment");
+        // console.log("Settling commitment");
         commitment.met = commitment.reportedValue >= commitment.goalValue;
 
-        commitment.exists = false;        
-        commitment.met ? withdraw(commitment.stake) : _slashFunds(commitment.stake, msg.sender);
+        commitment.exists = false;
+        commitment.met ? withdraw(commitment.stake) : _slashFunds(commitment.stake, _msgSender());
         return true;
     }
 
@@ -275,12 +269,12 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @param amount Amount of <token> to withdraw
     /// @dev Check amount against slashedBalance, transfer amount and update slashedBalance
     function ownerWithdraw(uint256 amount) public onlyOwner returns (bool success) {
-        console.log("Received call for owner withdrawal for amount %s", amount);
+        // console.log("Received call for owner withdrawal for amount %s", amount);
 
         require(amount <= slashedBalance, "SPC::ownerWithdraw - not enough available balance");
         slashedBalance = slashedBalance.sub(amount);
 
-        require(token.transfer(msg.sender, amount), "SPC::ownerWithdraw - token transfer failed");
+        require(token.transfer(_msgSender, amount), "SPC::ownerWithdraw - token transfer failed");
 
         return true;
     }
@@ -288,9 +282,13 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @notice Internal function to update balance of caller and total balance
     /// @param amount Amount of <token> to deposit/withdraw
     /// @param add Boolean toggle to deposit or withdraw
-    /// @dev Based on add param add or substract amount from msg.sender balance and total committerBalance
-    function _changeCommitterBalance(address committer, uint256 amount, bool add) internal returns (bool success) {
-        console.log("Changing committer balance");
+    /// @dev Based on add param add or substract amount from _msgSender balance and total committerBalance
+    function _changeCommitterBalance(
+        address committer,
+        uint256 amount,
+        bool add
+    ) internal returns (bool success) {
+        // console.log("Changing committer balance");
         if (add) {
             committerBalances[committer] = committerBalances[committer].add(amount);
             totalCommitterBalance = totalCommitterBalance.add(amount);
@@ -307,7 +305,7 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @param committer Address of committer
     /// @dev Substract amount from committer balance and add to slashedBalance
     function _slashFunds(uint256 amount, address committer) internal returns (bool success) {
-        console.log("Slashing funds commitment");
+        // console.log("Slashing funds commitment");
         require(committerBalances[committer] >= amount, "SPC::_slashFunds - funds not available");
         _changeCommitterBalance(committer, amount, false);
         slashedBalance = slashedBalance.add(amount);
@@ -326,107 +324,66 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
             _addActivity(_activityList[i], oracleAddress);
         }
 
-        console.log("All provided activities added");
+        // console.log("All provided activities added");
     }
 
     /// @notice Add activity to contract's activityKeyList
     /// @param _activityName String name of activity
     /// @param _oracleAddress Contract address of oracle
     /// @dev Create key from name, create activity, push to activityKeyList, return key
-    function _addActivity(string memory _activityName, address _oracleAddress) 
-        internal 
-        returns (bytes32 activityKey) 
-    {
+    function _addActivity(string memory _activityName, address _oracleAddress) internal returns (bytes32 activityKey) {
         bytes memory activityNameBytes = bytes(_activityName);
         require(activityNameBytes.length > 0, "SPC::_addActivity - _activityName empty");
 
         bytes32 _activityKey = keccak256(abi.encode(_activityName));
 
-        Activity memory activity = Activity({
-            name: _activityName,
-            oracle: _oracleAddress,
-            allowed: true,
-            exists: true
-        });
+        Activity memory activity =
+            Activity({ name: _activityName, oracle: _oracleAddress, allowed: true, exists: true });
 
-        console.log(
-            "Registered activity %s",
-            _activityName
-        );
+        // console.log("Registered activity %s", _activityName);
 
         activities[_activityKey] = activity;
-        activityKeyList.push(_activityKey); 
-        emit ActivityUpdated(
-            activity.name, 
-            _activityKey, 
-            activity.oracle, 
-            activity.allowed, 
-            activity.exists);
+        activityKeyList.push(_activityKey);
+        emit ActivityUpdated(activity.name, _activityKey, activity.oracle, activity.allowed, activity.exists);
         return _activityKey;
     }
 
     /// @notice Function to update oracle address of existing activity
     /// @param _activityKey Keccak256 hashed, encoded name of activity
-    /// @param _oracleAddress Address of oracle for activity data    
+    /// @param _oracleAddress Address of oracle for activity data
     /// @dev Check activity exists, update state, emit event
-    function updateActivityOracle(bytes32 _activityKey, address _oracleAddress) 
+    function updateActivityOracle(bytes32 _activityKey, address _oracleAddress)
         public
-        onlyOwner 
+        onlyOwner
         returns (bool success)
     {
         require(activities[_activityKey].exists, "SPC::_updateActivityOracle - activity does not exist");
         Activity storage activity = activities[_activityKey];
         activity.oracle = _oracleAddress;
-        emit ActivityUpdated(
-                activity.name, 
-                _activityKey, 
-                activity.oracle, 
-                activity.allowed, 
-                activity.exists
-            );
+        emit ActivityUpdated(activity.name, _activityKey, activity.oracle, activity.allowed, activity.exists);
         return true;
     }
 
     /// @notice Function to update availability of activity of existing activity
     /// @param _activityKey Keccak256 hashed, encoded name of activity
-    /// @param _allowed Toggle for allowing new commitments with activity    
+    /// @param _allowed Toggle for allowing new commitments with activity
     /// @dev Check activity exists, update state, emit event
-    function updateActivityAllowed(bytes32 _activityKey, bool _allowed) 
-        public
-        onlyOwner 
-        returns (bool success)
-    {
+    function updateActivityAllowed(bytes32 _activityKey, bool _allowed) public onlyOwner returns (bool success) {
         require(activities[_activityKey].exists, "SPC::_updateActivityOracle - activity does not exist");
         Activity storage activity = activities[_activityKey];
         activity.allowed = _allowed;
-        emit ActivityUpdated(
-                activity.name, 
-                _activityKey, 
-                activity.oracle, 
-                activity.allowed, 
-                activity.exists
-            );
+        emit ActivityUpdated(activity.name, _activityKey, activity.oracle, activity.allowed, activity.exists);
         return true;
     }
 
     /// @notice Function to 'delete' an existing activity. One way function, cannot be reversed.
     /// @param _activityKey Keccak256 hashed, encoded name of activity
     /// @dev Check activity exists, update state, emit event
-    function disableActivity(bytes32 _activityKey) 
-        public
-        onlyOwner 
-        returns (bool success)
-    {
+    function disableActivity(bytes32 _activityKey) public onlyOwner returns (bool success) {
         require(activities[_activityKey].exists, "SPC::_updateActivityOracle - activity does not exist");
         Activity storage activity = activities[_activityKey];
         activity.exists = false;
-        emit ActivityUpdated(
-                activity.name, 
-                _activityKey, 
-                activity.oracle, 
-                activity.allowed, 
-                activity.exists
-            );
+        emit ActivityUpdated(activity.name, _activityKey, activity.oracle, activity.allowed, activity.exists);
         return true;
     }
 
@@ -436,15 +393,14 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @param _oracle ChainLink oracle address
     /// @param _jobId ???
     /// @dev Async function sending request to ChainLink node
-    function requestActivityDistance(address _committer, address _oracle, string memory _jobId)
-        public
-    {
+    function requestActivityDistance(
+        address _committer,
+        address _oracle,
+        string memory _jobId
+    ) public {
         Commitment memory commitment = commitments[_committer];
-        Chainlink.Request memory req = buildChainlinkRequest(
-                                            stringToBytes32(_jobId), 
-                                            address(this), 
-                                            this.fulfillActivityDistance.selector
-                                        );
+        Chainlink.Request memory req =
+            buildChainlinkRequest(stringToBytes32(_jobId), address(this), this.fulfillActivityDistance.selector);
         req.add("type", activities[commitment.activityKey].name);
         req.add("startTime", uint2str(commitment.startTime));
         req.add("endTime", uint2str(commitment.endTime));
@@ -477,7 +433,7 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
     /// @notice Withdraw ChainLink token from contract to contract owner
     function withdrawLink() public onlyOwner {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
-        require(link.transfer(msg.sender, link.balanceOf(address(this))), "Unable to transfer");
+        require(link.transfer(_msgSender, link.balanceOf(address(this))), "Unable to transfer");
     }
 
     function cancelRequest(
@@ -485,42 +441,50 @@ contract SinglePlayerCommit is ChainlinkClient, Ownable {
         uint256 _payment,
         bytes4 _callbackFunctionId,
         uint256 _expiration
-    )
-        public
-        onlyOwner
-    {
+    ) public onlyOwner {
         cancelChainlinkRequest(_requestId, _payment, _callbackFunctionId, _expiration);
     }
 
     function stringToBytes32(string memory source) private pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
-        return 0x0;
+            return 0x0;
         }
 
-        assembly { // solhint-disable-line no-inline-assembly
-        result := mload(add(source, 32))
+        assembly {
+            // solhint-disable-line no-inline-assembly
+            result := mload(add(source, 32))
         }
     }
-    
-    function uint2str(uint i) internal pure returns (string memory str){
+
+    function uint2str(uint256 i) internal pure returns (string memory str) {
         if (i == 0) return "0";
-        uint j = i;
-        uint length;
-        while (j != 0){
+        uint256 j = i;
+        uint256 length;
+        while (j != 0) {
             length++;
             j /= 10;
         }
         bytes memory bstr = new bytes(length);
-        uint k = length - 1;
-        while (i != 0){
-            bstr[k--] = byte(uint8(48 + i % 10)); 
+        uint256 k = length - 1;
+        while (i != 0) {
+            bstr[k--] = bytes1(uint8(48 + (i % 10)));
             i /= 10;
         }
         return string(bstr);
     }
 
     function addDays(uint256 amountOfDays, uint256 startDate) internal pure returns (uint256 updatedDate) {
-    return (startDate + amountOfDays * 1 days);
+        return (startDate + amountOfDays * 1 days);
+    }
+
+    // Metatransactions
+    function setTrustedForwarder(address _forwarder) public onlyOwner returns (bool) {
+        trustedForwarder = _forwarder;
+        return true;
+    }
+
+    function versionRecipient() external view override returns (string memory) {
+        return "1";
     }
 }

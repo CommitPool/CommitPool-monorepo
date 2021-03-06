@@ -29,6 +29,7 @@ describe("SinglePlayerCommit", function () {
     this.oracle = await waffle.deployMockContract(this.signers.admin, chainLinkArtifact);
     this.daiToken = await waffle.deployMockContract(this.signers.admin, daiArtifact);
     this.chainlinkToken = await waffle.deployMockContract(this.signers.admin, chainLinkArtifact);
+    this.trustedForwarder = "0xc0ffee254729296a45a3885639AC7E10F9d54979"
   });
 
   describe("Unittest", function () {
@@ -42,6 +43,7 @@ describe("SinglePlayerCommit", function () {
         this.oracle.address,
         this.daiToken.address,
         this.chainlinkToken.address,
+        this.trustedForwarder,
       ])) as SinglePlayerCommit;
       console.log("SinglePlayerCommit deployed to ", this.singlePlayerCommit.address);
     });

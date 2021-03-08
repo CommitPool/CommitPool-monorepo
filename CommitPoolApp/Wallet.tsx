@@ -35,7 +35,7 @@ export default class Wallet extends Component<
   }
 
   async setStateInfo(web3: any) {
-    const account = web3.provider.provider.selectedAddress;
+    const account = web3.account;
 
     await web3.provider
       .getBalance(account)
@@ -52,8 +52,8 @@ export default class Wallet extends Component<
 
   async setStateRefresh(web3: any) {
     const refresh = setInterval(async () => {
-      if (web3.provider !== undefined) {
-        const account = web3.provider.provider.selectedAddress;
+      if (web3.account !== undefined) {
+        const account = web3.account;
 
         await web3.provider
           .getBalance(account)
@@ -79,7 +79,7 @@ export default class Wallet extends Component<
 
   async next() {
     const { web3 } = this.props;
-    const account = web3.provider.provider.selectedAddress;
+    const account = web3.account;
     const commitPoolContract = web3.contracts.commitPool;
 
     try {
@@ -98,7 +98,7 @@ export default class Wallet extends Component<
     const { web3 } = this.props;
     console.log("WEB3", web3);
     const account = web3.torus.isLoggedIn
-      ? web3.provider.provider.selectedAddress
+      ? web3.account
       : "";
     return (
       <StyledViewContainer>

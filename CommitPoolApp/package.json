@@ -6,6 +6,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@biconomy/mexa": "^2.0.4",
     "@toruslabs/torus-embed": "^1.9.9",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",

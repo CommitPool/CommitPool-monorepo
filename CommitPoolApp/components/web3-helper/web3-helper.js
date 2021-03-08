@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import getEnvVars from "../../environment.js";
 import getContract from "../contract/contract";
 import Torus from "@toruslabs/torus-embed";
+import getProvider from "../provider/provider";
 
 const {
   commitPoolContractAddress,
@@ -12,11 +13,11 @@ const {
 } = getEnvVars();
 
 const web3Helper = {
-  // account: undefined,
-  // setAccount: function(provider) {
-  //   web3Helper.account = provider.selectedAddress;
-  //   console.log("WEB3HELPER account", web3Helper.account)
-  // },
+  account: undefined,
+  setAccount: function(walletProvider) {
+    web3Helper.account = walletProvider.selectedAddress;
+    console.log("WEB3HELPER account", web3Helper.account)
+  },
   contracts: {
     commitPool: {},
     dai: {},
@@ -26,8 +27,8 @@ const web3Helper = {
     web3Helper.initialize();
   },
   provider: undefined,
-  setWeb3Provider: function () {
-    web3Helper.provider = new ethers.providers.Web3Provider(web3Helper.torus.provider);
+  setWeb3Provider: function (walletProvider) {
+    web3Helper.provider = getProvider(walletProvider);
     web3Helper.contracts.dai = getContract(
       daiContractAddress,
       daiAbi,
@@ -59,7 +60,8 @@ const web3Helper = {
     });
 
     await web3Helper.torus.login(); 
-    web3Helper.setWeb3Provider();
+    web3Helper.setAccount(torus.provider);
+    web3Helper.setWeb3Provider(torus.provider);
     return web3Helper;
   },
 };

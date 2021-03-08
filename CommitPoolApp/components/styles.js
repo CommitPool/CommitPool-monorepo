@@ -47,7 +47,7 @@ export const StyledTouchableOpacityRed = styled(StyledTouchableOpacity)`
 
 export const StyledView = styled(View)`
   align-items: center;
-  margin-: 25px
+  margin-: 0px
 `;
 
 export const StyledViewContainer = styled(StyledView)`

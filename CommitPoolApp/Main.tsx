@@ -1,14 +1,17 @@
 import React, { Component } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View} from "react-native";
 import Login from "./Login";
 import Track from "./Track";
 import MakeCommitment from "./MakeCommitment";
 import Complete from "./Complete";
 import Wallet from "./Wallet";
 import Welcome from "./Welcome";
+import Directions from "./Directions";
 import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions } from "react-native";
-export default class Main extends Component<
+
+
+export default class Main extends Component <
   { web3: any; stravaOAuth: any; code: string },
   { step: Number }
 > {
@@ -16,8 +19,28 @@ export default class Main extends Component<
     super(props);
     this.state = {
       step: 1,
+      height: 300,
+      width: 300,
     };
   }
+
+  updateDimensions() {
+      const { width, height } = Dimensions.get("window")
+      this.setState({ width: width, height: height });
+
+    }
+
+    componentDidMount() {
+      this.updateDimensions();
+      window.addEventListener("resize", this.updateDimensions.bind(this));
+    }
+
+/**
+ * Remove event listener
+ */
+  componentWillUnmount() {
+      window.removeEventListener("resize", this.updateDimensions.bind(this));
+    }
 
   componentWillReceiveProps(newProps) {
     if (newProps.code !== this.props.code) {
@@ -29,16 +52,27 @@ export default class Main extends Component<
     this.setState({ step: step });
   };
 
+
+
   renderSwitch = () => {
     switch (this.state.step) {
+
       case 1:
         return <Welcome next={this.onClick} />;
+
       case 2:
         return (
           <Login next={this.onClick} stravaOAuth={this.props.stravaOAuth} />
         );
+
+        case 3:
+          return (
+            <Directions next={this.onClick} stravaOAuth={this.props.stravaOAuth} />
+          );
+
       case 4:
         return <Wallet next={this.onClick} web3={this.props.web3}></Wallet>;
+
       case 5:
         return (
           <MakeCommitment
@@ -47,6 +81,7 @@ export default class Main extends Component<
             web3={this.props.web3}
           ></MakeCommitment>
         );
+
       case 6:
         return (
           <Track
@@ -55,10 +90,12 @@ export default class Main extends Component<
             web3={this.props.web3}
           />
         );
+
       case 7:
         return (
           <Complete success={true} next={this.onClick} web3={this.props.web3} />
         );
+
       case 8:
         return (
           <Complete
@@ -70,27 +107,31 @@ export default class Main extends Component<
     }
   };
 
+
   render() {
+
+
     return (
-      <LinearGradient
-        colors={["#D45353", "#D45353", "white"]}
-        style={styles.linearGradient}
-      >
+      <View style={[styles.bg, {height: this.state.height}, {width: this.state.width}]}>
         {this.renderSwitch()}
-      </LinearGradient>
+      </View>
     );
   }
 }
 
-const { width, height } = Dimensions.get("window");
+
+// const { width, height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
+  bg: {
+    //flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    width,
-    height,
+    backgroundColor: "#d45454",
+    //width = {state.width},
+    //height = {state.height},
+    //alignSelf: 'stretch',
     borderRadius: 5,
+    flexWrap: 'wrap',
   },
 });

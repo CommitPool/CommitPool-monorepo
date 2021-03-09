@@ -19,9 +19,10 @@ const getProvider = (walletProvider) => {
   });   
 
   let networkProvider = new ethers.providers.Web3Provider(biconomy);
+  console.log("BICONOMY: ", biconomy);
   console.log("NETWORK PROVIDER: ", networkProvider);
 
-  return networkProvider;
+  return [biconomy, networkProvider];
 };
 
 const getCurrentProvider = () => {

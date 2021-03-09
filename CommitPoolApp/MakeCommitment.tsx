@@ -47,7 +47,6 @@ export default class MakeCommitment extends Component<
 
     const commitPoolContract = web3.contracts.commitPool;
 
-    console.log("SPC:", commitPoolContract);
     let activities = [];
     let exists = true;
     let index = 0;
@@ -116,13 +115,13 @@ export default class MakeCommitment extends Component<
 
   async createCommitment() {
     const { web3 } = this.props;
-    const account = web3.provider.provider.selectedAddress;
+    const account = web3.account;
 
     let commitPoolContract = web3.contracts.commitPool;
-    commitPoolContract = commitPoolContract.connect(web3.provider.getSigner());
+    // commitPoolContract = commitPoolContract.connect(web3.provider.getSigner());
 
     let daiContract = web3.contracts.dai;
-    daiContract = daiContract.connect(web3.provider.getSigner());
+    // daiContract = daiContract.connect(web3.provider.getSigner());
 
     const distanceInMiles = Math.floor(this.state.distance);
     const startTime = this.calculateStart(this.state.daysToStart);

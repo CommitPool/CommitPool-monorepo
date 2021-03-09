@@ -16,7 +16,7 @@ const ENV = {
   // },
   // RINKEBY
   dev: {
-    commitPoolContractAddress: "0x0e92528803F04A82e96Af5d43D5b9faEaF8F28D8",
+    commitPoolContractAddress: "0x964c44f85AF3fc4771e6f47A524c4e2501F03552",
     daiContractAddress: "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
     linkContractAddress: "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
     oracleAddress: "0xFe620910d11E613922Bc3891EE25c6e9362Ac5ab",

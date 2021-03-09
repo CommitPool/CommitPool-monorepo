@@ -20,8 +20,9 @@ async function main(): Promise<void> {
   const oracle ="0xFe620910d11E613922Bc3891EE25c6e9362Ac5ab";
   const daiToken: string = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709";
   const linkToken: string = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709";
+  const trustedForwarder: string = "0x1730cAe53340aB01228019618C2b544642f3650A";
   const SinglePlayerCommit: ContractFactory = await ethers.getContractFactory("SinglePlayerCommit");
-  const singlePlayerCommit: Contract = await SinglePlayerCommit.deploy(activities, oracle, daiToken, linkToken);
+  const singlePlayerCommit: Contract = await SinglePlayerCommit.deploy(activities, oracle, daiToken, linkToken, trustedForwarder);
   await singlePlayerCommit.deployed();
 
   console.log("SinglePlayerCommit deployed to: ", singlePlayerCommit.address);

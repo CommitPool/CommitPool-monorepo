@@ -6,7 +6,7 @@ Our MVP focuses on a single goal type for individuals, hence the Single Player m
 
 Current address:
 
-**Rinkeby** [0x0e92528803F04A82e96Af5d43D5b9faEaF8F28D8](https://rinkeby.etherscan.io/address/0x0e92528803f04a82e96af5d43d5b9faeaf8f28d8)
+**Rinkeby** [0x964c44f85AF3fc4771e6f47A524c4e2501F03552](https://rinkeby.etherscan.io/address/0x964c44f85AF3fc4771e6f47A524c4e2501F03552)
 
 ## Getting started
 
@@ -20,13 +20,13 @@ Currently Ganache and Node 14 are not playing well together. To get started:
 Note: [Hardhat guide](https://hardhat.org/guides/vscode-tests.html) on running test in VSCode
 
 #### Deploying to local node
-Buidler
+Hardhat
 
 1. Use node 12 (using yarn is recommended)
 2. ```yarn hardhat node```
 3. In second terminal```yarn hardhat run --network localhost scripts/deploy.ts  ```
 
-Buidler & Ganache
+Hardhat & Ganache
 
 1. Use node 12 (using yarn is recommended)
 2. Start Ganache on port 8545
@@ -37,6 +37,10 @@ Truffle
 1. Use node 12 (using yarn is recommended)
 2. Start Ganache on port 8545
 3. In terminal```truffle migrate```
+
+### Contract verification
+
+``` npx hardhat --network rinkeby verify --constructor-args scripts/arguments.js 0x964c44f85AF3fc4771e6f47A524c4e2501F03552 ```
 
 #### Deploying to Matic
 Deployment to the Mumbai Testnet is configured in ```./truffle-config.js```

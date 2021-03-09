@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Clipboard } from "react-native";
 import QRCode from "react-native-qrcode-svg";
-import { utils } from "ethers";
+import { Contract, utils } from "ethers";
 import {
   StyledTouchableOpacityRed,
   StyledText,
@@ -25,9 +25,10 @@ export default class Wallet extends Component<
   }
 
   async componentDidMount() {
-    const web3 = await this.props.web3.initialize();
-    this.setStateInfo(web3);
-    this.setStateRefresh(web3);
+    await this.props.web3.initialize().then((web3) => {
+      this.setStateInfo(web3);
+      this.setStateRefresh(web3);
+    });
   }
 
   componentWillUnmount() {
@@ -37,30 +38,33 @@ export default class Wallet extends Component<
   async setStateInfo(web3: any) {
     const account = web3.account;
 
-    await web3.provider
-      .getBalance(account)
-      .then((balance) =>
-        this.setState({ balance: utils.formatEther(balance) })
-      );
+    if (web3.account !== undefined && web3.contracts.dai !== undefined) {
+      await web3.provider
+        .getBalance(account)
+        .then((balance) =>
+          this.setState({ balance: utils.formatEther(balance) })
+        );
 
-    await web3.contracts.dai
-      .balanceOf(account)
-      .then((daiBalance) =>
-        this.setState({ daiBalance: utils.formatEther(daiBalance) })
-      );
+      await web3.contracts.dai
+        .balanceOf(account)
+        .then((daiBalance) =>
+          this.setState({ daiBalance: utils.formatEther(daiBalance) })
+        );
+    }
   }
 
   async setStateRefresh(web3: any) {
     const refresh = setInterval(async () => {
-      if (web3.account !== undefined) {
+      if (web3.account !== undefined && web3.contracts.dai !== undefined) {
         const account = web3.account;
-
+        console.log("ACCOUNT WEB3 in wallet: ", account);
         await web3.provider
           .getBalance(account)
           .then((balance) =>
             this.setState({ balance: utils.formatEther(balance) })
           );
 
+        console.log("DAI CONTRACT: ", web3.contracts.dai)
         await web3.contracts.dai
           .balanceOf(account)
           .then((daiBalance) =>
@@ -97,9 +101,7 @@ export default class Wallet extends Component<
   render() {
     const { web3 } = this.props;
     console.log("WEB3", web3);
-    const account = web3.torus.isLoggedIn
-      ? web3.account
-      : "";
+    const account = web3.account !== undefined ? web3.account : "";
     return (
       <StyledViewContainer>
         <StyledView>
@@ -131,18 +133,28 @@ export default class Wallet extends Component<
             {this.state.daiBalance} MATIC Dai
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacityRed onPress={() => this.next()}>
-          <StyledText>Get Started!</StyledText>
-        </StyledTouchableOpacityRed>
-        <StyledTouchableOpacityRed
-          onPress={() =>
-            web3.torus.isLoggedIn ? this.logout() : web3.initialize()
-          }
-        >
-          <StyledText>
-            {web3.torus.isLoggedIn ? "Log out" : " Log in"}
-          </StyledText>
-        </StyledTouchableOpacityRed>
+
+        {web3.torus !== undefined ? (
+          <StyledView>
+            <StyledTouchableOpacityRed
+              onPress={() => this.next()}
+              style={{ marginBottom: 15 }}
+            >
+              <StyledText>Get Started!</StyledText>
+            </StyledTouchableOpacityRed>
+            <StyledTouchableOpacityRed
+              onPress={() =>
+                web3.torus.isLoggedIn ? this.logout() : web3.initialize()
+              }
+            >
+              <StyledText>
+                {web3.torus.isLoggedIn ? "Log out" : " Log in"}
+              </StyledText>
+            </StyledTouchableOpacityRed>
+          </StyledView>
+        ) : (
+          <StyledText style={{ color: "#D45353" }}>Loading...</StyledText>
+        )}
       </StyledViewContainer>
     );
   }

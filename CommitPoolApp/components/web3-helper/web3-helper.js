@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import getEnvVars from "../../environment.js";
 import getContract from "../contract/contract";
 import Torus from "@toruslabs/torus-embed";
@@ -9,59 +8,65 @@ const {
   daiContractAddress,
   abi,
   daiAbi,
-  torusLogging
+  torusLogging,
 } = getEnvVars();
 
 const web3Helper = {
   account: undefined,
-  setAccount: function(walletProvider) {
-    web3Helper.account = walletProvider.selectedAddress;
-    console.log("WEB3HELPER account", web3Helper.account)
-  },
+  biconomy: undefined,
   contracts: {
-    commitPool: {},
-    dai: {},
+    commitPool: undefined,
+    dai: undefined,
   },
-  logOut: function(){
+  setContracts: function (provider) {
+    web3Helper.contracts.dai = getContract(
+      daiContractAddress,
+      daiAbi,
+      provider.getSignerByAddress(web3Helper.account)
+    );
+    web3Helper.contracts.commitPool = getContract(
+      commitPoolContractAddress,
+      abi,
+      provider.getSignerByAddress(web3Helper.account)
+    );
+  },
+  logOut: function () {
     web3Helper.torus.cleanUp();
     web3Helper.initialize();
   },
   provider: undefined,
-  setWeb3Provider: function (walletProvider) {
-    web3Helper.provider = getProvider(walletProvider);
-    web3Helper.contracts.dai = getContract(
-      daiContractAddress,
-      daiAbi,
-      web3Helper.provider
-    );
-    
-    web3Helper.contracts.commitPool = getContract(
-      commitPoolContractAddress,
-      abi,
-      web3Helper.provider
-    );
-  },
-  torus: {},
-  wallet: {},
+  torus: undefined,
   initialize: async function () {
     const torus = new Torus({
       buttonPosition: "bottom-left",
-    })
+    });
+
     web3Helper.torus = torus;
+
     await web3Helper.torus.init({
-      buildEnv: "production", 
-      enableLogging: torusLogging, 
+      buildEnv: "production",
+      enableLogging: torusLogging,
       network: {
-        host: "rinkeby", 
-        // chainId: 80001, 
-        // networkName: "Mumbai Test Network", 
+        host: "rinkeby",
+        // chainId: 80001,
+        // networkName: "Mumbai Test Network",
       },
       showTorusButton: true,
     });
 
-    await web3Helper.torus.login(); 
-    web3Helper.setAccount(torus.provider);
-    web3Helper.setWeb3Provider(torus.provider);
+    [web3Helper.account] = await web3Helper.torus.login();
+    [web3Helper.biconomy, web3Helper.provider] = getProvider(
+      web3Helper.torus.provider
+    );
+
+    web3Helper.biconomy
+      .onEvent(web3Helper.biconomy.READY, () => {
+        console.log("BICONOMY READYY!!!!");
+        web3Helper.setContracts(web3Helper.biconomy);
+      })
+      .onEvent(web3Helper.biconomy.ERROR, (error, message) => {
+        console.log("BICONOMY ERROR: ", message);
+      });
     return web3Helper;
   },
 };

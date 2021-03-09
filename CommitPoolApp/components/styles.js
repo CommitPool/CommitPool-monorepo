@@ -13,11 +13,11 @@ export const StyledText = styled(Text)`
 
 export const StyledTextInput = styled(TextInput)`
   text-align: center;
-  border-radius: 5;
+  border-radius: 5px;
   background-color: white;
   margin-left: 15px;
   margin-right: 15px;
-  font-size: 25;
+  font-size: 25px;
   color: black;
   height: 30px;
   width: 30%;

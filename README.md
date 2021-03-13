@@ -1,6 +1,6 @@
 # CommitPool on Matic
 
-##Latest Update (March 13, 2021): We are currently on Rinkeby for testing purposes (contract verification, etc.). We will be back on Matic soon, but please note that, while we're on Rinkeby, our app takes Rinkeby Eth and Link (Dummy Dai).
+## Latest Update (March 13, 2021): We are currently on Rinkeby for testing purposes (contract verification, etc.). We will be back on Matic soon, but please note that, while we're on Rinkeby, our app takes Rinkeby Eth and Link (Dummy Dai).
 
 ## Overview
 

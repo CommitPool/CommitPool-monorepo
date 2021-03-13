@@ -108,7 +108,16 @@ export default class Wallet extends Component<
             Login to your wallet via Torus by clicking the blue button below.
           </StyledText>
           <StyledTextSmall style={{ margin: 15 }}>
-            You can get funds on testnet from https://faucet.matic.network
+            We are currently testing on Rinkeby. You will need
+            <StyledTextSmall style={{color: 'blue'}}
+                  onPress={() => window.open('http://rinkeby-faucet.com/')}>
+              &nbsp; Rinkeby Eth &nbsp;
+            </StyledTextSmall>
+             and
+             <StyledTextSmall style={{color: 'blue'}}
+                   onPress={() => window.open('https://rinkeby.chain.link/')}>
+               &nbsp; Rinkeby Link (Dummy Dai).
+             </StyledTextSmall>
           </StyledTextSmall>
           <QRCode value="account" size={225} />
           <StyledTextSmall
@@ -125,10 +134,10 @@ export default class Wallet extends Component<
             Balances:
           </StyledText>
           <StyledText style={{ margin: 15 }}>
-            {this.state.balance} MATIC
+            {this.state.balance} Test Eth
           </StyledText>
           <StyledText style={{ marginBottom: 15 }}>
-            {this.state.daiBalance} MATIC Dai
+            {this.state.daiBalance} Dummy Dai
           </StyledText>
         </StyledView>
         <StyledTouchableOpacityRed onPress={() => this.next()}>

@@ -236,7 +236,7 @@ export default class MakeCommitment extends Component<
               <StyledTextInput
                 onChangeText={(text) => this.setState({ stake: Number(text) })}
               ></StyledTextInput>
-              <StyledText style={{ textAlign: "left" }}> DAI</StyledText>
+              <StyledText style={{ textAlign: "left" }}> LINK</StyledText>
             </StyledViewRow>
             <StyledViewRow>
               <StyledText
@@ -297,7 +297,7 @@ export default class MakeCommitment extends Component<
                 Stake:
               </StyledText>
               <StyledText style={{ marginLeft: 10 }}>
-                {this.state.stake} DAI
+                {this.state.stake} LINK
               </StyledText>
             </StyledViewRow>
             <StyledViewRow>

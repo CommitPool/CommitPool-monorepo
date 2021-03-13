@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Clipboard, Linking } from "react-native";
+import { Clipboard } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { utils } from "ethers";
 import {

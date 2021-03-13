@@ -14,7 +14,7 @@ By minimizing that counterparty risk with smart contracts and decentralized orac
 
 1. Open the [app](https://app.commitpool.com/)
 2. Connect your Strava Account
-3. Fund your in-app wallet with Rinkeby Ether from the [My Crypto](https://app.mycrypto.com/faucet), and LINK (Dummy Dai -- used wherever the app asks for DAI) from the [Chainlink Faucet](https://rinkeby.chain.link/)
+3. Fund your in-app wallet with Rinkeby Ether from a [Rinkeby Faucet](http://rinkeby-faucet.com/), and LINK (Dummy Dai -- used wherever the app asks for DAI) from the [Chainlink Faucet](https://rinkeby.chain.link/)
 4. Commit and stake! We recommend keeping your commitment amounts low for testing purposes (.1 Eth/Dai or so) so you don't have to keep refilling at a faucet
 5. Hit your goal
 6. Profit?

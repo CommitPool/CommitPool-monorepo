@@ -64,7 +64,7 @@ export default class Wallet extends Component<
             this.setState({ balance: utils.formatEther(balance) })
           );
 
-        console.log("DAI CONTRACT: ", web3.contracts.dai)
+        console.log("DAI CONTRACT: ", web3.contracts.dai);
         await web3.contracts.dai
           .balanceOf(account)
           .then((daiBalance) =>
@@ -119,23 +119,20 @@ export default class Wallet extends Component<
           >
             {account}
           </StyledTextSmall>
-          <StyledText
-            style={{
-              fontWeight: "bold",
-            }}
-          >
-            Balances:
-          </StyledText>
-          <StyledText style={{ margin: 15 }}>
-            {this.state.balance} MATIC
-          </StyledText>
-          <StyledText style={{ marginBottom: 15 }}>
-            {this.state.daiBalance} MATIC Dai
-          </StyledText>
         </StyledView>
 
-        {web3.torus !== undefined ? (
+        {web3.biconomy !== undefined ? (
           <StyledView>
+            <StyledText
+              style={{
+                fontWeight: "bold",
+              }}
+            >
+              Balance:
+            </StyledText>
+            <StyledText style={{ marginBottom: 15 }}>
+              {this.state.daiBalance} DAI
+            </StyledText>
             <StyledTouchableOpacityRed
               onPress={() => this.next()}
               style={{ marginBottom: 15 }}
@@ -153,7 +150,7 @@ export default class Wallet extends Component<
             </StyledTouchableOpacityRed>
           </StyledView>
         ) : (
-          <StyledText style={{ color: "#D45353" }}>Loading...</StyledText>
+          <StyledText>Loading....</StyledText>
         )}
       </StyledViewContainer>
     );

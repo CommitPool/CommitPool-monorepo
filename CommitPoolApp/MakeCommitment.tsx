@@ -113,15 +113,122 @@ export default class MakeCommitment extends Component<
     return result;
   };
 
+  createPermitMessageData = () => {
+    const fromAddress = this.props.web3.account;
+    const expiry = Date.now() + 120;
+    const nonce = 1;
+    const spender = "0x24A2D8772521A9fa2f85d7024e020e7821C23c97";
+
+    const message = {
+      holder: fromAddress,
+      spender: spender,
+      nonce: nonce,
+      expiry: expiry,
+      allowed: true,
+    };
+  
+    const typedData = JSON.stringify({
+      types: {
+        EIP712Domain: [
+          {
+            name: "name",
+            type: "string",
+          },
+          {
+            name: "version",
+            type: "string",
+          },
+          {
+            name: "chainId",
+            type: "uint256",
+          },
+          {
+            name: "verifyingContract",
+            type: "address",
+          },
+        ],
+        Permit: [
+          {
+            name: "holder",
+            type: "address",
+          },
+          {
+            name: "spender",
+            type: "address",
+          },
+          {
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            name: "expiry",
+            type: "uint256",
+          },
+          {
+            name: "allowed",
+            type: "bool",
+          },
+        ],
+      },
+      primaryType: "Permit",
+      domain: {
+        name: "Dai Stablecoin",
+        version: "1",
+        chainId: 4,
+        verifyingContract: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+      },
+      message: message,
+    });
+  
+    return {
+      typedData,
+      message,
+    };
+  };
+
+  signData = async (web3, typedData) => {
+    const provider = web3.torus.provider;
+    console.log("PROVIDER TO SIGN DATA: ", provider)
+    const { account } = web3;
+    return new Promise(function (resolve, reject) {
+      provider.sendAsync(
+        {
+          id: 1,
+          method: "eth_signTypedData_v3",
+          params: [account, typedData],
+          from: account,
+        },
+        function (err, result) {
+          if (err) {
+            console.log(err);
+            reject(err); //TODO
+          } else {
+            const r = result.result.slice(0, 66);
+            const s = "0x" + result.result.slice(66, 130);
+            const v = Number("0x" + result.result.slice(130, 132));
+            resolve({
+              v,
+              r,
+              s,
+            });
+          }
+        }
+      );
+    });
+  };
+
+  signTransferPermit = async () => {
+    const messageData = this.createPermitMessageData();
+    const sig = await this.signData(this.props.web3, messageData.typedData);
+    return Object.assign({}, sig, messageData.message);
+  };
+
   async createCommitment() {
     const { web3 } = this.props;
     const account = web3.account;
 
     let commitPoolContract = web3.contracts.commitPool;
-    // commitPoolContract = commitPoolContract.connect(web3.provider.getSigner());
-
     let daiContract = web3.contracts.dai;
-    // daiContract = daiContract.connect(web3.provider.getSigner());
 
     const distanceInMiles = Math.floor(this.state.distance);
     const startTime = this.calculateStart(this.state.daysToStart);
@@ -136,38 +243,99 @@ export default class MakeCommitment extends Component<
       account,
       commitPoolContract.address
     );
-    if (allowance.gte(stakeAmount)) {
-      const dcReceipt = await commitPoolContract.depositAndCommit(
-        this.state.activity,
-        distanceInMiles * 100,
-        startTimestamp,
-        endTimestamp,
-        stakeAmount,
-        stakeAmount,
-        String(this.props.code.athlete.id),
-        { gasLimit: 5000000 }
-      );
-      console.log("RECEIPT D&C:", dcReceipt);
-    } else {
-      const daiReceipt = await daiContract.approve(
-        commitPoolContract.address,
-        stakeAmount
-      );
-      const dcReceipt = await commitPoolContract.depositAndCommit(
-        this.state.activity,
-        distanceInMiles * 100,
-        startTimestamp,
-        endTimestamp,
-        stakeAmount,
-        stakeAmount,
-        String(this.props.code.athlete.id),
-        { gasLimit: 5000000 }
-      );
-      console.log("RECEIPT DAI:", daiReceipt);
-      console.log("RECEIPT D&C:", dcReceipt);
+
+    try {
+
+      const provider = web3.biconomy;
+      const gasLimit = 500000;
+
+      if (allowance.gte(stakeAmount)) {
+        const {
+          data,
+        } = await commitPoolContract.populateTransaction.depositAndCommit(
+          this.state.activity,
+          distanceInMiles * 100,
+          startTimestamp,
+          endTimestamp,
+          stakeAmount,
+          stakeAmount,
+          String(this.props.code.athlete.id)
+        );
+  
+        console.log("Data: ", data)
+        
+        const txParams = {
+          data: data,
+          to: commitPoolContract.address,
+          from: account,
+          gasLimit: gasLimit,
+          signatureType: "EIP712_SIGN",
+        };
+
+        const dcReceipt = await provider.send("eth_sendTransaction", [
+          txParams,
+        ]);
+
+        provider.once(dcReceipt, (transaction) => {
+          console.log("TX: ", transaction);
+        });
+        console.log("RECEIPT D&C:", dcReceipt);
+      } else {
+
+        const expiry = Date.now() + 120;
+        const nonce = 1;
+
+        const signedPermit = await this.signTransferPermit();
+        console.log("SIGNED PERMIT: ", signedPermit);
+
+        // const _v: number = 27;
+        // const _r  = "0xc225220de6c6f5a829c07bf07444435619c98ac95fb5ce82205bc9be1def858b";
+        // const _s = "0x5924bfb22181c58e4ec4bc26d42ae5b4edb53ffebf9045cad2e275baab4915ba";
+        const { v , r, s } = signedPermit;
+        console.log("V, R, S: ", v, " ", r, " ", s)
+
+        const {
+          data,
+        } = await commitPoolContract.populateTransaction.depositAndCommitPermit(
+          this.state.activity,
+          distanceInMiles * 100,
+          startTimestamp,
+          endTimestamp,
+          stakeAmount,
+          stakeAmount,
+          nonce,
+          Math.floor(expiry / 1000),
+          v,
+          r,
+          s,
+          String(this.props.code.athlete.id),
+          )
+
+        console.log("Data: ", data)
+        
+        const txParams = {
+          data: data,
+          to: commitPoolContract.address,
+          from: account,
+          gasLimit: gasLimit,
+          signatureType: "EIP712_SIGN",
+        };
+
+        console.log("Sending transaction")
+        const dcReceipt = await provider.send("eth_sendTransaction", [
+          txParams,
+        ])
+        
+        console.log("RECEIPT D&C:", dcReceipt);
+      }
+
+      this.setState({ loading: false, txSent: true });
+
+    } catch (error) {
+      console.log("ERROR: ", error);
+      this.setState({ loading: false, txSent: false });
     }
 
-    this.setState({ loading: false, txSent: true });
   }
 
   getActivityName() {
@@ -177,8 +345,6 @@ export default class MakeCommitment extends Component<
   }
 
   render() {
-    const { width } = Dimensions.get("window");
-
     return (
       <StyledViewContainer>
         {this.state.loading ? (

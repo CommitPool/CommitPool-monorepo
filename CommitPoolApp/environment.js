@@ -16,10 +16,12 @@ const ENV = {
   // },
   // RINKEBY
   dev: {
-    commitPoolContractAddress: "0x964c44f85AF3fc4771e6f47A524c4e2501F03552",
-    daiContractAddress: "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
-    linkContractAddress: "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
-    oracleAddress: "0xFe620910d11E613922Bc3891EE25c6e9362Ac5ab",
+    network: "rinkeby",
+    commitPoolContractAddress: "0x24A2D8772521A9fa2f85d7024e020e7821C23c97",
+    daiContractAddress: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+    // daiContractAddress: "0xc7ad46e0b8a400bb3c915120d284aafba8fc4735",
+    // linkContractAddress: "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
+    // oracleAddress: "0xFe620910d11E613922Bc3891EE25c6e9362Ac5ab",
     jobId: "de8fc7b07bf54d7c8243b3b4801834c7",
     rpcUrl:
       "https://ropsten.infura.io/v3/86deb8025479412bb2ef3dcc87fa90ff",

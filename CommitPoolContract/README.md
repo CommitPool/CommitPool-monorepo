@@ -6,7 +6,7 @@ Our MVP focuses on a single goal type for individuals, hence the Single Player m
 
 Current address:
 
-**Rinkeby** [0x964c44f85AF3fc4771e6f47A524c4e2501F03552](https://rinkeby.etherscan.io/address/0x964c44f85AF3fc4771e6f47A524c4e2501F03552)
+**Rinkeby** [0x24A2D8772521A9fa2f85d7024e020e7821C23c97](https://rinkeby.etherscan.io/address/0x964c44f85AF3fc4771e6f47A524c4e2501F03552)
 
 ## Getting started
 
@@ -40,7 +40,7 @@ Truffle
 
 ### Contract verification
 
-``` npx hardhat --network rinkeby verify --constructor-args scripts/arguments.js 0x964c44f85AF3fc4771e6f47A524c4e2501F03552 ```
+``` npx hardhat --network rinkeby verify --constructor-args scripts/arguments.js 0x24A2D8772521A9fa2f85d7024e020e7821C23c97 ```
 
 #### Deploying to Matic
 Deployment to the Mumbai Testnet is configured in ```./truffle-config.js```

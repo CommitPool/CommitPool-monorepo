@@ -18,21 +18,9 @@ const web3Helper = {
     commitPool: undefined,
     dai: undefined,
   },
-  setContracts: function (provider) {
-    web3Helper.contracts.dai = getContract(
-      daiContractAddress,
-      daiAbi,
-      provider.getSignerByAddress(web3Helper.account)
-    );
-    web3Helper.contracts.commitPool = getContract(
-      commitPoolContractAddress,
-      abi,
-      provider.getSignerByAddress(web3Helper.account)
-    );
-  },
-  logOut: function () {
-    web3Helper.torus.cleanUp();
-    web3Helper.initialize();
+  setContracts: (provider) => {setContracts(provider)},
+  logOut: () => {
+    logOut();
   },
   provider: undefined,
   torus: undefined,
@@ -61,7 +49,7 @@ const web3Helper = {
 
     web3Helper.biconomy
       .onEvent(web3Helper.biconomy.READY, () => {
-        console.log("BICONOMY READYY!!!!");
+        console.log("BICONOMY READY");
         web3Helper.setContracts(web3Helper.biconomy);
       })
       .onEvent(web3Helper.biconomy.ERROR, (error, message) => {
@@ -69,6 +57,24 @@ const web3Helper = {
       });
     return web3Helper;
   },
+};
+
+const logOut = () => {
+  web3Helper.torus.cleanUp();
+  web3Helper.initialize();
+};
+
+const setContracts = (provider) => {
+  web3Helper.contracts.dai = getContract(
+    daiContractAddress,
+    daiAbi,
+    provider.getSignerByAddress(web3Helper.account)
+  );
+  web3Helper.contracts.commitPool = getContract(
+    commitPoolContractAddress,
+    abi,
+    provider.getSignerByAddress(web3Helper.account)
+  );
 };
 
 export default web3Helper;

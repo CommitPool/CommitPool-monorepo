@@ -293,6 +293,52 @@ export function userCanManageCommitments(): void {
       expect(commitment.exists).to.be.true;
       expect(commitment.userId).to.not.be.undefined; //TODO can be more specific?
     });
+
+
+    it("can permit access to user DAI and deposit and commit", async function () {
+      //User balance in wallet [ETH] and contract [DAI]
+      const _userBalance: BigNumber = await user.getBalance();
+      const _userDaiBalanceInContract: BigNumber = await contractWithUser.committerBalances(userAddress);
+
+      //Committer balance on contract
+      const _committerBalance: BigNumber = await contractWithUser.totalCommitterBalance();
+
+      //Transaction
+      const { activityKey, goal, startTime, endTime, amountToDeposit, amountToStake, userId } = defaultParams;
+      const _nonce: number = 1;
+      const _expiry: number = Date.now() + 120;
+      const _v: number = 27;
+      const _r  = "0xc225220de6c6f5a829c07bf07444435619c98ac95fb5ce82205bc9be1def858b";
+      const _s = "0x5924bfb22181c58e4ec4bc26d42ae5b4edb53ffebf9045cad2e275baab4915ba";
+
+      await this.daiToken.mock.permit.returns();
+      await this.daiToken.mock.transfer.returns(true);
+      await expect(
+        contractWithUser.depositAndCommitPermit(
+          activityKey,
+          goal,
+          startTime,
+          endTime,
+          amountToStake,
+          amountToDeposit,
+          _nonce,
+          _expiry,
+          _v,
+          _r,
+          _s,
+          userId,
+          _overrides,
+        ),
+      ).to.emit(contractWithUser, "NewCommitment");
+
+      // expect("transferFrom").to.be.calledOnContract(this.token);
+      // expect("deposit").to.be.calledOnContract(this.singlePlayerCommit);
+      // expect("makeCommitment").to.be.calledOnContract(this.singlePlayerCommit);
+
+      //Validate
+      const commitment = await contractWithUser.commitments(userAddress);
+      expect(commitment.exists).to.be.true;
+    })
   });
 
 }

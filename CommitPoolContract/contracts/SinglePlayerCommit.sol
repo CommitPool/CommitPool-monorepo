@@ -10,6 +10,14 @@ import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.6/vendor/SafeMath.sol";
 import "@opengsn/gsn/contracts/BaseRelayRecipient.sol";
 
+interface DaiToken  {
+            // require(token.transferFrom(_msgSender(), address(this), amount), "SPC::deposit - token transfer failed");
+    function transfer(address dst, uint wad) external returns (bool);
+    function transferFrom(address src, address dst, uint wad) external returns (bool);        
+    function permit(address holder, address spender, uint256 nonce, uint256 expiry,
+                    bool allowed, uint8 v, bytes32 r, bytes32 s) external;
+}
+
 /// @title CommitPool single-player mode contract
 /// @notice Enables staking and validating performance. No social/pool functionality.
 contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
@@ -28,7 +36,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
     /******************
     GLOBAL CONSTANTS
     ******************/
-    IERC20 public token;
+    DaiToken public token;
     uint256 BIGGEST_NUMBER = uint256(-1);
     uint256 private constant ORACLE_PAYMENT = 0.1 * 10**18; //0.1 LINK
 
@@ -112,7 +120,7 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
         console.log("Constructor called for SinglePlayerCommit contract");
         require(_activityList.length >= 1, "SPC::constructor - activityList empty");
         require(setTrustedForwarder(_trustedForwarder), "SPC::constructor - activityList empty");
-        token = IERC20(_daiToken);
+        token = DaiToken(_daiToken);
         setChainlinkToken(_linkToken);
 
         _addActivities(_activityList, _oracleAddress);
@@ -237,6 +245,44 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
 
         return true;
     }
+
+    /// @notice Wrapper function to allow contract access to funds and call deposit <token> and create commitment in one call
+    /// @param _activityKey Keccak256 hashed, encoded name of activity
+    /// @param _goalValue Distance of activity as goal
+    /// @param _startTime Unix timestamp in seconds to set commitment starting time
+    /// @param _endTime Unix timestamp in seconds to set commitment deadline
+    /// @param _stake Amount of <token> to stake againt achieving goale
+    /// @param _depositAmount Size of deposit
+    /// @param _userId ???
+    /// @dev Call deposit and makeCommitment method
+    function depositAndCommitPermit(
+        bytes32 _activityKey,
+        uint256 _goalValue,
+        uint256 _startTime,
+        uint256 _endTime,
+        uint256 _stake,
+        uint256 _depositAmount,
+        uint256 _nonce,
+        uint256 _expiry,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s,
+        string memory _userId
+    ) public returns (bool success) {
+        {
+        address holder = _msgSender();
+        address spender = address(this); 
+        token.permit(holder, spender, _nonce, _expiry,
+                    true, _v, _r, _s);
+        }
+        {
+        require(depositAndCommit(_activityKey, _goalValue, _startTime, _endTime, _stake, _depositAmount, _userId), "SPC::depositAndCommit - deposit failed");
+        }
+
+        return true;
+    }
+
+
 
     // /// @notice Enables processing of open commitments after endDate that have not been processed by creator
     // /// @param committer address of the creator of the committer to process

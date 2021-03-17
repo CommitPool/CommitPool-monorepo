@@ -18,13 +18,11 @@
     "artifacts/**/*",
     "artifacts/**/*.json",
     "dev-utils/**/*",
-    "migrations/*",
     "scripts/**/*",
     "tasks/**/*",
     "test/**/*",
     "typechain/**/*",
     "types/**/*",
-    "truffle-config.js",
     "hardhat.config.ts"
   ],
   "files": [

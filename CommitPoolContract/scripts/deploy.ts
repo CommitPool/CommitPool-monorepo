@@ -12,17 +12,28 @@ async function main(): Promise<void> {
   // await run("compile");
 
   // We get the contract to deploy
-  if (!process.env.ORACLE_ADDRESS_MUMBAI || !process.env.DAI_TOKEN_ADDRESS_MUMBAI || !process.env.LINK_TOKEN_ADDRESS_MUMBAI) {
+  if (
+    !process.env.ORACLE_ADDRESS_MUMBAI ||
+    !process.env.DAI_TOKEN_ADDRESS_MUMBAI ||
+    !process.env.LINK_TOKEN_ADDRESS_MUMBAI ||
+    !process.env.TRUSTED_FORWARDER_MUMBAI
+  ) {
     console.log("Please set your oracle and token address(es) in a .env file");
     process.exit(1);
   }
   const activities: string[] = ["Ride", "Run"];
-  const oracle ="0xFe620910d11E613922Bc3891EE25c6e9362Ac5ab";
-  const daiToken: string = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709";
-  const linkToken: string = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709";
-  const trustedForwarder: string = "0x1730cAe53340aB01228019618C2b544642f3650A";
+  const oracle = process.env.ORACLE_ADDRESS_MUMBAI;
+  const daiToken: string = process.env.DAI_TOKEN_ADDRESS_MUMBAI;
+  const linkToken: string = process.env.LINK_TOKEN_ADDRESS_MUMBAI;
+  const trustedForwarder: string = process.env.TRUSTED_FORWARDER_MUMBAI;
   const SinglePlayerCommit: ContractFactory = await ethers.getContractFactory("SinglePlayerCommit");
-  const singlePlayerCommit: Contract = await SinglePlayerCommit.deploy(activities, oracle, daiToken, linkToken, trustedForwarder);
+  const singlePlayerCommit: Contract = await SinglePlayerCommit.deploy(
+    activities,
+    oracle,
+    daiToken,
+    linkToken,
+    trustedForwarder,
+  );
   await singlePlayerCommit.deployed();
 
   console.log("SinglePlayerCommit deployed to: ", singlePlayerCommit.address);

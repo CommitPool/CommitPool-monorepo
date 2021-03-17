@@ -5,13 +5,11 @@ pragma experimental ABIEncoderV2;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
-//https://github.com/smartcontractkit/chainlink/issues/3153#issuecomment-655241638
-import "@chainlink/contracts/src/v0.6/vendor/SafeMath.sol";
 import "@opengsn/gsn/contracts/BaseRelayRecipient.sol";
 
 interface DaiToken  {
-            // require(token.transferFrom(_msgSender(), address(this), amount), "SPC::deposit - token transfer failed");
     function transfer(address dst, uint wad) external returns (bool);
     function transferFrom(address src, address dst, uint wad) external returns (bool);        
     function permit(address holder, address spender, uint256 nonce, uint256 expiry,
@@ -281,24 +279,6 @@ contract SinglePlayerCommit is BaseRelayRecipient, ChainlinkClient, Ownable {
 
         return true;
     }
-
-
-
-    // /// @notice Enables processing of open commitments after endDate that have not been processed by creator
-    // /// @param committer address of the creator of the committer to process
-    // /// @dev Process commitment by lookup based on address, checking metrics, state and updating balances
-    // function processCommitment(address committer) public {
-    //     console.log("Processing commitment");
-    //     require(commitments[committer].exists, "SPC::processCommitment - commitment does not exist");
-    //     Commitment storage commitment = commitments[committer];
-
-    //     require(commitment.endTime < block.timestamp, "SPC::processCommitment - commitment is still active");
-    //     require(commitment.endTime < commitment.lastActivityUpdate, "SPC::processCommitment - update activity");
-
-    //     require(_settleCommitment(commitment), "SPC::processCommitmentUser - settlement failed");
-
-    //     emit CommitmentEnded(committer, commitment.met, commitment.stake);
-    // }
 
     /// @notice Enables control of processing own commitment. For instance when completed.
     /// @dev Process commitment by lookup _msgSender(), checking metrics, state and updating balances

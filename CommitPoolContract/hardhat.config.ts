@@ -12,6 +12,7 @@ import "hardhat-typechain";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-abi-exporter";
+import "hardhat-log-remover";
 
 const chainIds = {
   ganache: 1337,
@@ -54,18 +55,18 @@ function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig 
 }
 
 const config: HardhatUserConfig = {
-    // https://hardhat.org/plugins/hardhat-abi-exporter.html
+  // https://hardhat.org/plugins/hardhat-abi-exporter.html
   abiExporter: {
-    path: './out/abi',
+    path: "./abi",
     clear: true,
-    flat: false,
+    flat: true,
     only: [],
   },
   defaultNetwork: "hardhat",
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   networks: {
     hardhat: {
@@ -75,7 +76,16 @@ const config: HardhatUserConfig = {
     kovan: createTestnetConfig("kovan"),
     rinkeby: createTestnetConfig("rinkeby"),
     ropsten: createTestnetConfig("ropsten"),
-    matic_mumbai: createTestnetConfig("matic_mumbai"),
+    matic_mumbai: {
+      url: "https://rpc-mumbai.maticvigil.com",
+      accounts: {
+        count: 10,
+        initialIndex: 0,
+        mnemonic,
+        path: "m/44'/60'/0'/0",
+      },
+      chainId: chainIds.matic_mumbai,
+    },
   },
   paths: {
     artifacts: "./artifacts",

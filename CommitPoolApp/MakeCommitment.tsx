@@ -11,7 +11,6 @@ import {
 } from "./components/styles";
 
 import { utils } from "ethers";
-import { Dimensions } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
 export default class MakeCommitment extends Component<
@@ -114,10 +113,11 @@ export default class MakeCommitment extends Component<
   };
 
   createPermitMessageData = () => {
-    const fromAddress = this.props.web3.account;
+    const { account, contracts } = this.props.web3
+    const fromAddress = account;
     const expiry = Date.now() + 120;
     const nonce = 1;
-    const spender = "0x24A2D8772521A9fa2f85d7024e020e7821C23c97";
+    const spender = contracts.commitPool.address;
 
     const message = {
       holder: fromAddress,
@@ -175,7 +175,7 @@ export default class MakeCommitment extends Component<
         name: "Dai Stablecoin",
         version: "1",
         chainId: 4,
-        verifyingContract: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+        verifyingContract: contracts.dai.address,
       },
       message: message,
     });
@@ -187,9 +187,9 @@ export default class MakeCommitment extends Component<
   };
 
   signData = async (web3, typedData) => {
-    const provider = web3.torus.provider;
+    const { account, biconomy, torus } = web3;
+    const provider = torus.provider;
     console.log("PROVIDER TO SIGN DATA: ", provider)
-    const { account } = web3;
     return new Promise(function (resolve, reject) {
       provider.sendAsync(
         {
@@ -225,7 +225,9 @@ export default class MakeCommitment extends Component<
 
   async createCommitment() {
     const { web3 } = this.props;
-    const account = web3.account;
+    const { account, biconomy } = web3;
+    const provider = biconomy.getEthersProvider();
+    const gasLimit = 500000;
 
     let commitPoolContract = web3.contracts.commitPool;
     let daiContract = web3.contracts.dai;
@@ -245,9 +247,7 @@ export default class MakeCommitment extends Component<
     );
 
     try {
-
-      const provider = web3.biconomy;
-      const gasLimit = 500000;
+      let txParams;
 
       if (allowance.gte(stakeAmount)) {
         const {
@@ -264,7 +264,7 @@ export default class MakeCommitment extends Component<
   
         console.log("Data: ", data)
         
-        const txParams = {
+        txParams = {
           data: data,
           to: commitPoolContract.address,
           from: account,
@@ -272,26 +272,11 @@ export default class MakeCommitment extends Component<
           signatureType: "EIP712_SIGN",
         };
 
-        const dcReceipt = await provider.send("eth_sendTransaction", [
-          txParams,
-        ]);
-
-        provider.once(dcReceipt, (transaction) => {
-          console.log("TX: ", transaction);
-        });
-        console.log("RECEIPT D&C:", dcReceipt);
       } else {
+        const signedTransferPermit = await this.signTransferPermit();
+        console.log("SIGNED PERMIT: ", signedTransferPermit);
 
-        const expiry = Date.now() + 120;
-        const nonce = 1;
-
-        const signedPermit = await this.signTransferPermit();
-        console.log("SIGNED PERMIT: ", signedPermit);
-
-        // const _v: number = 27;
-        // const _r  = "0xc225220de6c6f5a829c07bf07444435619c98ac95fb5ce82205bc9be1def858b";
-        // const _s = "0x5924bfb22181c58e4ec4bc26d42ae5b4edb53ffebf9045cad2e275baab4915ba";
-        const { v , r, s } = signedPermit;
+        const { expiry, nonce, v , r, s } = signedTransferPermit;
         console.log("V, R, S: ", v, " ", r, " ", s)
 
         const {
@@ -313,7 +298,7 @@ export default class MakeCommitment extends Component<
 
         console.log("Data: ", data)
         
-        const txParams = {
+        txParams = {
           data: data,
           to: commitPoolContract.address,
           from: account,
@@ -321,13 +306,16 @@ export default class MakeCommitment extends Component<
           signatureType: "EIP712_SIGN",
         };
 
-        console.log("Sending transaction")
-        const dcReceipt = await provider.send("eth_sendTransaction", [
-          txParams,
-        ])
-        
-        console.log("RECEIPT D&C:", dcReceipt);
       }
+
+      const dcReceipt = await provider.send("eth_sendTransaction", [
+        txParams,
+      ]);
+      
+      console.log("Sending transaction")
+      provider.once(dcReceipt, (transaction) => {
+        console.log("TX: ", transaction);
+      });
 
       this.setState({ loading: false, txSent: true });
 

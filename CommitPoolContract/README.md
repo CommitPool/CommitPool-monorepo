@@ -8,6 +8,7 @@ Current address:
 
 **Rinkeby** [0x24A2D8772521A9fa2f85d7024e020e7821C23c97](https://rinkeby.etherscan.io/address/0x964c44f85AF3fc4771e6f47A524c4e2501F03552)
 
+**Matic Mumbai** [0xDB70351459190c00bB5ed98C3C423Cbc35f2A828](https://explorer-mumbai.maticvigil.com/address/0xDB70351459190c00bB5ed98C3C423Cbc35f2A828/transactions)
 ## Getting started
 
 Currently Ganache and Node 14 are not playing well together. To get started:
@@ -32,38 +33,16 @@ Hardhat & Ganache
 2. Start Ganache on port 8545
 3. In second terminal```yarn hardhat run --network localhost scripts/deploy.ts  ```
 
-Truffle
-
-1. Use node 12 (using yarn is recommended)
-2. Start Ganache on port 8545
-3. In terminal```truffle migrate```
+### Contract deployment
+```yarn hardhat run --network [NETWORK NAME DECLARED IN CONFIG] scripts/deploy.ts  ```
 
 ### Contract verification
 
-``` npx hardhat --network rinkeby verify --constructor-args scripts/arguments.js 0x24A2D8772521A9fa2f85d7024e020e7821C23c97 ```
+``` yarn hardhat --network rinkeby verify --constructor-args scripts/arguments.js 0x24A2D8772521A9fa2f85d7024e020e7821C23c97 ```
 
-#### Deploying to Matic
-Deployment to the Mumbai Testnet is configured in ```./truffle-config.js```
-
-1. ```npm install truffle -g```
-2. Deploy to Mumbai testnet: ```truffle migrate --network matic_mumbai```
-3. Find your contract based on the address reported by Truffle in the [Matic Explorer](https://explorer-mumbai.maticvigil.com/).
-
-Quite note on deploying to Matic:
-* Test deployment using Truffle against a runnning Ganache instance: ```truffle migrate```
-* Configure Matic network in [MetaMask](https://docs.matic.network/docs/develop/metamask/config-matic/)
-* Request funds at [faucet](https://faucet.matic.network/)
-* Use this wallet's seed phrase in the .env file to pay the deployment
-
-Interaction with the contract on Matic via Truffle:
-1. ```truffle console --network matic```
-2. ```compile```
-3. ```var singlePlayerCommit = await SinglePlayerCommit.at('<ADDRESS FROM DEPLOYMENT>')```
-4. To test: ```await contractTest.activityKeyList(0)```
-
-#### Interacting with the contract using Buidler
+#### Interacting with the contract using Hardhat
 After deploying to a local node
-1. ```yarn buidler console --network localhost     ```
+1. ```yarn hardhat console --network localhost     ```
 2. ```const CommitPool = await ethers.getContractFactory("SinglePlayerCommit")```
 3. ```const commitPool = await CommitPool.attach("<<CONTRACT ADDRESS FROM DEPLOYMENT>>")```
 

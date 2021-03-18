@@ -13,6 +13,7 @@ import "solidity-coverage";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-abi-exporter";
 import "hardhat-log-remover";
+import "@tenderly/hardhat-tenderly";
 
 const chainIds = {
   ganache: 1337,
@@ -102,6 +103,10 @@ const config: HardhatUserConfig = {
         runs: 200,
       },
     },
+  },
+  tenderly: {
+    project: "singleplayercommit",
+    username: "bitbeckers",
   },
   typechain: {
     outDir: "typechain",

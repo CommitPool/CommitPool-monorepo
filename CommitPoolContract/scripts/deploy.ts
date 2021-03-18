@@ -2,7 +2,7 @@
 // but useful for running the script in a standalone fashion through `node <script>`.
 // When running the script with `buidler run <script>` you'll find the Buidler
 // Runtime Environment's members available in the global scope.
-import { ethers } from "hardhat";
+import hre, { ethers } from "hardhat";
 import { Contract, ContractFactory } from "ethers";
 
 async function main(): Promise<void> {
@@ -37,6 +37,11 @@ async function main(): Promise<void> {
   await singlePlayerCommit.deployed();
 
   console.log("SinglePlayerCommit deployed to: ", singlePlayerCommit.address);
+
+  await hre.tenderly.verify({
+    name: "SinglePlayerCommit",
+    address: singlePlayerCommit.address,
+})
 }
 
 // We recommend this pattern to be able to use async/await everywhere

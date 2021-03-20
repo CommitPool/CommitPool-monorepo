@@ -1,10 +1,12 @@
 import React, { Component } from "react";
-import { Clipboard } from "react-native";
+import { Clipboard, Dimensions } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { utils } from "ethers";
 import {
   StyledTouchableOpacityRed,
+  StyledTouchableOpacityWhite,
   StyledText,
+  StyledTextDark,
   StyledTextLarge,
   StyledTextSmall,
   StyledView,
@@ -21,16 +23,27 @@ export default class Wallet extends Component<
       balance: "0.0",
       daiBalance: "0.0",
       refresh: undefined,
+      height: 300,
+      width: 300,
     };
   }
 
+  updateDimensions() {
+      const { width, height } = Dimensions.get("window")
+      this.setState({ width: width, height: height });
+
+    }
+
   async componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
     const web3 = await this.props.web3.initialize();
     this.setStateInfo(web3);
     this.setStateRefresh(web3);
   }
 
   componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
     clearInterval(this.state.refresh);
   }
 
@@ -131,18 +144,18 @@ export default class Wallet extends Component<
             {this.state.daiBalance} MATIC Dai
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacityRed onPress={() => this.next()}>
-          <StyledText>Get Started!</StyledText>
-        </StyledTouchableOpacityRed>
-        <StyledTouchableOpacityRed
+        <StyledTouchableOpacityWhite onPress={() => this.next()}>
+          <StyledTextDark>Get Started!</StyledTextDark>
+        </StyledTouchableOpacityWhite>
+        <StyledTouchableOpacityWhite
           onPress={() =>
             web3.torus.isLoggedIn ? this.logout() : web3.initialize()
           }
         >
-          <StyledText>
+          <StyledTextDark>
             {web3.torus.isLoggedIn ? "Log out" : " Log in"}
-          </StyledText>
-        </StyledTouchableOpacityRed>
+          </StyledTextDark>
+        </StyledTouchableOpacityWhite>
       </StyledViewContainer>
     );
   }

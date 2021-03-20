@@ -21,6 +21,7 @@ export default class Main extends Component <
       step: 1,
       height: 300,
       width: 300,
+      stravaLog: false,
     };
   }
 
@@ -51,6 +52,10 @@ export default class Main extends Component <
   onClick = (step: Number) => {
     this.setState({ step: step });
   };
+
+  getStravaLog() {
+    this.props.stravaLog ? this.setState({ step: 4}) : this.setState({step: 1})
+  }
 
 
 
@@ -109,7 +114,6 @@ export default class Main extends Component <
 
 
   render() {
-
 
     return (
       <View style={[styles.bg, {height: this.state.height}, {width: this.state.width}]}>

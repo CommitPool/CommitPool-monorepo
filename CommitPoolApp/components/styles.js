@@ -11,6 +11,14 @@ export const StyledText = styled(Text)`
   width: 100%;
 `;
 
+export const StyledTextDark = styled(Text)`
+  font-family: Helvetica;
+  text-align: center;
+  color: #d45353;
+  font-size: 25px;
+  width: 100%;
+`;
+
 export const StyledTextInput = styled(TextInput)`
   text-align: center;
   border-radius: 5;
@@ -29,6 +37,7 @@ export const StyledTextSmall = styled(StyledText)`
 
 export const StyledTextLarge = styled(StyledText)`
   font-size: 50px;
+  margin-top: 15px;
 `;
 
 export const StyledTouchableOpacity = styled(TouchableOpacity)`
@@ -37,6 +46,16 @@ export const StyledTouchableOpacity = styled(TouchableOpacity)`
 
 export const StyledTouchableOpacityRed = styled(StyledTouchableOpacity)`
   background-color: #d45353;
+  width: 300px;
+  height: 50px;
+  border-radius: 10px;
+  border-width: 3px;
+  border-color: #d45353;
+  justify-content: center;
+`;
+
+export const StyledTouchableOpacityWhite = styled(StyledTouchableOpacity)`
+  background-color: white;
   width: 300px;
   height: 50px;
   border-radius: 10px;

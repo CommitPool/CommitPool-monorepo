@@ -45,7 +45,7 @@ export default class Welcome extends React.Component<{ next: any }, {}> {
 
           <StyledText style={{ fontStyle: "italic" }}>
             {"\n"}
-            {'Welcome!'}
+            {''}
             {"\n"}
           </StyledText>
         </StyledView>

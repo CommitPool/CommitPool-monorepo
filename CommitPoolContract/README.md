@@ -38,7 +38,7 @@ Hardhat & Ganache
 
 ### Contract verification
 
-``` yarn hardhat --network rinkeby verify --constructor-args scripts/arguments.js 0x24A2D8772521A9fa2f85d7024e020e7821C23c97 ```
+``` yarn hardhat --network rinkeby verify --constructor-args scripts/arguments.js 0x3Ae8da051CC6Ab7Ef884A8f0fF86e02c3303fc38 ```
 
 #### Interacting with the contract using Hardhat
 After deploying to a local node

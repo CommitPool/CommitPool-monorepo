@@ -7,6 +7,7 @@ const contract = (address, abi, provider) => {
   return {};
 };
 
+
 function isAddress(address) {
   try {
     utils.getAddress(address);

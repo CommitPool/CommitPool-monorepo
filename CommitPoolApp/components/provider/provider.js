@@ -1,4 +1,4 @@
-import {Biconomy} from "@biconomy/mexa";
+import { Biconomy } from "@biconomy/mexa";
 import { ethers } from "ethers";
 
 const getProvider = (walletProvider) => {
@@ -11,12 +11,19 @@ const getProvider = (walletProvider) => {
     console.log("Metamask found");
   }
   console.log("Creating provider");
-  let biconomy = new Biconomy(new ethers.providers.JsonRpcProvider("https://rinkeby.infura.io/v3/fb9dd1f3476f44ad92158c24ba5120c6"),
-  {
-    walletProvider: walletProvider, 
-    apiKey: "tQ8cyyMQH.7136b383-8ad3-470e-9004-930645dcc052", 
-    debug: true
-  });   
+  // let biconomy = new Biconomy(new ethers.providers.JsonRpcProvider("https://rinkeby.infura.io/v3/fb9dd1f3476f44ad92158c24ba5120c6"),
+  let biconomy = new Biconomy(
+    new ethers.providers.JsonRpcProvider(
+      "https://rpc-mumbai.maticvigil.com/"
+    ),
+
+    {
+      // walletProvider: walletProvider,
+      // apiKey: "tQ8cyyMQH.7136b383-8ad3-470e-9004-930645dcc052", //rinkeby
+      apiKey: "gZT51Vc7u.69fff9c5-4afe-4961-aff1-41ab237f97f6", //matic mumbai
+      debug: true,
+    }
+  );
 
   let networkProvider = new ethers.providers.Web3Provider(biconomy);
   console.log("BICONOMY: ", biconomy);

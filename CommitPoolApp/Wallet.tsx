@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import { Clipboard } from "react-native";
 import QRCode from "react-native-qrcode-svg";
-import { Contract, utils } from "ethers";
+import { utils } from "ethers";
 import {
   StyledTouchableOpacityRed,
   StyledText,
@@ -11,148 +11,136 @@ import {
   StyledViewContainer,
 } from "./components/styles";
 
-export default class Wallet extends Component<
-  { next: any; web3: any },
-  { balance: string; daiBalance: string; refresh: any }
-> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      balance: "0.0",
-      daiBalance: "0.0",
-      refresh: undefined,
-    };
-  }
+const Wallet = ({ next, web3 }) => {
+  const [web3provider, setWeb3Provider] = useState(web3);
+  const [balance, setBalance] = useState("0.0");
+  const [daiBalance, setDaiBalance] = useState("0.0");
+  const [loading, setLoading] = useState(true);
 
-  async componentDidMount() {
-    await this.props.web3.initialize().then((web3) => {
-      this.setStateInfo(web3);
-      this.setStateRefresh(web3);
-    });
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.state.refresh);
-  }
-
-  async setStateInfo(web3: any) {
-    const account = web3.account;
-
-    if (web3.account !== undefined && web3.contracts.dai !== undefined) {
-      await web3.provider
-        .getBalance(account)
-        .then((balance) =>
-          this.setState({ balance: utils.formatEther(balance) })
-        );
-
-      await web3.contracts.dai
-        .balanceOf(account)
-        .then((daiBalance) =>
-          this.setState({ daiBalance: utils.formatEther(daiBalance) })
-        );
+  //Set-up wallet
+  useEffect(() => {
+    if (loading) {
+      web3provider
+        .initialize()
+        .then((provider) => setWeb3Provider(provider))
+        .then(setLoading(false));
     }
-  }
+  }, [loading, web3provider]);
 
-  async setStateRefresh(web3: any) {
-    const refresh = setInterval(async () => {
-      if (web3.account !== undefined && web3.contracts.dai !== undefined) {
-        const account = web3.account;
-        console.log("ACCOUNT WEB3 in wallet: ", account);
-        await web3.provider
-          .getBalance(account)
-          .then((balance) =>
-            this.setState({ balance: utils.formatEther(balance) })
-          );
+  //Set balances and refresh
+  useEffect(() => {
+    if (!loading) {
+      const refresh = setInterval(async () => {
+        const { account, contracts, torus } = web3provider;
+        if (torus.isLoggedIn) {
+          if (account !== undefined) {
+            console.log("ACCOUNT WEB3 in wallet: ", account);
+            await getUserBalance().then((balance) =>
+              setBalance(utils.formatEther(balance))
+            );
+          }
+          if (contracts.dai !== undefined) {
+            console.log("DAI CONTRACT: ", web3.contracts.dai);
 
-        console.log("DAI CONTRACT: ", web3.contracts.dai);
-        await web3.contracts.dai
-          .balanceOf(account)
-          .then((daiBalance) =>
-            this.setState({ daiBalance: utils.formatEther(daiBalance) })
-          );
-      }
-    }, 2500);
-    this.setState({ refresh: refresh });
-  }
+            await getDaiBalance().then((daiBalance) =>
+              setDaiBalance(utils.formatEther(daiBalance))
+            );
+          }
+        }
+      }, 2500);
 
-  logout = () => {
-    this.props.web3.logOut();
-    this.setState({ balance: "0", daiBalance: "0" });
-    clearInterval(this.state.refresh);
+      return () => clearInterval(refresh);
+    }
+  }, [loading]);
+
+  const getUserBalance = async () => {
+    const { account, provider } = web3provider;
+    if (account !== undefined) {
+      return await provider.getBalance(account);
+    }
+    return "0.0";
   };
 
-  async next() {
-    const { web3 } = this.props;
-    const account = web3.account;
-    const commitPoolContract = web3.contracts.commitPool;
+  const getDaiBalance = async () => {
+    const { account, contracts } = web3provider;
+    if (account !== undefined && contracts.dai !== undefined) {
+      return await contracts.dai.balanceOf(account);
+    }
+    return "0.0";
+  };
+
+  const logout = () => {
+    web3provider.logOut();
+    setBalance("0.0");
+    setDaiBalance("0.0");
+    setLoading(true);
+  };
+
+  const goNext = async () => {
+    const { account, contracts } = web3provider;
+    const commitPoolContract = contracts.commitPool;
 
     try {
       const commitment = await commitPoolContract.commitments(account);
       if (commitment.exists) {
-        this.props.next(6);
+        next(6);
       } else {
-        this.props.next(5);
+        next(5);
       }
     } catch (error) {
-      this.props.next(5);
+      next(5);
     }
-  }
+  };
 
-  render() {
-    const { web3 } = this.props;
-    console.log("WEB3", web3);
-    const account = web3.account !== undefined ? web3.account : "";
-    return (
-      <StyledViewContainer>
+  return (
+    <StyledViewContainer>
+      <StyledView>
+        <StyledTextLarge style={{ margin: 15 }}>Add Funds</StyledTextLarge>
+        <StyledText style={{ margin: 15 }}>
+          Login to your wallet via Torus by clicking the blue button below.
+        </StyledText>
+        <StyledTextSmall style={{ margin: 15 }}>
+          You can get funds on testnet from https://faucet.matic.network
+        </StyledTextSmall>
+        <QRCode value="account" size={225} />
+        <StyledTextSmall
+          style={{ margin: 15 }}
+          onPress={() => Clipboard.setString(web3provider.account)}
+        >
+          {web3provider.account}
+        </StyledTextSmall>
+      </StyledView>
+
+      {loading ? (
+        <StyledText>Loading....</StyledText>
+      ) : (
         <StyledView>
-          <StyledTextLarge style={{ margin: 15 }}>Add Funds</StyledTextLarge>
-          <StyledText style={{ margin: 15 }}>
-            Login to your wallet via Torus by clicking the blue button below.
-          </StyledText>
-          <StyledTextSmall style={{ margin: 15 }}>
-            You can get funds on testnet from https://faucet.matic.network
-          </StyledTextSmall>
-          <QRCode value="account" size={225} />
-          <StyledTextSmall
-            style={{ margin: 15 }}
-            onPress={() => Clipboard.setString(account)}
+          <StyledText
+            style={{
+              fontWeight: "bold",
+            }}
           >
-            {account}
-          </StyledTextSmall>
+            Balance:
+          </StyledText>
+          <StyledText style={{ marginBottom: 15 }}>
+            {balance} MATIC 
+          </StyledText>
+          <StyledText style={{ marginBottom: 15 }}>{daiBalance} mDAI</StyledText>
+          <StyledTouchableOpacityRed
+            onPress={() => goNext()}
+            style={{ marginBottom: 15 }}
+          >
+            <StyledText>Get Started!</StyledText>
+          </StyledTouchableOpacityRed>
+          <StyledTouchableOpacityRed onPress={() => logout()}>
+            <StyledText>
+              {web3provider.torus.isLoggedIn ? "Log out" : " Log in"}
+            </StyledText>
+          </StyledTouchableOpacityRed>
         </StyledView>
+      )}
+    </StyledViewContainer>
+  );
+};
 
-        {web3.biconomy !== undefined ? (
-          <StyledView>
-            <StyledText
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              Balance:
-            </StyledText>
-            <StyledText style={{ marginBottom: 15 }}>
-              {this.state.daiBalance} DAI
-            </StyledText>
-            <StyledTouchableOpacityRed
-              onPress={() => this.next()}
-              style={{ marginBottom: 15 }}
-            >
-              <StyledText>Get Started!</StyledText>
-            </StyledTouchableOpacityRed>
-            <StyledTouchableOpacityRed
-              onPress={() =>
-                web3.torus.isLoggedIn ? this.logout() : web3.initialize()
-              }
-            >
-              <StyledText>
-                {web3.torus.isLoggedIn ? "Log out" : " Log in"}
-              </StyledText>
-            </StyledTouchableOpacityRed>
-          </StyledView>
-        ) : (
-          <StyledText>Loading....</StyledText>
-        )}
-      </StyledViewContainer>
-    );
-  }
-}
+export default Wallet;

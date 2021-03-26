@@ -5,13 +5,13 @@ import abi from "../CommitPoolContract/abi/SinglePlayerCommit.json";
 const ENV = {
   //MATIC MUMBAI
   dev: {
+    abi: abi,
+    daiAbi: daiAbi,
     commitPoolContractAddress: "0xfd2F136B51bf4B97D76ba2D879782A2dD1fAfB02",
     daiContractAddress: "0x6A383cf1F8897585718DCA629a8f1471339abFe4",
     // linkContractAddress: "0x70d1F773A9f81C852087B77F6Ae6d3032B02D2AB",
-    rpcUrl:
-      "https://rpc-mumbai.maticvigil.com/",
-    abi: abi,
-    daiAbi: daiAbi,
+    rpcUrl: "https://rpc-mumbai.maticvigil.com/",
+    biconomyApiKey: "gZT51Vc7u.69fff9c5-4afe-4961-aff1-41ab237f97f6",
     torusLogging: true,
   },
   // RINKEBY
@@ -25,6 +25,8 @@ const ENV = {
   //   jobId: "de8fc7b07bf54d7c8243b3b4801834c7",
   //   rpcUrl:
   //     "https://ropsten.infura.io/v3/86deb8025479412bb2ef3dcc87fa90ff",
+  //   biconomyApiKey:
+  //   "tQ8cyyMQH.7136b383-8ad3-470e-9004-930645dcc052",
   //   abi: abi,
   //   daiAbi: daiAbi,
   //   torusLogging: true,

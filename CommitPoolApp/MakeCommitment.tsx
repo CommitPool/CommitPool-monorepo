@@ -92,7 +92,6 @@ const MakeCommitment = ({ code, next, web3 }) => {
           } catch (error) {
             exists = false;
           }
-          // console.log("GOT ACTIVITIES", activities);
         }
 
         const formattedActivities: {}[] = activities.map((act) => {
@@ -169,16 +168,9 @@ const MakeCommitment = ({ code, next, web3 }) => {
 
   // Create and send commitment
   const createCommitment = async () => {
-    // torus is torus provider
-    // biconomy the biconomy instance
-    // provider the ethers.Web3Provider created with Biconomy
     const { account, biconomy, contracts, provider, torus } = web3provider;
     const _overrides = { from: account, gasLimit: 500000 };
-
-    // Contract is made new ethers.Contract(<ABI>, <ADDRESS>, provider.getSignerByAddres(account))
     const daiContract = contracts.dai;
-
-    // Interface is used for getting the encoded method ABI
     const daiInterface = new ethers.utils.Interface(daiAbi);
 
     // let commitPoolContract = contracts.commitPool;
@@ -199,8 +191,7 @@ const MakeCommitment = ({ code, next, web3 }) => {
         showInfoMessage("Sending metatransaction");
 
         //spender, amount
-        // const nonce = await daiContract.getNonce(userAddress);
-        const nonce = "1"; //TODO because only contract, quick solve
+        const nonce = await daiContract.getNonce(account);
         const functionSignature = daiInterface.encodeFunctionData("approve", [
           account,
           "10000000000000000000",
@@ -271,7 +262,14 @@ const MakeCommitment = ({ code, next, web3 }) => {
     }
   };
 
-  const sendTransaction = async (userAddress, functionData, r, s, v, overrides) => {
+  const sendTransaction = async (
+    userAddress,
+    functionData,
+    r,
+    s,
+    v,
+    overrides
+  ) => {
     if (web3provider && web3provider.contracts !== {}) {
       const { contracts, provider } = web3provider;
 
@@ -279,24 +277,17 @@ const MakeCommitment = ({ code, next, web3 }) => {
         let gasPrice = await provider.getGasPrice();
 
         //TODO Errors estimating gasLimit
-        // let gasLimit = await contracts.dai.estimateGas.executeMetaTransaction(
-        //   userAddress,
-        //   functionData,
-        //   r,
-        //   s,
-        //   v,{
-        //     from: userAddress,
-        //     gasLimit: 250000,
-        //   }
-        // ).then(out => console.log("OUT: ", out));
-        // .estimateGas({ from: userAddress });
+        let gasLimit = await contracts.dai.estimateGas
+          .executeMetaTransaction(userAddress, functionData, r, s, v)
+          .then((limit) => (overrides.gasLimit = limit.toString()));
+
         let tx = contracts.dai.executeMetaTransaction(
           userAddress,
           functionData,
           r,
           s,
           v,
-          overrides,
+          overrides
         );
         console.log("TX: ", tx);
 

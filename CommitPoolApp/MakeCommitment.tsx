@@ -155,91 +155,7 @@ const MakeCommitment = ({ code, next, web3 }) => {
     }
   };
 
-  // Permit methods
-
-  // const createPermitMessageData = () => {
-  //   const { account, contracts } = web3provider;
-  //   const fromAddress = account;
-  //   const expiry = Date.now() + 120;
-  //   const nonce = 1;
-  //   const spender = contracts.commitPool.address;
-
-  //   const message = {
-  //     holder: fromAddress,
-  //     spender: spender,
-  //     nonce: nonce,
-  //     expiry: expiry,
-  //     allowed: true,
-  //   };
-
-  //   const typedData = JSON.stringify({
-  //     types: {
-  //       EIP712Domain: [
-  //         {
-  //           name: "name",
-  //           type: "string",
-  //         },
-  //         {
-  //           name: "version",
-  //           type: "string",
-  //         },
-  //         {
-  //           name: "chainId",
-  //           type: "uint256",
-  //         },
-  //         {
-  //           name: "verifyingContract",
-  //           type: "address",
-  //         },
-  //       ],
-  //     },
-  //     primaryType: "Permit",
-
-  //     message: message,
-  //   });
-
-  //   return {
-  //     typedData,
-  //     message,
-  //   };
-  // };
-
-  // const signData = async (typedData: any) => {
-  //   const { account, biconomy, torus } = web3provider;
-  //   const provider = torus.provider;
-  //   console.log("PROVIDER TO SIGN DATA: ", provider);
-  //   return new Promise(function (resolve, reject) {
-  //     provider.sendAsync(
-  //       {
-  //         id: 1,
-  //         method: "eth_signTypedData_v3",
-  //         params: [account, typedData],
-  //         from: account,
-  //       },
-  //       function (err, result) {
-  //         if (err) {
-  //           console.log(err);
-  //           reject(err); //TODO
-  //         } else {
-  //           const r = result.result.slice(0, 66);
-  //           const s = "0x" + result.result.slice(66, 130);
-  //           const v = Number("0x" + result.result.slice(130, 132));
-  //           resolve({
-  //             v,
-  //             r,
-  //             s,
-  //           });
-  //         }
-  //       }
-  //     );
-  //   });
-  // };
-
-  // const signTransferPermit = async () => {
-  //   const messageData = createPermitMessageData();
-  //   const sig = await signData(messageData.typedData);
-  //   return Object.assign({}, sig, messageData.message);
-  // };
+  // Transaction methods
 
   const getSignatureParameters = (signature: any) => {
     if (!utils.isHexString(signature)) {
@@ -253,11 +169,16 @@ const MakeCommitment = ({ code, next, web3 }) => {
 
   // Create and send commitment
   const createCommitment = async () => {
+    // torus is torus provider
+    // biconomy the biconomy instance
+    // provider the ethers.Web3Provider created with Biconomy
     const { account, biconomy, contracts, provider, torus } = web3provider;
-    // const provider = biconomy.getEthersProvider();
-    const gasLimit = 500000;
-    const _overrides = { from: account, gasLimit: gasLimit };
+    const _overrides = { from: account, gasLimit: 500000 };
+
+    // Contract is made new ethers.Contract(<ABI>, <ADDRESS>, provider.getSignerByAddres(account))
     const daiContract = contracts.dai;
+
+    // Interface is used for getting the encoded method ABI
     const daiInterface = new ethers.utils.Interface(daiAbi);
 
     // let commitPoolContract = contracts.commitPool;
@@ -271,30 +192,23 @@ const MakeCommitment = ({ code, next, web3 }) => {
     // const stakeAmount = utils.parseEther(stake.toString());
     // setLoading(true);
 
-    // const allowance = await daiContract.allowance(
-    //   account,
-    //   commitPoolContract.address
-    // );
-
     try {
-      let dcReceipt;
+      let receipt;
 
       if (metaTxEnabled) {
-        console.log("Sending metaTx");
+        showInfoMessage("Sending metatransaction");
 
         //spender, amount
-        const userAddress = account;
         // const nonce = await daiContract.getNonce(userAddress);
         const nonce = "1"; //TODO because only contract, quick solve
-        const functionSignature = daiInterface.encodeFunctionData("approve",[
-          commitPoolContractAddress,
-          "10000000000000000000"]
-        );
-        // .encodeABI();
-        console.log("FUNCTION SIGNATURE RESP: ", functionSignature);
+        const functionSignature = daiInterface.encodeFunctionData("approve", [
+          account,
+          "10000000000000000000",
+        ]);
+
         let message = {};
         message.nonce = parseInt(nonce);
-        message.from = userAddress;
+        message.from = account;
         message.functionSignature = functionSignature;
 
         const dataToSign = JSON.stringify({
@@ -306,14 +220,14 @@ const MakeCommitment = ({ code, next, web3 }) => {
           primaryType: "MetaTransaction",
           message: message,
         });
-        console.log("Domain data: ", domainData);
+        showInfoMessage(`Domain data: ${domainData}`);
 
-        dcReceipt = await torus.provider.send(
+        receipt = await torus.provider.send(
           {
             jsonrpc: "2.0",
             id: 999999999999,
             method: "eth_signTypedData_v4",
-            params: [userAddress, dataToSign],
+            params: [account, dataToSign],
           },
           function (error, response) {
             console.info(`User signature is ${response.result}`);
@@ -321,7 +235,7 @@ const MakeCommitment = ({ code, next, web3 }) => {
               showErrorMessage("Could not get user signature");
             } else if (response && response.result) {
               let { r, s, v } = getSignatureParameters(response.result);
-              console.log(userAddress);
+              console.log(account);
               console.log(JSON.stringify(message));
               console.log(message);
               console.log(getSignatureParameters(response.result));
@@ -331,68 +245,22 @@ const MakeCommitment = ({ code, next, web3 }) => {
                 sig: response.result,
               });
               console.log(`Recovered ${recovered}`);
-              sendTransaction(userAddress, functionSignature, r, s, v);
+              sendTransaction(account, functionSignature, r, s, v, _overrides);
             }
           }
         );
-
-        // const {
-        //   data,
-        // } = await commitPoolContract.populateTransaction.depositAndCommit(
-        //   activity,
-        //   distanceInMiles * 100,
-        //   startTimestamp,
-        //   endTimestamp,
-        //   stakeAmount,
-        //   stakeAmount,
-        //   String(code.athlete.id)
-        // );
-
-        // console.log("Data: ", data);
-
-        // txParams = {
-        //   data: data,
-        //   to: commitPoolContract.address,
-        //   from: account,
-        //   gasLimit: gasLimit,
-        //   signatureType: "EIP712_SIGN",
-        // };
       } else {
-        // const signedTransferPermit = await signTransferPermit();
-        // console.log("SIGNED PERMIT: ", signedTransferPermit);
-        // const { expiry, nonce, v, r, s } = signedTransferPermit;
-        // console.log("V, R, S: ", v, " ", r, " ", s);
-        // const {
-        //   data,
-        // } = await commitPoolContract.populateTransaction.depositAndCommitPermit(
-        //   activity,
-        //   distanceInMiles * 100,
-        //   startTimestamp,
-        //   endTimestamp,
-        //   stakeAmount,
-        //   stakeAmount,
-        //   nonce,
-        //   Math.floor(expiry / 1000),
-        //   v,
-        //   r,
-        //   s,
-        //   String(code.athlete.id)
-        // );
-        // console.log("Data: ", data);
-        // txParams = {
-        //   data: data,
-        //   to: commitPoolContract.address,
-        //   from: account,
-        //   gasLimit: gasLimit,
-        //   signatureType: "EIP712_SIGN",
-        // };
+        showInfoMessage("Sending regular transaction");
+        receipt = await daiContract.approve(
+          account,
+          "10000000000000000000",
+          _overrides
+        );
       }
 
-      // const dcReceipt = await provider.send("eth_sendTransaction", [txParams]);
-      console.log("RECEIPT: ", dcReceipt);
-      console.log("Sending transaction");
-      await provider.once(dcReceipt, (transaction) => {
-        console.log("TX: ", transaction);
+      showInfoMessage("Sending transaction");
+      await provider.once(receipt, (transaction) => {
+        showInfoMessage(`Tx: ${transaction}`);
         setTxHash(transaction.transactionHash);
       });
 
@@ -403,15 +271,14 @@ const MakeCommitment = ({ code, next, web3 }) => {
     }
   };
 
-  const sendTransaction = async (userAddress, functionData, r, s, v) => {
+  const sendTransaction = async (userAddress, functionData, r, s, v, overrides) => {
     if (web3provider && web3provider.contracts !== {}) {
-      console.log("WEB# PROVIDER IN SEND: ", web3provider);
       const { contracts, provider } = web3provider;
-      console.log("CONTRACTS IN SEND: ", contracts);
 
       try {
         let gasPrice = await provider.getGasPrice();
 
+        //TODO Errors estimating gasLimit
         // let gasLimit = await contracts.dai.estimateGas.executeMetaTransaction(
         //   userAddress,
         //   functionData,
@@ -429,14 +296,8 @@ const MakeCommitment = ({ code, next, web3 }) => {
           r,
           s,
           v,
-          {
-            from: userAddress,
-            gasLimit: 500000,
-          }
+          overrides,
         );
-        // .send({
-        //   from: userAddress,
-        // });
         console.log("TX: ", tx);
 
         tx.on("transactionHash", function (hash) {
@@ -446,10 +307,9 @@ const MakeCommitment = ({ code, next, web3 }) => {
           console.log(receipt);
           setTxHash(receipt.transactionHash);
           showSuccessMessage("Transaction confirmed on chain");
-          // getQuoteFromNetwork();
         });
       } catch (error) {
-        console.log(error);
+        showErrorMessage(error);
       }
     }
   };

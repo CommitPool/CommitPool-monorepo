@@ -2,7 +2,6 @@ import getEnvVars from "../../environment.js";
 import getContract from "../contract/contract";
 import Torus from "@toruslabs/torus-embed";
 import getProvider from "../provider/provider";
-import { ethers } from "ethers";
 
 const {
   commitPoolContractAddress,
@@ -15,9 +14,10 @@ const {
 const web3Helper = {
   account: undefined,
   biconomy: undefined,
-  contracts: {
+  contracts: {},
+  setContracts: (provider) => {
+    setContracts(provider);
   },
-  setContracts: (provider) => {setContracts(provider)},
   logOut: () => {
     logOut();
   },
@@ -76,9 +76,6 @@ const setContracts = (provider) => {
     abi,
     provider.getSignerByAddress(web3Helper.account)
   );
-  // web3Helper.contracts.dai = new ethers.Contract(daiContractAddress, daiAbi);
-  // web3Helper.contracts.commitPool = new ethers.Contract(commitPoolContractAddress, abi);
-
 };
 
 export default web3Helper;

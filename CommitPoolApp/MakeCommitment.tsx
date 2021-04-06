@@ -10,43 +10,17 @@ import {
   StyledTouchableOpacityRed,
 } from "./components/styles";
 import getEnvVars from "./environment.js";
+import txHelper from "./components/transactions/transaction-helper.js";
 import { ethers, utils } from "ethers";
 import { recoverTypedSignature_v4 } from "eth-sig-util";
 import DropDownPicker from "react-native-dropdown-picker";
 
-const { daiAbi, commitPoolContractAddress, daiContractAddress } = getEnvVars();
-
-const domainType = [
-  {
-    name: "name",
-    type: "string",
-  },
-  {
-    name: "version",
-    type: "string",
-  },
-  {
-    name: "verifyingContract",
-    type: "address",
-  },
-  {
-    name: "salt",
-    type: "bytes32",
-  },
-];
-
-const metaTransactionType = [
-  { name: "nonce", type: "uint256" },
-  { name: "from", type: "address" },
-  { name: "functionSignature", type: "bytes" },
-];
-
-const domainData = {
-  name: "(PoS) Dai Stablecoin",
-  version: "1",
-  verifyingContract: daiContractAddress,
-  salt: "0x" + (80001).toString(16).padStart(64, "0"),
-};
+const {
+  abi,
+  daiAbi,
+  daiContractAddress,
+  commitPoolContractAddress,
+} = getEnvVars();
 
 const showErrorMessage = (message: string) => {
   console.log("ERROR: ", message);
@@ -61,18 +35,20 @@ const showSuccessMessage = (message: string) => {
 const MakeCommitment = ({ code, next, web3 }) => {
   const [web3provider, setWeb3Provider] = useState(web3);
   const [loading, setLoading] = useState(true);
-  const [distance, setDistance] = useState(0);
-  const [stake, setStake] = useState(0);
-  const [daysToStart, setDaysToStart] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [activity, setActivity] = useState({});
-  const [activities, setActivities] = useState([] as any[]);
   const [txHash, setTxHash] = useState("");
   const [metaTxEnabled, setMetaTxEnabled] = useState(true);
+  
+  const [activity, setActivity] = useState({});
+  const [activities, setActivities] = useState([] as any[]);
+  const [daysToStart, setDaysToStart] = useState(0);
+  const [distance, setDistance] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [stake, setStake] = useState(0);
+
 
   //Get activities
   useEffect(() => {
-    const init = async () => {
+    const getActivities = async () => {
       if (web3provider.torus.isLoggedIn && web3provider.contracts !== {}) {
         const commitPoolContract = web3provider.contracts.commitPool;
 
@@ -120,11 +96,10 @@ const MakeCommitment = ({ code, next, web3 }) => {
       }
     };
 
-    init();
+    getActivities();
   }, []);
 
   // Commitment methods
-
   const addDays = (date: Date, days: number) => {
     const result = new Date(date);
     result.setDate(result.getDate() + days);
@@ -155,103 +130,84 @@ const MakeCommitment = ({ code, next, web3 }) => {
   };
 
   // Transaction methods
-
-  const getSignatureParameters = (signature: any) => {
-    if (!utils.isHexString(signature)) {
-      throw new Error(
-        'Given value "'.concat(signature, '" is not a valid hex string.')
-      );
-    }
-    let expanded = utils.splitSignature(signature);
-    return expanded;
-  };
-
   // Create and send commitment
   const createCommitment = async () => {
-    const { account, biconomy, contracts, provider, torus } = web3provider;
+    const { account, provider } = web3provider;
+
+    const distanceInMiles = Math.floor(distance);
+    const startTime = calculateStart(daysToStart);
+    const startTimestamp = Math.ceil(startTime.valueOf() / 1000); //to seconds
+    const endTimestamp = Math.ceil(
+      calculateEnd(startTime, duration).valueOf() / 1000
+    ); //to seconds
+    const stakeAmount = utils.parseEther(stake.toString());
+
+    const commitment = {
+      activityKey: activity,
+      goalValue: distanceInMiles,
+      startTime: startTimestamp,
+      endTime: endTimestamp,
+      stake: stakeAmount,
+      depositAmount: stakeAmount,
+      userId: code.athlete.id.toString(),
+    };
+
     const _overrides = { from: account, gasLimit: 500000 };
-    const daiContract = contracts.dai;
-    const daiInterface = new ethers.utils.Interface(daiAbi);
 
-    // let commitPoolContract = contracts.commitPool;
+    const daiFilter = {
+      address: daiContractAddress,
+      topics: [utils.id("Approval(address, address, uint256)")],
+    };
 
-    // const distanceInMiles = Math.floor(distance);
-    // const startTime = calculateStart(daysToStart);
-    // const startTimestamp = Math.ceil(startTime.valueOf() / 1000); //to seconds
-    // const endTimestamp = Math.ceil(
-    //   calculateEnd(startTime, duration).valueOf() / 1000
-    // ); //to seconds
-    // const stakeAmount = utils.parseEther(stake.toString());
+    const spcFilter = {
+      address: commitPoolContractAddress,
+      topics: [
+        utils.id(
+          "NewCommitment(address, string, uint256, uint256, uint256, uint256)"
+        ),
+      ],
+    };
+
     // setLoading(true);
 
     try {
-      let receipt;
+      let daiReceipt;
+      let spcReceipt;
 
       if (metaTxEnabled) {
-        showInfoMessage("Sending metatransaction");
+        showInfoMessage("Sending metatransactions");
+        //TODO on signing no signatute values received
+        // await txHelper
+        //   .signAndSendDaiApproval(web3provider, _overrides)
+        //   .then(async (receipt) => {
+        //     daiReceipt = receipt;
+        //     spcReceipt = await txHelper.signAndSendDepositAndCommit(
+        //       web3provider,
+        //       commitment,
+        //       _overrides
+        //     );
+        //   });
 
-        //spender, amount
-        const nonce = await daiContract.getNonce(account);
-        const functionSignature = daiInterface.encodeFunctionData("approve", [
-          account,
-          "10000000000000000000",
-        ]);
-
-        let message = {};
-        message.nonce = parseInt(nonce);
-        message.from = account;
-        message.functionSignature = functionSignature;
-
-        const dataToSign = JSON.stringify({
-          types: {
-            EIP712Domain: domainType,
-            MetaTransaction: metaTransactionType,
-          },
-          domain: domainData,
-          primaryType: "MetaTransaction",
-          message: message,
-        });
-        showInfoMessage(`Domain data: ${domainData}`);
-
-        receipt = await torus.provider.send(
-          {
-            jsonrpc: "2.0",
-            id: 999999999999,
-            method: "eth_signTypedData_v4",
-            params: [account, dataToSign],
-          },
-          function (error, response) {
-            console.info(`User signature is ${response.result}`);
-            if (error || (response && response.error)) {
-              showErrorMessage("Could not get user signature");
-            } else if (response && response.result) {
-              let { r, s, v } = getSignatureParameters(response.result);
-              console.log(account);
-              console.log(JSON.stringify(message));
-              console.log(message);
-              console.log(getSignatureParameters(response.result));
-
-              const recovered = recoverTypedSignature_v4({
-                data: JSON.parse(dataToSign),
-                sig: response.result,
-              });
-              console.log(`Recovered ${recovered}`);
-              sendTransaction(account, functionSignature, r, s, v, _overrides);
-            }
-          }
+        spcReceipt = await txHelper.signAndSendDepositAndCommit(
+          web3provider,
+          commitment,
+        _overrides
         );
       } else {
-        showInfoMessage("Sending regular transaction");
-        receipt = await daiContract.approve(
-          account,
-          "10000000000000000000",
-          _overrides
+        showErrorMessage(
+          "Not able to execute meta transaction, cancelling operation"
         );
       }
 
-      showInfoMessage("Sending transaction");
-      await provider.once(receipt, (transaction) => {
-        showInfoMessage(`Tx: ${transaction}`);
+      // Monitor for dai Approval event
+      await provider.once(daiFilter, (transaction) => {
+        showInfoMessage(`dai Tx: ${transaction}`);
+        setTxHash(transaction.transactionHash);
+      });
+
+      //Monitor for spc NewCommitment event
+      await provider.once(spcFilter, (transaction) => {
+        showInfoMessage(`spc Tx: ${transaction}`);
         setTxHash(transaction.transactionHash);
       });
 
@@ -259,49 +215,6 @@ const MakeCommitment = ({ code, next, web3 }) => {
     } catch (error) {
       console.log("ERROR: ", error);
       setLoading(false);
-    }
-  };
-
-  const sendTransaction = async (
-    userAddress,
-    functionData,
-    r,
-    s,
-    v,
-    overrides
-  ) => {
-    if (web3provider && web3provider.contracts !== {}) {
-      const { contracts, provider } = web3provider;
-
-      try {
-        let gasPrice = await provider.getGasPrice();
-
-        //TODO Errors estimating gasLimit
-        let gasLimit = await contracts.dai.estimateGas
-          .executeMetaTransaction(userAddress, functionData, r, s, v)
-          .then((limit) => (overrides.gasLimit = limit.toString()));
-
-        let tx = contracts.dai.executeMetaTransaction(
-          userAddress,
-          functionData,
-          r,
-          s,
-          v,
-          overrides
-        );
-        console.log("TX: ", tx);
-
-        tx.on("transactionHash", function (hash) {
-          console.log(`Transaction hash is ${hash}`);
-          showInfoMessage(`Transaction sent by relayer with hash ${hash}`);
-        }).once("confirmation", function (confirmationNumber, receipt) {
-          console.log(receipt);
-          setTxHash(receipt.transactionHash);
-          showSuccessMessage("Transaction confirmed on chain");
-        });
-      } catch (error) {
-        showErrorMessage(error);
-      }
     }
   };
 

@@ -15,7 +15,14 @@ import {
 
 export default class Wallet extends Component<
   { next: any; web3: any },
-  { balance: string; daiBalance: string; refresh: any }
+  {
+    balance: string;
+    daiBalance: string;
+    refresh: any;
+    height: any;
+    width: any;
+    loading: any;
+  }
 > {
   constructor(props) {
     super(props);
@@ -25,14 +32,14 @@ export default class Wallet extends Component<
       refresh: undefined,
       height: 300,
       width: 300,
+      loading: true,
     };
   }
 
   updateDimensions() {
-      const { width, height } = Dimensions.get("window")
-      this.setState({ width: width, height: height });
-
-    }
+    const { width, height } = Dimensions.get("window");
+    this.setState({ width: width, height: height });
+  }
 
   async componentDidMount() {
     this.updateDimensions();
@@ -56,11 +63,10 @@ export default class Wallet extends Component<
         this.setState({ balance: utils.formatEther(balance) })
       );
 
-    await web3.contracts.dai
-      .balanceOf(account)
-      .then((daiBalance) =>
-        this.setState({ daiBalance: utils.formatEther(daiBalance) })
-      );
+    await web3.contracts.dai.balanceOf(account).then((daiBalance) => {
+      this.setState({ daiBalance: utils.formatEther(daiBalance) });
+      this.setState({ loading: false });
+    });
   }
 
   async setStateRefresh(web3: any) {
@@ -86,8 +92,8 @@ export default class Wallet extends Component<
 
   logout = () => {
     this.props.web3.logOut();
-    this.setState({ balance: "0", daiBalance: "0" });
     clearInterval(this.state.refresh);
+    this.setState({ balance: "0", daiBalance: "0", loading: true });
   };
 
   async next() {
@@ -144,9 +150,13 @@ export default class Wallet extends Component<
             {this.state.daiBalance} MATIC Dai
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacityWhite onPress={() => this.next()}>
-          <StyledTextDark>Get Started!</StyledTextDark>
-        </StyledTouchableOpacityWhite>
+        {this.state.loading ? (
+          undefined
+        ) : (
+          <StyledTouchableOpacityWhite onPress={() => this.next()}>
+            <StyledTextDark>Get Started!</StyledTextDark>
+          </StyledTouchableOpacityWhite>
+        )}
         <StyledTouchableOpacityWhite
           onPress={() =>
             web3.torus.isLoggedIn ? this.logout() : web3.initialize()

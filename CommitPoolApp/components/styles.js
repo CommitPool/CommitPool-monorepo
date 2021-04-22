@@ -50,7 +50,7 @@ export const StyledTouchableOpacityRed = styled(StyledTouchableOpacity)`
   height: 50px;
   border-radius: 10px;
   border-width: 3px;
-  border-color: #d45353;
+  border-color: white;
   justify-content: center;
 `;
 

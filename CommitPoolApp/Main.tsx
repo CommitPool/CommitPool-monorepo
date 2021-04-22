@@ -13,7 +13,7 @@ import { Dimensions } from "react-native";
 
 export default class Main extends Component <
   { web3: any; stravaOAuth: any; code: string },
-  { step: Number }
+  { step: Number, height: any, width: any, stravaLog: any }
 > {
   constructor(props) {
     super(props);
@@ -51,10 +51,10 @@ export default class Main extends Component <
 
   onClick = (step: Number) => {
     this.setState({ step: step });
-  };
+  }
 
   getStravaLog() {
-    this.props.stravaLog ? this.setState({ step: 4}) : this.setState({step: 1})
+    this.state.stravaLog ? this.setState({ step: 4}) : this.setState({step: 1})
   }
 
 
@@ -124,17 +124,15 @@ export default class Main extends Component <
 }
 
 
-// const { width, height } = Dimensions.get("window");
-
 const styles = StyleSheet.create({
   bg: {
-    //flex: 1,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#d45454",
-    //width = {state.width},
-    //height = {state.height},
-    //alignSelf: 'stretch',
+    // width = {this.state.width},
+    // height = {this.state.height},
+    alignSelf: 'center',
     borderRadius: 5,
     flexWrap: 'wrap',
   },

@@ -8,7 +8,7 @@ import {
   StyledView,
   StyledViewContainer,
 } from "./components/styles";
-export default class Directions extends React.Component<{ next: any }, {}> {
+export default class Directions extends React.Component<{ next: any, stravaOAuth: any }, {}> {
   render() {
     return (
       <StyledViewContainer>
@@ -41,7 +41,7 @@ export default class Directions extends React.Component<{ next: any }, {}> {
             {"and I'm staking $10 on my succes\""}
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacity onPress={() => this.props.next(1)}>
+        <StyledTouchableOpacity onPress={() => this.props.next(2)}>
           <Image
             style={{ width: 100, height: 100 }}
             source={require("./assets/commit.png")}

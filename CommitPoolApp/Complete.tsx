@@ -3,9 +3,9 @@ import ConfettiCannon from "react-native-confetti-cannon";
 import {
   StyledView,
   StyledViewContainer,
-  StyledText,
+  StyledText, StyledTextDark,
   StyledTextLarge,
-  StyledTouchableOpacityRed,
+  StyledTouchableOpacityWhite,
 } from "./components/styles";
 
 export default class Complete extends Component<
@@ -50,11 +50,11 @@ export default class Complete extends Component<
             <StyledTextLarge>❌</StyledTextLarge>
           </StyledView>
         )}
-        <StyledTouchableOpacityRed onPress={() => this.go()}>
-          <StyledText>
+        <StyledTouchableOpacityWhite onPress={() => this.go()}>
+          <StyledTextDark>
             {this.props.success ? "Claim Reward" : "Re-Commit"}
-          </StyledText>
-        </StyledTouchableOpacityRed>
+          </StyledTextDark>
+        </StyledTouchableOpacityWhite>
        </StyledViewContainer>
     );
   }

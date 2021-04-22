@@ -51,9 +51,9 @@ const web3Helper = {
       buildEnv: "production", 
       enableLogging: torusLogging, 
       network: {
-        host: "rinkeby", 
-        // chainId: 80001, 
-        // networkName: "Mumbai Test Network", 
+        host: "matic", 
+        chainId: 137, 
+        networkName: "Matic Main Network", 
       },
       showTorusButton: true,
     });

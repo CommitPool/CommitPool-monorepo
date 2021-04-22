@@ -80,11 +80,12 @@ export default class Wallet extends Component<
             this.setState({ balance: utils.formatEther(balance) })
           );
 
-        await web3.contracts.dai
-          .balanceOf(account)
-          .then((daiBalance) =>
-            this.setState({ daiBalance: utils.formatEther(daiBalance) })
-          );
+        await web3.contracts.dai.balanceOf(account).then((daiBalance) => {
+          this.setState({ daiBalance: utils.formatEther(daiBalance) });
+          if (this.state.loading) {
+            this.setState({ loading: false });
+          }
+        });
       }
     }, 2500);
     this.setState({ refresh: refresh });
@@ -150,9 +151,7 @@ export default class Wallet extends Component<
             {this.state.daiBalance} MATIC Dai
           </StyledText>
         </StyledView>
-        {this.state.loading ? (
-          undefined
-        ) : (
+        {this.state.loading ? undefined : (
           <StyledTouchableOpacityWhite onPress={() => this.next()}>
             <StyledTextDark>Get Started!</StyledTextDark>
           </StyledTouchableOpacityWhite>

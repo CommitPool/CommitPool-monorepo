@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Image } from "react-native";
+import { StyleSheet, Image, Dimensions } from "react-native";
 
 import {
   StyledTouchableOpacity,
@@ -9,48 +9,96 @@ import {
   StyledViewContainer,
 } from "./components/styles";
 export default class Welcome extends React.Component<{ next: any }, {}> {
+
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      height: 300,
+      width: 300,
+    };
+  }
+
+  updateDimensions() {
+      const { width, height } = Dimensions.get("window")
+      this.setState({ width: width, height: height });
+
+    }
+
+    componentDidMount() {
+      this.updateDimensions();
+      window.addEventListener("resize", this.updateDimensions.bind(this));
+    }
+
+/**
+ * Remove event listener
+ */
+  componentWillUnmount() {
+      window.removeEventListener("resize", this.updateDimensions.bind(this));
+    }
+
+
   render() {
     return (
-      <StyledViewContainer>
+      <StyledViewContainer style={[styles.flexAll, {height: this.state.height}, {width: this.state.width}]}>
         <StyledView>
-          <StyledText>
-            {"Hey there,"}
-            {"\n\n"}
-            {"You have personal goals, but sticking to them is hard."}
-            {"\n"}
-            {"CommitPool is here to help you hold yourself accountable! 💪"}
-          </StyledText>
-          <StyledText>
-            {"Here's how it works:"}
-            {"\n\n"}
-            {"1. Set a goal for yourself"}
-            {"\n"}
-            {"2. Stake some money on that goal to make it a real commitment"}
-            {"\n"}
-            {"3. Get going on your goal!"}
-            {"\n"}
-            {"\n"}
-            {"When you complete your goal, you get your money back. 🎉"}
-            {"\n"}
-            {"But if you come up short of your goal, you lose your stake. 😬"}
-          </StyledText>
+
           <StyledText style={{ fontStyle: "italic" }}>
             {"\n"}
-            {'"My goal is to bike 50 miles in the next week'}
+            {''}
             {"\n"}
-            {"and I'm staking $10 on my succes\""}
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacity onPress={() => this.props.next(2)}>
-          <Image
-            style={{ width: 100, height: 100 }}
-            source={require("./assets/commit.png")}
-          />
-          <StyledTextLarge style={{ color: "#D45353"}}>
-            Ready to commit?
-          </StyledTextLarge>
-        </StyledTouchableOpacity>
+
+        <StyledViewContainer style={styles.flexIcons}>
+          <StyledTouchableOpacity onPress={() => this.props.next(2)}>
+            <Image
+              style={{ width: 100, height: 100 }}
+              source={require("./assets/commit.png")}
+            />
+            <StyledTextLarge style={{ color: "white"}}>
+              Start a Commitment
+            </StyledTextLarge>
+          </StyledTouchableOpacity>
+
+          <StyledTouchableOpacity onPress={() => this.props.next(3)}>
+            <Image
+              style={{ width: 100, height: 100 }}
+              source={require("./assets/directions.png")}
+            />
+            <StyledTextLarge style={{ color: "white"}}>
+              Need help?
+            </StyledTextLarge>
+          </StyledTouchableOpacity>
+          </StyledViewContainer>
       </StyledViewContainer>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  flexIcons: {
+    //flex: 1,
+    alignItems: "center",
+    backgroundColor: "#d45454",
+    //width = {state.width},
+    //height = {state.height},
+    //alignSelf: 'stretch',
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    alignContent: 'space-around',
+  },
+});
+
+const styleAll = StyleSheet.create({
+  flexAll: {
+    //flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#d45454",
+    //width = {state.width},
+    //height = {state.height},
+    //alignSelf: 'stretch',
+    flexWrap: 'wrap',
+  },
+});

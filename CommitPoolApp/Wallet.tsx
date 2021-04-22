@@ -1,10 +1,12 @@
 import React, { Component } from "react";
-import { Clipboard } from "react-native";
+import { Clipboard, Dimensions } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { utils } from "ethers";
 import {
   StyledTouchableOpacityRed,
+  StyledTouchableOpacityWhite,
   StyledText,
+  StyledTextDark,
   StyledTextLarge,
   StyledTextSmall,
   StyledView,
@@ -13,7 +15,14 @@ import {
 
 export default class Wallet extends Component<
   { next: any; web3: any },
-  { balance: string; daiBalance: string; refresh: any }
+  {
+    balance: string;
+    daiBalance: string;
+    refresh: any;
+    height: any;
+    width: any;
+    loading: any;
+  }
 > {
   constructor(props) {
     super(props);
@@ -21,16 +30,27 @@ export default class Wallet extends Component<
       balance: "0.0",
       daiBalance: "0.0",
       refresh: undefined,
+      height: 300,
+      width: 300,
+      loading: true,
     };
   }
 
+  updateDimensions() {
+    const { width, height } = Dimensions.get("window");
+    this.setState({ width: width, height: height });
+  }
+
   async componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
     const web3 = await this.props.web3.initialize();
     this.setStateInfo(web3);
     this.setStateRefresh(web3);
   }
 
   componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
     clearInterval(this.state.refresh);
   }
 
@@ -43,11 +63,10 @@ export default class Wallet extends Component<
         this.setState({ balance: utils.formatEther(balance) })
       );
 
-    await web3.contracts.dai
-      .balanceOf(account)
-      .then((daiBalance) =>
-        this.setState({ daiBalance: utils.formatEther(daiBalance) })
-      );
+    await web3.contracts.dai.balanceOf(account).then((daiBalance) => {
+      this.setState({ daiBalance: utils.formatEther(daiBalance) });
+      this.setState({ loading: false });
+    });
   }
 
   async setStateRefresh(web3: any) {
@@ -61,11 +80,12 @@ export default class Wallet extends Component<
             this.setState({ balance: utils.formatEther(balance) })
           );
 
-        await web3.contracts.dai
-          .balanceOf(account)
-          .then((daiBalance) =>
-            this.setState({ daiBalance: utils.formatEther(daiBalance) })
-          );
+        await web3.contracts.dai.balanceOf(account).then((daiBalance) => {
+          this.setState({ daiBalance: utils.formatEther(daiBalance) });
+          if (this.state.loading) {
+            this.setState({ loading: false });
+          }
+        });
       }
     }, 2500);
     this.setState({ refresh: refresh });
@@ -73,8 +93,8 @@ export default class Wallet extends Component<
 
   logout = () => {
     this.props.web3.logOut();
-    this.setState({ balance: "0", daiBalance: "0" });
     clearInterval(this.state.refresh);
+    this.setState({ balance: "0", daiBalance: "0", loading: true });
   };
 
   async next() {
@@ -108,16 +128,7 @@ export default class Wallet extends Component<
             Login to your wallet via Torus by clicking the blue button below.
           </StyledText>
           <StyledTextSmall style={{ margin: 15 }}>
-            We are currently testing on Rinkeby. You will need
-            <StyledTextSmall style={{color: 'blue'}}
-                  onPress={() => window.open('http://rinkeby-faucet.com/')}>
-              &nbsp; Rinkeby Eth &nbsp;
-            </StyledTextSmall>
-             and
-             <StyledTextSmall style={{color: 'blue'}}
-                   onPress={() => window.open('https://rinkeby.chain.link/')}>
-               &nbsp; Rinkeby Link (Dummy Dai).
-             </StyledTextSmall>
+            You can get funds on testnet from https://faucet.matic.network
           </StyledTextSmall>
           <QRCode value="account" size={225} />
           <StyledTextSmall
@@ -134,24 +145,26 @@ export default class Wallet extends Component<
             Balances:
           </StyledText>
           <StyledText style={{ margin: 15 }}>
-            {this.state.balance} Test Eth
+            {this.state.balance} MATIC
           </StyledText>
           <StyledText style={{ marginBottom: 15 }}>
-            {this.state.daiBalance} Dummy Dai
+            {this.state.daiBalance} MATIC Dai
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacityRed onPress={() => this.next()}>
-          <StyledText>Get Started!</StyledText>
-        </StyledTouchableOpacityRed>
-        <StyledTouchableOpacityRed
+        {this.state.loading ? undefined : (
+          <StyledTouchableOpacityWhite onPress={() => this.next()}>
+            <StyledTextDark>Get Started!</StyledTextDark>
+          </StyledTouchableOpacityWhite>
+        )}
+        <StyledTouchableOpacityWhite
           onPress={() =>
             web3.torus.isLoggedIn ? this.logout() : web3.initialize()
           }
         >
-          <StyledText>
+          <StyledTextDark>
             {web3.torus.isLoggedIn ? "Log out" : " Log in"}
-          </StyledText>
-        </StyledTouchableOpacityRed>
+          </StyledTextDark>
+        </StyledTouchableOpacityWhite>
       </StyledViewContainer>
     );
   }

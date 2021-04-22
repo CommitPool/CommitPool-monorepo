@@ -1,5 +1,5 @@
 import React, { useState }  from 'react';
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage, StyleSheet } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import web3Helper from "./components/web3-helper/web3-helper.js";
@@ -15,9 +15,9 @@ const discovery = {
   revocationEndpoint: 'https://www.strava.com/oauth/deauthorize',
 };
 
-export default function App() {  
-  const [code, setCode] = useState(true); 
-  const [web3, setWeb3] = useState(web3Helper); 
+export default function App() {
+  const [code, setCode] = useState(true);
+  const [web3, setWeb3] = useState(web3Helper);
 
   //Strava login
   const [request, response, promptAsync] = useAuthRequest(
@@ -74,18 +74,20 @@ export default function App() {
     }
   }, [web3])
 
+
   return (
     <Home web3={web3} stravaOauth={stravaOauth} code={code}></Home>
   )
 
 }
 
+
 //TODO This layer can go?
 class Home extends React.Component <{web3: any, stravaOauth: any, code: string}, {}> {
 
   render() {
     return (
-      <Main web3={this.props.web3} stravaOAuth={this.props.stravaOauth} code={this.props.code} />
+      <Main web3={this.props.web3} stravaOAuth={this.props.stravaOauth} code={this.props.code}/>
     );
   }
 }

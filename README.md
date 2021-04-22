@@ -1,6 +1,6 @@
 # CommitPool on Matic
 
-## Latest Update (March 13, 2021): We are currently on Rinkeby for testing purposes (contract verification, etc.). We will be back on Matic soon, but please note that, while we're on Rinkeby, our app takes Rinkeby Eth and Link (Dummy Dai).
+> A submission to the Matic GR8 Hackathon
 
 ## Overview
 
@@ -12,10 +12,10 @@ By minimizing that counterparty risk with smart contracts and decentralized orac
 
 ### How to use CommitPool
 
-1. Open the [app](https://app.commitpool.com/)
+1. Open the [app](https://festive-shannon-3a302b.netlify.app/)
 2. Connect your Strava Account
-3. Fund your in-app wallet with Rinkeby Ether from a [Rinkeby Faucet](http://rinkeby-faucet.com/), and LINK (Dummy Dai -- used wherever the app asks for DAI) from the [Chainlink Faucet](https://rinkeby.chain.link/)
-4. Commit and stake! We recommend keeping your commitment amounts low for testing purposes (.1 Eth/Dai or so) so you don't have to keep refilling at a faucet
+3. Fund your in-app wallet with Mumbai Matic and LINK (Dummy Dai) from the [Matic faucet](https://faucet.matic.network/)
+4. Commit and stake!
 5. Hit your goal
 6. Profit?
 

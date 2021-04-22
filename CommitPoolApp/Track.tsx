@@ -5,8 +5,8 @@ import { AsyncStorage } from "react-native";
 import getEnvVars from "./environment.js";
 import {
   StyledBackdropDark,
-  StyledTouchableOpacityRed,
-  StyledText,
+  StyledTouchableOpacityWhite,
+  StyledText, StyledTextDark,
   StyledTextLarge,
   StyledView,
   StyledViewContainer,
@@ -207,7 +207,7 @@ export default class Track extends Component<
             {this.state.goal} Miles
           </StyledText>
         </StyledView>
-        <StyledTouchableOpacityRed
+        <StyledTouchableOpacityWhite
           style={
             this.state.fill < 100
               ? {
@@ -219,7 +219,7 @@ export default class Track extends Component<
           onPress={() => this.getUpdatedActivity()}
         >
           <StyledText>Complete Goal</StyledText>
-        </StyledTouchableOpacityRed>
+        </StyledTouchableOpacityWhite>
       </StyledViewContainer>
     );
   }

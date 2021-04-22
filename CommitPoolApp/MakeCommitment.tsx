@@ -5,9 +5,10 @@ import {
   StyledViewContainer,
   StyledViewRow,
   StyledText,
+  StyledTextDark,
   StyledTextInput,
   StyledTextLarge,
-  StyledTouchableOpacityRed,
+  StyledTouchableOpacityWhite,
 } from "./components/styles";
 
 import { utils } from "ethers";
@@ -236,7 +237,7 @@ export default class MakeCommitment extends Component<
               <StyledTextInput
                 onChangeText={(text) => this.setState({ stake: Number(text) })}
               ></StyledTextInput>
-              <StyledText style={{ textAlign: "left" }}> LINK</StyledText>
+              <StyledText style={{ textAlign: "left" }}> DAI</StyledText>
             </StyledViewRow>
             <StyledViewRow>
               <StyledText
@@ -263,9 +264,11 @@ export default class MakeCommitment extends Component<
               ></StyledTextInput>
               <StyledText style={{ textAlign: "left" }}> day(s)</StyledText>
             </StyledViewRow>
-            <StyledTouchableOpacityRed onPress={() => this.createCommitment()}>
-              <StyledText>Stake and Commit</StyledText>
-            </StyledTouchableOpacityRed>
+            <StyledTouchableOpacityWhite
+              onPress={() => this.createCommitment()}
+            >
+              <StyledTextDark>Stake and Commit</StyledTextDark>
+            </StyledTouchableOpacityWhite>
           </StyledView>
         ) : (
           <StyledView>
@@ -297,7 +300,7 @@ export default class MakeCommitment extends Component<
                 Stake:
               </StyledText>
               <StyledText style={{ marginLeft: 10 }}>
-                {this.state.stake} LINK
+                {this.state.stake} DAI
               </StyledText>
             </StyledViewRow>
             <StyledViewRow>
@@ -317,11 +320,11 @@ export default class MakeCommitment extends Component<
               </StyledText>
             </StyledViewRow>
 
-            <StyledTouchableOpacityRed onPress={() => this.props.next(6)}>
-              <StyledText style={{ marginBottom: 0 }}>
+            <StyledTouchableOpacityWhite onPress={() => this.props.next(6)}>
+              <StyledTextDark style={{ marginBottom: 0 }}>
                 Track Progress
-              </StyledText>
-            </StyledTouchableOpacityRed>
+              </StyledTextDark>
+            </StyledTouchableOpacityWhite>
           </StyledView>
         )}
       </StyledViewContainer>

@@ -1,1 +1,0 @@
-{"ast":null,"code":"export { default } from \"./src/index.js\";","map":{"version":3,"sources":["/Users/ken/dev/CommitPoolMatic/CommitPoolApp/node_modules/react-native-qrcode-svg/index.js"],"names":["default"],"mappings":"AAAA,SAASA,OAAT","sourcesContent":["export { default } from './src/index.js'\n"]},"metadata":{},"sourceType":"module"}

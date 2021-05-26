@@ -47,7 +47,6 @@ export default class Track extends Component<
 
   async componentDidMount() {
     const refreshToken: any = await this._retrieveData("rt");
-    console.log(refreshToken);
     this.setState({ refreshToken: refreshToken });
     this.setAccount();
 
@@ -85,7 +84,6 @@ export default class Track extends Component<
 
   setAccount() {
     const { web3 } = this.props;
-    console.log(web3.provider.provider.selectedAddress);
     this.setState({ account: web3.provider.provider.selectedAddress });
   }
 
@@ -95,6 +93,13 @@ export default class Track extends Component<
     let commitPoolContract = web3.contracts.commitPool;
 
     const commitment = await commitPoolContract.commitments(account);
+
+    
+    if (commitment.reportedValue.gte(commitment.goalValue)) {
+      this.setState({ loading: false });
+      this.props.next(7);
+      return;
+    }
 
     const type = await commitPoolContract.activities(commitment["activityKey"]);
     this.setState({

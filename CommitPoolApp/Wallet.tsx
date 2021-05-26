@@ -116,7 +116,6 @@ export default class Wallet extends Component<
 
   render() {
     const { web3 } = this.props;
-    console.log("WEB3", web3);
     const account = web3.torus.isLoggedIn
       ? web3.provider.provider.selectedAddress
       : "";
@@ -127,10 +126,7 @@ export default class Wallet extends Component<
           <StyledText style={{ margin: 15 }}>
             Login to your wallet via Torus by clicking the blue button below.
           </StyledText>
-          <StyledTextSmall style={{ margin: 15 }}>
-            You can get funds on testnet from https://faucet.matic.network
-          </StyledTextSmall>
-          <QRCode value="account" size={225} />
+          {account ? <QRCode value={account} size={225} /> : <div style={{height: 225}}></div>}
           <StyledTextSmall
             style={{ margin: 15 }}
             onPress={() => Clipboard.setString(account)}

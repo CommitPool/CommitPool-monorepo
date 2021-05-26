@@ -87,6 +87,7 @@
   },
   "dependencies": {
     "@chainlink/contracts": "0.0.10",
+    "@nomiclabs/buidler": "^1.4.8",
     "@truffle/hdwallet-provider": "^1.2.0",
     "hardhat-abi-exporter": "^2.0.7"
   }

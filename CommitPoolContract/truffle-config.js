@@ -34,8 +34,17 @@ module.exports = {
       },
       network_id: 3,
     },
+    rinkeby: {
+      provider: function () {
+        return new HDWalletProvider(
+          process.env.MNEMONIC,
+          "https://rinkeby.infura.io/v3/bec77b2c1b174308bcaa3e622828448f",
+        );
+      },
+      network_id: 4,
+    },
     matic: {
-      provider: () => new HDWalletProvider(process.env.MNEMONIC, `https://rpc-mainnet.matic.network`),
+      provider: () => new HDWalletProvider(process.env.MNEMONIC, `https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56`),
       network_id: 137,
       confirmations: 2,
       timeoutBlocks: 200,

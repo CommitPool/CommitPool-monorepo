@@ -22,6 +22,7 @@ const chainIds = {
   rinkeby: 4,
   ropsten: 3,
   matic_mumbai: 80001,
+  matic_mainnet: 137
 };
 
 // Ensure that we have all the environment variables we need.
@@ -40,7 +41,7 @@ if (!process.env.INFURA_API_KEY) {
 }
 
 function createTestnetConfig(network: keyof typeof chainIds): NetworkUserConfig {
-  const url: string = "https://" + network + ".infura.io/v3/" + infuraApiKey;
+  const url: string = 'https://rpc-mumbai.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56';
   return {
     accounts: {
       count: 10,
@@ -76,6 +77,7 @@ const config: HardhatUserConfig = {
     rinkeby: createTestnetConfig("rinkeby"),
     ropsten: createTestnetConfig("ropsten"),
     matic_mumbai: createTestnetConfig("matic_mumbai"),
+    matic_mainnet: createTestnetConfig("matic_mainnet"),
   },
   paths: {
     artifacts: "./artifacts",

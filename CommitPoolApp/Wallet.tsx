@@ -73,12 +73,11 @@ export default class Wallet extends Component<
     const refresh = setInterval(async () => {
       if (web3.provider !== undefined) {
         const account = web3.provider.provider.selectedAddress;
-
         await web3.provider
           .getBalance(account)
-          .then((balance) =>
+          .then((balance) => {
             this.setState({ balance: utils.formatEther(balance) })
-          );
+          });
 
         await web3.contracts.dai.balanceOf(account).then((daiBalance) => {
           this.setState({ daiBalance: utils.formatEther(daiBalance) });

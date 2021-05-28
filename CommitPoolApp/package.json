@@ -13,6 +13,7 @@
     "expo": "~38.0.9",
     "expo-app-auth": "^9.1.1",
     "expo-auth-session": "^1.4.1",
+    "expo-cli": "^4.5.0",
     "expo-constants": "^10.0.1",
     "expo-linear-gradient": "~8.2.1",
     "expo-random": "^8.2.1",

@@ -51,7 +51,7 @@ const web3Helper = {
       buildEnv: "production", 
       enableLogging: torusLogging, 
       network: {
-        host: "matic", 
+        host: "https://polygon-mainnet.infura.io/v3/3c072dd341bb4e45858038e146195ae1", 
         chainId: 137, 
         networkName: "Matic Main Network", 
       },

@@ -22,7 +22,7 @@ export default function App() {
   //Strava login
   const [request, response, promptAsync] = useAuthRequest(
     {
-      clientId: '51548',
+      clientId: '66714',
       scopes: ['read,activity:read'],
       // For usage in managed apps using the proxy
       redirectUri: makeRedirectUri({
@@ -36,7 +36,7 @@ export default function App() {
 
   React.useEffect(() => {
     if (response?.type === 'success') {
-      fetch('https://www.strava.com/oauth/token?client_id=51548&client_secret=28d56211b9ca33972055bf61010074fbedc3c7c2&code=' + response.params.code + '&grant_type=authorization_code',
+      fetch('https://www.strava.com/oauth/token?client_id=66714&client_secret=6b5e8c4fd9bb841d1e8d9be15020dab2017607e4&code=' + response.params.code + '&grant_type=authorization_code',
         {
           method: 'POST'
         })

@@ -1,0 +1,80 @@
+type Committer @entity {
+	id: ID!
+	commitments: [Commitment!]! @derivedFrom(field: "committer")
+	deposits: [Deposit!]! @derivedFrom(field: "committer")
+	withdrawals: [Withdrawal!] @derivedFrom(field: "committer")
+	balance: BigInt!
+	nCommitmentsMet: Int
+	nCommitmentsFailed: Int
+	cumPenalties: BigInt
+	# cumRewards: BigInt
+}
+
+enum CommitmentStatus {
+	open
+	succeeded
+	failed
+}
+
+type Commitment @entity {
+	id: ID!
+	committer: Committer!
+	activity: Activity!
+	goalValue: BigInt!
+	reportedValue: BigInt
+	startTime: BigInt!
+	endTime: BigInt!
+	stake: BigInt!
+	penalty: BigInt
+	# reward: BigInt
+	status: CommitmentStatus!
+	createdAt: BigInt!
+	commitmentTxHash: Bytes!
+	fulfilledRequests: [FulfilledRequest!] @derivedFrom(field: "commitment")
+}
+
+type Deposit @entity {
+	id: ID!
+	committer: Committer!
+	amount: BigInt!
+	depositedAt: BigInt!
+	depositTxHash: Bytes!
+}
+
+type Withdrawal @entity {
+	id: ID!
+	committer: Committer!
+	amount: BigInt!
+	withdrawnAt: BigInt!
+	withdrawalTxHash: Bytes!
+}
+
+enum ActivityStatus {
+	allowed
+	disallowed
+	deleted
+}
+
+type Activity @entity {
+	id: ID! # should be the activityKey
+	name: String!
+	oracle: Bytes!
+	status: ActivityStatus!
+	updates: [ActivityUpdate!]! @derivedFrom(field: "activity")
+}
+
+type ActivityUpdate @entity {
+	id: ID!
+	newOracle: Bytes
+	newStatus: ActivityStatus
+	updatedAt: BigInt!
+	updateTxHash: Bytes!
+}
+
+type FulfilledRequest @entity {
+	id: ID!
+	commitment: Commitment!
+	value: BigInt!
+	fulfilledAt: BigInt!
+	fulfillTxHash: Bytes!
+}

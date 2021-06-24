@@ -1,0 +1,39 @@
+specVersion: 0.0.2
+schema:
+    file: ./src/schema.graphql
+dataSources:
+    - kind: ethereum/contract
+      name: SinglePlayerCommit
+      # prettier-ignore
+      network: polygon
+      source:
+          address: 'tbd' # TODO get from latest deployment
+          abi: SinglePlayerCommit
+          # prettier-ignore
+          startBlock: 0 # TODO get from latest deployment
+      mapping:
+          kind: ethereum/events
+          apiVersion: 0.0.4
+          language: wasm/assemblyscript
+          entities:
+              - Committer
+              - Commitment
+              - Activity
+              - ActivityUpdate
+              - Withdrawal
+              - FulfilledRequest
+          abis:
+              - name: SinglePlayerCommit
+                file: ../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json
+          eventHandlers:
+              - event: NewCommitment(address,string,uint256,uint256,uint256,uint256)
+                handler: handleNewCommitment
+              - event: CommitmentEnded(address,bool,uint256)
+                handler: handleCommitmentEnded
+              - event: Withdrawal(address,unit256)
+                handler: handleWithdrawal
+              - event: RequestActivityDistanceFulfilled(bytes32,uint256,address)
+                handler: handleRequestActivityDistanceFulfilled
+              - event: ActivityUpdated(string,bytes32,address,bool,bool)
+                handler: handleActivityUpdate
+          file: ./src/mappings/factory.ts

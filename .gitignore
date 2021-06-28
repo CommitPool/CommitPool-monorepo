@@ -63,3 +63,7 @@ buck-out/
 web-build/
 
 .env
+
+# TheGraph
+subgraph/generated/
+

@@ -5,12 +5,12 @@ dataSources:
     - kind: ethereum/contract
       name: SinglePlayerCommit
       # prettier-ignore
-      network: polygon
+      network: matic # polygon
       source:
-          address: 'tbd' # TODO get from latest deployment
+          address: '0x91e17f2a995f7eb830057a2f83ada3a50a37f20d'
           abi: SinglePlayerCommit
           # prettier-ignore
-          startBlock: 0 # TODO get from latest deployment
+          startBlock: 16138585
       mapping:
           kind: ethereum/events
           apiVersion: 0.0.4
@@ -20,20 +20,25 @@ dataSources:
               - Commitment
               - Activity
               - ActivityUpdate
+              - Depoosit
               - Withdrawal
-              - FulfilledRequest
+              - OracleRequest
           abis:
               - name: SinglePlayerCommit
-                file: ../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json
+                file: ../CommitPoolContract/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json
           eventHandlers:
               - event: NewCommitment(address,string,uint256,uint256,uint256,uint256)
                 handler: handleNewCommitment
               - event: CommitmentEnded(address,bool,uint256)
                 handler: handleCommitmentEnded
-              - event: Withdrawal(address,unit256)
+              - event: Deposit(address,uint256)
+                handler: handleDeposit
+              - event: Withdrawal(address,uint256)
                 handler: handleWithdrawal
-              - event: RequestActivityDistanceFulfilled(bytes32,uint256,address)
+              - event: RequestActivityDistanceFulfilled(indexed bytes32,indexed uint256,indexed address)
                 handler: handleRequestActivityDistanceFulfilled
+              - event: ChainlinkRequested(indexed bytes32)
+                handler: handleChainlinkRequested
               - event: ActivityUpdated(string,bytes32,address,bool,bool)
-                handler: handleActivityUpdate
-          file: ./src/mappings/factory.ts
+                handler: handleActivityUpdated
+          file: ./src/mappings.ts

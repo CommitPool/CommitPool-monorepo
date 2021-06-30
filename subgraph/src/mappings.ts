@@ -1,3 +1,4 @@
+import { log, dataSource, BigInt } from "@graphprotocol/graph-ts"
 import {
     NewCommitment,
     CommitmentEnded,
@@ -6,7 +7,6 @@ import {
     ChainlinkRequested,
     RequestActivityDistanceFulfilled,
     ActivityUpdated,
-    NewCommitment__Params,
   } from "../generated/SinglePlayerCommit/SinglePlayerCommit"
   import { Committer, Commitment, Deposit, Withdrawal, Activity, ActivityUpdate, OracleRequest } from "../generated/schema"
   import { SinglePlayerCommit } from "../generated/SinglePlayerCommit/SinglePlayerCommit"
@@ -60,13 +60,17 @@ import {
     let committer = Committer.load(committerId)
     if (committer == null) {
       committer = new Committer(committerId)
+      committer.balance = BigInt.fromString("0")
+      committer.nCommitmentsMade = 0
+      committer.nCommitmentsMet = 0
+      committer.nCommitmentsFailed = 0
     }
 
     let amount = event.params.amount
 
     committer.balance = committer.balance.plus(amount)
 
-    let deposit = new Deposit(event.transaction.hash.toHexString() + "-" + event.logIndex.toHexString())
+    let deposit = new Deposit(event.transaction.hash.toHexString() + "-" + event.logIndex.toString())
 
     deposit.amount = amount
     deposit.committer = committerId
@@ -78,20 +82,29 @@ import {
   }
   
   export function handleNewCommitment(event: NewCommitment): void {
+
+    log.debug("starting handleNewCommitment...{}", ["this is where it begins"])
   
     let committerId = event.params.committer.toHexString()
+
+    log.debug("committerId: {}", [committerId])
     let committer = Committer.load(committerId)
     if (committer == null) {
       committer = new Committer(committerId)
+      committer.balance = BigInt.fromString("0")
       committer.nCommitmentsMade = 0
+      committer.nCommitmentsMet = 0
+      committer.nCommitmentsFailed = 0
     }
+
+    log.debug("committer created: {}", [committer.id])
     
     let nCommitments = committer.nCommitmentsMade
     let nCString = nCommitments.toString()
 
     let commitment = new Commitment(committerId + "-" + nCString)
 
-    committer.nCommitmentsMade += 1
+    committer.nCommitmentsMade ++
 
     commitment.committer = committer.id
 
@@ -103,6 +116,8 @@ import {
     commitment.status = "open"
     commitment.createdAt = event.block.timestamp
     commitment.commitmentTxHash = event.transaction.hash
+    commitment.network = dataSource.network()
+    commitment.contract = event.address
    
     commitment.save()
     committer.save()

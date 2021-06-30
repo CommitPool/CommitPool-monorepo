@@ -2,11 +2,11 @@ type Committer @entity {
 	id: ID!
 	commitments: [Commitment!]! @derivedFrom(field: "committer")
 	deposits: [Deposit!]! @derivedFrom(field: "committer")
-	withdrawals: [Withdrawal!] @derivedFrom(field: "committer")
+	# withdrawals: [Withdrawal!] @derivedFrom(field: "committer")
 	balance: BigInt!
-	nCommitmentsMade: Int
-	nCommitmentsMet: Int
-	nCommitmentsFailed: Int
+	nCommitmentsMade: Int!
+	nCommitmentsMet: Int!
+	nCommitmentsFailed: Int!
 	cumPenalties: BigInt
 	# cumRewards: BigInt
 }
@@ -31,6 +31,8 @@ type Commitment @entity {
 	status: CommitmentStatus!
 	createdAt: BigInt!
 	commitmentTxHash: Bytes!
+	network: String!
+	contract: Bytes!
 	processedAt: BigInt
 	processTxHash: Bytes
 	requests: [OracleRequest!] @derivedFrom(field: "commitment")

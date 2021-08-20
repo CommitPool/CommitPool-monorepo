@@ -34,13 +34,13 @@ const ENV = {
   //   torusLogging: true,
   // },
   prod: {
-    commitPoolContractAddress: "0x5f30Ffa902BCceC3Ae5CD827ADA05086E2382D3C",
+    commitPoolContractAddress: "0x91e17f2a995f7eb830057a2f83ada3a50a37f20d",
     daiContractAddress: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
     linkContractAddress: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
-    oracleAddress: "0x1aB906229213D8d75da7c44077ac95fD3adE3816",
-    jobId: "2fdfac54c3574e8e861d4f8c334a4121",
+    oracleAddress: "0x0a31078cD57d23bf9e8e8F1BA78356ca2090569E",
+    jobId: "692ce2ecba234a3f9a0c579f8bf7a4cb",
     rpcUrl:
-      "https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56",
+      "https://polygon-mainnet.infura.io/v3/3c072dd341bb4e45858038e146195ae1",
     abi: abi,
     daiAbi: daiAbi,
     torusLogging: false,
@@ -50,7 +50,7 @@ const getEnvVars = (env = Constants.manifest.releaseChannel) => {
   // What is __DEV__ ?
   // This variable is set to true when react-native is running in Dev mode.
   // __DEV__ is true when run locally, but false when published.
-  if (__DEV__) {
+  if (false) {
     return ENV.dev;
   } else {
     return ENV.prod;

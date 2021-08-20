@@ -64,6 +64,7 @@ export default class Track extends Component<
     })
       .then((res) => res.json())
       .then((json) => {
+        console.log("TOKEN", json)
         this.setState({ accessToken: json.access_token });
       });
 
@@ -150,6 +151,7 @@ export default class Track extends Component<
     );
     this.setState({ loading: true });
     try {
+      console.log("ORACLE", oracleAddress, "JOBID", jobId)
       await contractWithSigner.requestActivityDistance(
         account,
         oracleAddress,

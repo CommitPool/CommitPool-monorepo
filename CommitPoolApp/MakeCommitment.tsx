@@ -115,6 +115,13 @@ export default class MakeCommitment extends Component<
     return result;
   };
 
+  validCommitment = () => {
+    if(this.state.distance >= 1 && this.state.stake > 0 && this.state.daysToStart >= 0 && this.state.duration >= 0){
+      return true
+    } 
+    return false
+  }
+
   async createCommitment() {
     const { web3 } = this.props;
     const account = web3.provider.provider.selectedAddress;
@@ -224,8 +231,16 @@ export default class MakeCommitment extends Component<
                 Distance:
               </StyledText>
               <StyledTextInput
-                onChangeText={(text) =>
+                onChangeText={(text) => {
+
+                  if(text.length !== 0) {
+                    console.log(text)
+                    const goalDistance = Number(text);
+                    goalDistance >= 1  ? 
                   this.setState({ distance: Number(text) })
+                  :
+                  alert("Invalid distance. Is it larger than 1?");}
+                }
                 }
               ></StyledTextInput>
               <StyledText style={{ textAlign: "left" }}> Miles</StyledText>
@@ -265,7 +280,7 @@ export default class MakeCommitment extends Component<
               <StyledText style={{ textAlign: "left" }}> day(s)</StyledText>
             </StyledViewRow>
             <StyledTouchableOpacityWhite
-              onPress={() => this.createCommitment()}
+              onPress={() => {if(this.validCommitment()){ this.createCommitment()} else alert('Some values appear to be incorrect. Please double check.')}}
             >
               <StyledTextDark>Stake and Commit</StyledTextDark>
             </StyledTouchableOpacityWhite>

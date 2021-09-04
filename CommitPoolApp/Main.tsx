@@ -10,7 +10,6 @@ import Directions from "./Directions";
 import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions } from "react-native";
 
-
 export default class Main extends Component <
   { web3: any; stravaOAuth: any; code: string },
   { step: Number, height: any, width: any, stravaLog: any }

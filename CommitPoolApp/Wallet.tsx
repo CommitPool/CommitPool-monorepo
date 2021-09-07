@@ -1,89 +1,166 @@
 import React, { Component } from "react";
-import { View, Linking, StyleSheet, Image, Text, Button, TouchableOpacity, Clipboard } from "react-native";
-import ConfettiCannon from 'react-native-confetti-cannon';
-import QRCode from 'react-native-qrcode-svg';
-import { ethers } from 'ethers';
-import daiAbi from './daiAbi.json'
-import abi from '../commitpool-contract-singleplayer/out/abi/contracts/SinglePlayerCommit.sol/SinglePlayerCommit.json'
+import { Clipboard, Dimensions } from "react-native";
+import QRCode from "react-native-qrcode-svg";
+import { utils } from "ethers";
+import {
+  StyledTouchableOpacityRed,
+  StyledTouchableOpacityWhite,
+  StyledText,
+  StyledTextDark,
+  StyledTextLarge,
+  StyledTextSmall,
+  StyledView,
+  StyledViewContainer,
+} from "./components/styles";
 
-
-export default class Wallet extends Component <{next: any, account: any}, {balance: number, daiBalance: number, commitment: any}> {
+export default class Wallet extends Component<
+  { next: any; web3: any },
+  {
+    balance: string;
+    daiBalance: string;
+    refresh: any;
+    height: any;
+    width: any;
+    loading: any;
+  }
+> {
   constructor(props) {
     super(props);
     this.state = {
-      balance: 0.0,
-      daiBalance: 0.0,
-      commitment: undefined
+      balance: "0.0",
+      daiBalance: "0.0",
+      refresh: undefined,
+      height: 300,
+      width: 300,
+      loading: true,
     };
   }
 
-  async componentDidMount() {
-    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
-
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    
-    let privateKey = this.props.account.signingKey.privateKey;
-    let wallet = new ethers.Wallet(privateKey);
-    wallet = wallet.connect(provider);
-    let daiContractAddress = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
-    let daiContract = new ethers.Contract(daiContractAddress, daiAbi, provider);
-    const daiBalance = await daiContract.balanceOf(this.props.account.signingKey.address)
-    const balance = await wallet.getBalance();
-    this.setState({balance: balance.div(1000000000000000).toNumber() / 1000})
-    this.setState({daiBalance: daiBalance.div(1000000000000000).toNumber() / 1000})
-
-    setInterval(async () => {
-      const daiBalance = await daiContract.balanceOf(this.props.account.signingKey.address)
-      const balance = await wallet.getBalance();
-      this.setState({balance: balance.div(1000000000000000).toNumber() / 1000})
-      this.setState({daiBalance: daiBalance.div(1000000000000000).toNumber() / 1000})
-    }, 2500)
+  updateDimensions() {
+    const { width, height } = Dimensions.get("window");
+    this.setState({ width: width, height: height });
   }
 
-  async next() {
-    const url = 'https://rpc-mainnet.maticvigil.com/v1/e121feda27b4c1387cd0bf9a441e8727f8e86f56'
+  async componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
+    const web3 = await this.props.web3.initialize();
+    this.setStateInfo(web3);
+    this.setStateRefresh(web3);
+  }
 
-    const provider = new ethers.providers.JsonRpcProvider(url);
-    let commitPoolContractAddress = '0xDb28e5521718Cf746a9900DE3Aff12644F699B98';
-    let commitPoolContract = new ethers.Contract(commitPoolContractAddress, abi, provider);
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
+    clearInterval(this.state.refresh);
+  }
+
+  async setStateInfo(web3: any) {
+    const account = web3.provider.provider.selectedAddress;
+
+    await web3.provider
+      .getBalance(account)
+      .then((balance) =>
+        this.setState({ balance: utils.formatEther(balance) })
+      );
+
+    await web3.contracts.dai.balanceOf(account).then((daiBalance) => {
+      this.setState({ daiBalance: utils.formatEther(daiBalance) });
+      this.setState({ loading: false });
+    });
+  }
+
+  async setStateRefresh(web3: any) {
+    const refresh = setInterval(async () => {
+      if (web3.provider !== undefined) {
+        const account = web3.provider.provider.selectedAddress;
+        await web3.provider
+          .getBalance(account)
+          .then((balance) => {
+            this.setState({ balance: utils.formatEther(balance) })
+          });
+
+        await web3.contracts.dai.balanceOf(account).then((daiBalance) => {
+          this.setState({ daiBalance: utils.formatEther(daiBalance) });
+          if (this.state.loading) {
+            this.setState({ loading: false });
+          }
+        });
+      }
+    }, 2500);
+    this.setState({ refresh: refresh });
+  }
+
+  logout = () => {
+    this.props.web3.logOut();
+    clearInterval(this.state.refresh);
+    this.setState({ balance: "0", daiBalance: "0", loading: true });
+  };
+
+  async next() {
+    const { web3 } = this.props;
+    const account = web3.provider.provider.selectedAddress;
+    const commitPoolContract = web3.contracts.commitPool;
+
     try {
-      const commitment = await commitPoolContract.commitments(this.props.account.signingKey.address);
-      console.log(commitment)
-      if(commitment.exists){
-        this.props.next(6)
+      const commitment = await commitPoolContract.commitments(account);
+      if (commitment.exists) {
+        this.props.next(6);
       } else {
-        this.props.next(5)
+        this.props.next(5);
       }
     } catch (error) {
-      this.props.next(5)
+      this.props.next(5);
     }
   }
 
   render() {
+    const { web3 } = this.props;
+    const account = web3.torus.isLoggedIn
+      ? web3.provider.provider.selectedAddress
+      : "";
     return (
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'space-around'}}>
-
-            <View style={{alignItems: 'center'}}>
-                <Text style={{fontSize: 50, color: 'white', marginBottom: 70}}>Add Funds</Text>
-                <Text style={{fontSize: 20, textAlign: 'center', color: 'white', marginBottom: 10}}>This is your local wallet. We've created one for you here in your browser. 
-                {"\n"}
-                All you need to do is add funds by transferring them to this wallet's adddress below.</Text>
-                <Text style={{fontSize: 15, color: 'white', marginBottom: 70}}>You can get funds on testnet from https://faucet.matic.network</Text>
-                <QRCode
-                    value="this.props.account.signingKey.address"
-                    size={225}
-                />
-                <Text onPress={()=>Clipboard.setString(this.props.account.signingKey.address)} style={{fontSize: 14, color: 'white', marginTop: 10}}>{this.props.account.signingKey.address}</Text>
-                <Text style={{fontSize: 30, color: 'white', marginTop: 25, fontWeight: 'bold'}}>Balances:</Text>
-                <Text style={{fontSize: 30, color: 'white', marginTop: 25}}>{this.state.balance} MATIC</Text>
-                <Text style={{fontSize: 30, color: 'white', marginTop: 25}}>{this.state.daiBalance} MATIC Dai</Text>
-            </View>
-            <TouchableOpacity
-                    style={{width: 300, height: 50, backgroundColor: '#D45353', alignItems: 'center', justifyContent: 'center'}}
-                    onPress={() => this.next()}>
-                <Text style={{fontSize: 30, color: 'white'}}>Get Started!</Text>
-            </TouchableOpacity>
-        </View>
+      <StyledViewContainer>
+        <StyledView>
+          <StyledTextLarge style={{ margin: 15 }}>Add Funds</StyledTextLarge>
+          <StyledText style={{ margin: 15 }}>
+            Login to your wallet via Torus by clicking the blue button below.
+          </StyledText>
+          {account ? <QRCode value={account} size={225} /> : <div style={{height: 225}}></div>}
+          <StyledTextSmall
+            style={{ margin: 15 }}
+            onPress={() => Clipboard.setString(account)}
+          >
+            {account}
+          </StyledTextSmall>
+          <StyledText
+            style={{
+              fontWeight: "bold",
+            }}
+          >
+            Balances:
+          </StyledText>
+          <StyledText style={{ margin: 15 }}>
+            {this.state.balance} MATIC
+          </StyledText>
+          <StyledText style={{ marginBottom: 15 }}>
+            {this.state.daiBalance} MATIC Dai
+          </StyledText>
+        </StyledView>
+        {this.state.loading ? undefined : (
+          <StyledTouchableOpacityWhite onPress={() => this.next()}>
+            <StyledTextDark>Get Started!</StyledTextDark>
+          </StyledTouchableOpacityWhite>
+        )}
+        <StyledTouchableOpacityWhite
+          onPress={() =>
+            web3.torus.isLoggedIn ? this.logout() : web3.initialize()
+          }
+        >
+          <StyledTextDark>
+            {web3.torus.isLoggedIn ? "Log out" : " Log in"}
+          </StyledTextDark>
+        </StyledTouchableOpacityWhite>
+      </StyledViewContainer>
     );
   }
 }

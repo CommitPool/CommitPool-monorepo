@@ -2,15 +2,19 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start --web",
+    "start-prod": "expo start --no-dev --minify --web",
     "test": "jest"
   },
   "dependencies": {
+    "@toruslabs/torus-embed": "^1.9.9",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "ethers": "^5.0.8",
     "expo": "~38.0.9",
     "expo-app-auth": "^9.1.1",
     "expo-auth-session": "^1.4.1",
+    "expo-cli": "^4.5.0",
+    "expo-constants": "^10.0.1",
     "expo-linear-gradient": "~8.2.1",
     "expo-random": "^8.2.1",
     "expo-splash-screen": "^0.5.0",
@@ -38,6 +42,7 @@
     "react-native-webview": "9.4.0",
     "strava": "^0.0.2",
     "strava-v3": "^2.0.5",
+    "styled-components": "^5.2.1",
     "sync-storage": "^0.4.2",
     "tasit": "0.0.33"
   },

@@ -1,63 +1,49 @@
 import * as React from "react";
-import { View, Image, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Dimensions } from "react-native";
-
+import { Image } from "react-native";
+import {
+  StyledTouchableOpacity,
+  StyledText,
+  StyledTextLarge,
+  StyledView,
+  StyledViewContainer,
+} from "./components/styles";
 export default class Login extends React.Component<
-  { stravaOAuth: any; next: any; code: string },
+  { stravaOAuth: any; next: any },
   {}
 > {
   render() {
     return (
-      <LinearGradient
-        colors={["#D45353", "#D45353", "white"]}
-        style={styles.linearGradient}
-      >
-        <View
-          style={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "space-around",
-          }}
-        >
-          <View style={{ alignItems: "center" }}>
-            <Image
-              style={{ width: 200, height: 200 }}
-              source={require("./assets/commit.png")}
-            />
-            <Text style={{ color: "white", fontSize: 50 , marginTop: 15, marginBottom: 25}}>
-              Login to Strava 
-            </Text>
+      <StyledViewContainer>
+        <StyledView>
+          <Image
+            style={{ width: 200, height: 200 }}
+            source={require("./assets/commit.png")}
+          />
+          <StyledTextLarge style={{ margin: 25 }}>
+            Login to Strava
+          </StyledTextLarge>
 
-            <Text style={{ color: "white", fontSize: 20 }}>
-              To track your progress and verify that you've met your goal, we rely on activity data that you share with Strava. 
-              {"\n"}
-            </Text>
-            <Text style={{ color: "white", fontSize: 20 }}>
-              Connect your Strava account below.
-            </Text>
-          </View>
-          <TouchableOpacity onPress={this.props.stravaOAuth}>
-            <Image
-              style={{ width: 300, height: 50 }}
-              source={require("./assets/strava.svg")}
-            />
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
+          <StyledText>
+            To track your progress and verify that you've met your goal, we rely
+            on activity data that you share with Strava.
+            {"\n\n\n"}
+          </StyledText>
+          <StyledText>Connect your Strava account below.</StyledText>
+        </StyledView>
+        <StyledTouchableOpacity onPress={this.props.stravaOAuth}>
+          <Image
+            style={{
+              width: 300,
+              height: 50,
+              borderRadius: 10,
+              borderWidth: 5,
+              borderColor: "#fff",
+              backgroundColor: "#fff",
+            }}
+            source={require("./assets/strava.svg")}
+          />
+        </StyledTouchableOpacity>
+      </StyledViewContainer>
     );
   }
 }
-
-const { width, height } = Dimensions.get("window");
-
-const styles = StyleSheet.create({
-  linearGradient: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    width,
-    height,
-    borderRadius: 5,
-  },
-});

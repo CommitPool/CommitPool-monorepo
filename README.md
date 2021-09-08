@@ -44,6 +44,6 @@ We built a [web app](./CommitPoolApp) for users to create a commitment, track th
 
 ## References
 
--   The CommitPool smart contract on Mumbai: [0x91e17f2a995f7eb830057a2f83ada3a50a37f20d](https://polygonscan.com/address/0x91e17f2a995f7eb830057a2f83ada3a50a37f20d)
+-   The verified CommitPool smart contract on Polygon: [0x91e17f2a995f7eb830057a2f83ada3a50a37f20d](https://polygonscan.com/address/0x91e17f2a995f7eb830057a2f83ada3a50a37f20d)
 -   The CommitPool [web app](https://app.commitpool.com/)
 -   Hackathon [demo video](https://youtu.be/PAQ8dHWHwjQ)

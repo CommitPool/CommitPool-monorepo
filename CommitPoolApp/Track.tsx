@@ -27,7 +27,7 @@ export default class Track extends Component<
     fill: number;
     goal: number;
     stake: number;
-    accessToken: String;
+    accessToken: string;
   }
 > {
   constructor(props) {
@@ -53,7 +53,7 @@ export default class Track extends Component<
     this.setState({ refreshToken: refreshToken });
     this.setAccount();
 
-    fetch("https://www.strava.com/api/v3/oauth/token", {
+    await fetch("https://www.strava.com/api/v3/oauth/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -119,7 +119,7 @@ export default class Track extends Component<
   }
 
   async getActivity() {
-    fetch(
+    await fetch(
       "https://test2.dcl.properties/activities?startTime=" +
         this.state.startTime +
         "&endTime=" +
@@ -248,7 +248,13 @@ export default class Track extends Component<
           }
           onPress={() => this.getUpdatedActivity()}
         >
-          <StyledText>Complete Goal</StyledText>
+          <StyledText style={
+            this.state.fill < 100
+              ? {
+                  color: "white",
+                }
+              : { color: "#d45353"}
+          }>Complete Goal</StyledText>
         </StyledTouchableOpacityWhite>
       </StyledViewContainer>
     );

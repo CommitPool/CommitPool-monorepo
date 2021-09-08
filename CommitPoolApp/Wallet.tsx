@@ -22,6 +22,7 @@ export default class Wallet extends Component<
     height: any;
     width: any;
     loading: any;
+    commitmentExists: boolean;
   }
 > {
   constructor(props) {
@@ -33,6 +34,7 @@ export default class Wallet extends Component<
       height: 300,
       width: 300,
       loading: true,
+      commitmentExists: false,
     };
   }
 
@@ -56,6 +58,7 @@ export default class Wallet extends Component<
 
   async setStateInfo(web3: any) {
     const account = web3.provider.provider.selectedAddress;
+    const commitPoolContract = web3.contracts.commitPool;
 
     await web3.provider
       .getBalance(account)
@@ -67,12 +70,18 @@ export default class Wallet extends Component<
       this.setState({ daiBalance: utils.formatEther(daiBalance) });
       this.setState({ loading: false });
     });
+
+    await commitPoolContract.commitments(account).then(commitment => {
+      commitment.exists ? this.setState({ commitmentExists: true}) : this.setState({commitmentExists: false})
+    });
   }
 
   async setStateRefresh(web3: any) {
     const refresh = setInterval(async () => {
       if (web3.provider !== undefined) {
         const account = web3.provider.provider.selectedAddress;
+        const commitPoolContract = web3.contracts.commitPool;
+
         await web3.provider
           .getBalance(account)
           .then((balance) => {
@@ -85,6 +94,10 @@ export default class Wallet extends Component<
             this.setState({ loading: false });
           }
         });
+
+        await commitPoolContract.commitments(account).then(commitment => {
+          commitment.exists ? this.setState({ commitmentExists: true}) : this.setState({commitmentExists: false})
+        });
       }
     }, 2500);
     this.setState({ refresh: refresh });
@@ -93,17 +106,12 @@ export default class Wallet extends Component<
   logout = () => {
     this.props.web3.logOut();
     clearInterval(this.state.refresh);
-    this.setState({ balance: "0", daiBalance: "0", loading: true });
+    this.setState({ balance: "0", daiBalance: "0", loading: true, commitmentExists: false });
   };
 
   async next() {
-    const { web3 } = this.props;
-    const account = web3.provider.provider.selectedAddress;
-    const commitPoolContract = web3.contracts.commitPool;
-
     try {
-      const commitment = await commitPoolContract.commitments(account);
-      if (commitment.exists) {
+      if (this.state.commitmentExists) {
         this.props.next(6);
       } else {
         this.props.next(5);
@@ -148,7 +156,7 @@ export default class Wallet extends Component<
         </StyledView>
         {this.state.loading ? undefined : (
           <StyledTouchableOpacityWhite onPress={() => this.next()}>
-            <StyledTextDark>Get Started!</StyledTextDark>
+            <StyledTextDark>{this.state.commitmentExists ? "Track commitment" : "Get Started!"}</StyledTextDark>
           </StyledTouchableOpacityWhite>
         )}
         <StyledTouchableOpacityWhite

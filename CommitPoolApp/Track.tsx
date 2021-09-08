@@ -3,10 +3,11 @@ import { AnimatedCircularProgress } from "react-native-circular-progress";
 import { BigNumber, ethers } from "ethers";
 import { AsyncStorage } from "react-native";
 import getEnvVars from "./environment.js";
+import { DateTime } from "luxon";
 import {
   StyledBackdropDark,
   StyledTouchableOpacityWhite,
-  StyledText, StyledTextDark,
+  StyledText,
   StyledTextLarge,
   StyledView,
   StyledViewContainer,
@@ -25,6 +26,7 @@ export default class Track extends Component<
     step: Number;
     fill: number;
     goal: number;
+    stake: number;
     accessToken: String;
   }
 > {
@@ -41,6 +43,7 @@ export default class Track extends Component<
       startTime: 0,
       endTime: 0,
       type: "",
+      stake: 0,
       accessToken: "",
     };
   }
@@ -107,6 +110,7 @@ export default class Track extends Component<
       startTime: commitment["startTime"].toNumber(),
       endTime: commitment["endTime"].toNumber(),
       type: type[0],
+      stake: Number(ethers.utils.formatEther(commitment["stake"]))
     });
 
     this.getActivity();
@@ -186,6 +190,16 @@ export default class Track extends Component<
     }
   }
 
+  parseSecondTimestampToFullString(timestamp: number){
+    return DateTime.fromSeconds(timestamp).toLocaleString({
+        weekday: "long",
+        month: "long",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+}
+
   render() {
     return (
       <StyledViewContainer>
@@ -210,7 +224,18 @@ export default class Track extends Component<
           <StyledText>
             {((this.state.fill / 100) * this.state.goal).toFixed(1)}/
             {this.state.goal} Miles
+            </StyledText>
+          <StyledText
+              >
+                {`\n from ${this.parseSecondTimestampToFullString(
+                  this.state.startTime
+                )} \n to ${this.parseSecondTimestampToFullString(this.state.endTime)} \n\n`}
           </StyledText>
+          <StyledText
+              >
+                {`Staking ${this.state.stake} DAI \n`}
+          </StyledText>
+
         </StyledView>
         <StyledTouchableOpacityWhite
           style={

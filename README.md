@@ -1,6 +1,4 @@
-# CommitPool on Matic
-
-> A submission to the Matic GR8 Hackathon
+# CommitPool on Polygon 
 
 ## Overview
 
@@ -12,10 +10,11 @@ By minimizing that counterparty risk with smart contracts and decentralized orac
 
 ### How to use CommitPool
 
-1. Open the [app](https://festive-shannon-3a302b.netlify.app/)
+1. Open the [app](https://app.commitpool.com/)
 2. Connect your Strava Account
-3. Fund your in-app wallet with Mumbai Matic and LINK (Dummy Dai) from the [Matic faucet](https://faucet.matic.network/)
+3. Fund your in-app wallet with Polygon Matic and DAI
 4. Commit and stake!
+4. Commit and stake! We recommend keeping your commitment amounts low for testing purposes (.1 Eth/Dai or so) so you don't have to keep refilling at a faucet
 5. Hit your goal
 6. Profit?
 
@@ -27,21 +26,11 @@ CommitPool users register commitments with our [smart contract](./CommitPoolCont
 
 We use Chainlink to bring their activity distance data on-chain, where our contract checks whether they met their distance goal. If so, they get their stake back; but if not, their stake gets slashed.
 
-The Matic Network's speed and low transaction fees are crucial to create a viable user experience for CommitPool. Higher tx fees would eat significantly into the amounts we expect most users to be staking on their commitments.
-
-For this hackathon, behind the scenes, we're using the LINK token for commitment staking as our test ERC20 token. Once we launch on Matic mainnet, we'll use DAI, so our app still labels it "DAI."
+The Polygon's speed and low transaction fees are crucial to create a viable user experience for CommitPool. Higher tx fees would eat significantly into the amounts we expect most users to be staking on their commitments.
 
 We built a [web app](./CommitPoolApp) for users to create a commitment, track their progress against their goal, and withdraw their stake (if they fulfilled their commitment). Since our current focus is on fitness goals, our original vision was to build a mobile app, so we're using React Native with Metro to support a web app with the same code base.
 
-Our app spins up an in-browser wallet for users using the [TasitSDK](https://github.com/tasitlabs/tasit-sdk).
-
 <img src=".//documentation/architecture.png" alt="architecture" width="555" height="355">
-
-## Where we ran into challenges
-
--   Verifying our contract on the Mumbai block explorer - we were able to verify on Etherscan for a Ropsten test deployment (using the Hard Hat plugin), but couldn't get it to work on the BlockVigil explorer.
--   Mumbai RPC / node rate limiting our Chainlink node - for this hackathon we're running a single Chainlink node as our oracle service, but it kept getting rate limited by the Block Vigil RPC service, even when we were upgraded to the Growth plan.
--   Getting test ERC20 tokens (e.g. Matic DAI or even TEST) was difficult. The supply of TEST tokens in the faucet was low/zero. We ended up using LINK for this purpose.
 
 ## What we want to do next
 
@@ -55,7 +44,6 @@ Our app spins up an in-browser wallet for users using the [TasitSDK](https://git
 
 ## References
 
--   The CommitPool smart contract on Mumbai: [0x251B6f95F6A17D2aa350456f616a84b733380eBE](https://explorer-mumbai.maticvigil.com/address/0x251B6f95F6A17D2aa350456f616a84b733380eBE/transactions)
--   The CommitPool [web app](https://festive-shannon-3a302b.netlify.app/)
--   Our [hackathon repo](https://github.com/CommitPool/CommitPoolMatic)
+-   The verified CommitPool smart contract on Polygon: [0x91e17f2a995f7eb830057a2f83ada3a50a37f20d](https://polygonscan.com/address/0x91e17f2a995f7eb830057a2f83ada3a50a37f20d)
+-   The CommitPool [web app](https://app.commitpool.com/)
 -   Hackathon [demo video](https://youtu.be/PAQ8dHWHwjQ)

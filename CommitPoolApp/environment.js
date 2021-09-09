@@ -38,7 +38,7 @@ const ENV = {
     daiContractAddress: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
     linkContractAddress: "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
     oracleAddress: "0x0a31078cD57d23bf9e8e8F1BA78356ca2090569E",
-    jobId: "9ce5c4e09dda4c3687bac7a2f676268f",
+    jobId: "692ce2ecba234a3f9a0c579f8bf7a4cb",
     rpcUrl:
       "https://polygon-mainnet.infura.io/v3/3c072dd341bb4e45858038e146195ae1",
     abi: abi,

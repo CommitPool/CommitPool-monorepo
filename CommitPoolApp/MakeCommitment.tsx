@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { ethers } from "ethers";
 import {
   StyledBackdropDark,
   StyledView,
@@ -138,8 +139,9 @@ export default class MakeCommitment extends Component<
       account,
       commitPoolContract.address
     );
+    let dcReceipt;
     if (allowance.gte(stakeAmount)) {
-      const dcReceipt = await commitPoolContract.depositAndCommit(
+      dcReceipt = await commitPoolContract.depositAndCommit(
         this.state.activity,
         distanceInMiles * 100,
         startTimestamp,
@@ -147,7 +149,7 @@ export default class MakeCommitment extends Component<
         stakeAmount,
         stakeAmount,
         String(this.props.code.athlete.id),
-        { gasLimit: 5000000 }
+        { gasPrice: ethers.utils.parseUnits('5', 'gwei'), gasLimit: 5000000 }
       );
       console.log("RECEIPT D&C:", dcReceipt);
     } else {
@@ -155,7 +157,7 @@ export default class MakeCommitment extends Component<
         commitPoolContract.address,
         stakeAmount
       );
-      const dcReceipt = await commitPoolContract.depositAndCommit(
+      dcReceipt = await commitPoolContract.depositAndCommit(
         this.state.activity,
         distanceInMiles * 100,
         startTimestamp,
@@ -163,13 +165,15 @@ export default class MakeCommitment extends Component<
         stakeAmount,
         stakeAmount,
         String(this.props.code.athlete.id),
-        { gasLimit: 5000000 }
+        { gasPrice: ethers.utils.parseUnits('5', 'gwei'), gasLimit: 5000000 }
       );
       console.log("RECEIPT DAI:", daiReceipt);
       console.log("RECEIPT D&C:", dcReceipt);
     }
-
-    this.setState({ loading: false, txSent: true });
+    this.setState({ txSent: true });
+    dcReceipt.wait(1).then(() => {
+      this.setState({ loading: false });
+    })
   }
 
   getActivityName() {

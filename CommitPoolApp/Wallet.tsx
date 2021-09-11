@@ -123,16 +123,14 @@ export default class Wallet extends Component<
 
   render() {
     const { web3 } = this.props;
-    const account = web3.torus.isLoggedIn
-      ? web3.provider.provider.selectedAddress
+    const account = web3.isLoggedIn
+      ? web3.account
       : "";
+    console.log("Web3.account: ", web3.account)
     return (
       <StyledViewContainer>
         <StyledView>
           <StyledTextLarge style={{ margin: 15 }}>Add Funds</StyledTextLarge>
-          <StyledText style={{ margin: 15 }}>
-            Login to your wallet via Torus by clicking the blue button below.
-          </StyledText>
           {account ? <QRCode value={account} size={225} /> : <div style={{height: 225}}></div>}
           <StyledTextSmall
             style={{ margin: 15 }}
@@ -161,11 +159,11 @@ export default class Wallet extends Component<
         )}
         <StyledTouchableOpacityWhite
           onPress={() =>
-            web3.torus.isLoggedIn ? this.logout() : web3.initialize()
+            web3.isLoggedIn ? this.logout() : web3.initialize()
           }
         >
           <StyledTextDark>
-            {web3.torus.isLoggedIn ? "Log out" : " Log in"}
+            {web3.isLoggedIn ? "Log out" : " Log in"}
           </StyledTextDark>
         </StyledTouchableOpacityWhite>
       </StyledViewContainer>

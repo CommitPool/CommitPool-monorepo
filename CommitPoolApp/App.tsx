@@ -2,7 +2,7 @@ import React, { useState }  from 'react';
 import { AsyncStorage, StyleSheet } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
-import web3Helper from "./components/web3-helper/web3-helper.js";
+import web3Helper from "./components/web3-helper/web3-helper";
 
 import Main from './Main';
 

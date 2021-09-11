@@ -103,8 +103,8 @@ export default class Wallet extends Component<
     this.setState({ refresh: refresh });
   }
 
-  logout = () => {
-    this.props.web3.logOut();
+  logout = async () => {
+    await this.props.web3.logOut();
     clearInterval(this.state.refresh);
     this.setState({ balance: "0", daiBalance: "0", loading: true, commitmentExists: false });
   };

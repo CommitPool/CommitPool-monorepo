@@ -4,7 +4,6 @@ import getContract from "../contract/contract";
 import Torus from "@toruslabs/torus-embed";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3Modal from "web3modal";
-import { Web3Provider } from "@ethersproject/providers";
 
 //TODO typing
 const {
@@ -41,11 +40,7 @@ const providerOptions = {
   },
 };
 
-const connectProvider = async () => {
-  return await web3Modal.connect();
-};
-
-const web3Modal = new Web3Modal({
+const defaultWeb3Modal = new Web3Modal({
   network: "Polygon Main Network",
   cacheProvider: true, // optional
   providerOptions, // required
@@ -66,6 +61,9 @@ const deriveSelectedAddress = (provider: any) => {
 
 const web3Helper = {
   account: undefined,
+  connectProvider: async function () {
+    return await defaultWeb3Modal.connect();
+  },
   setAccount: function (localProvider) {
     web3Helper.account = deriveSelectedAddress(localProvider.provider);
   },
@@ -74,11 +72,24 @@ const web3Helper = {
     dai: {},
   },
   isLoggedIn: false,
-  logOut: function () {
-    web3Modal.clearCachedProvider();
-    web3Helper.initialize();
+  logOut: async function () {
+    console.log("Web3Helper before closing: ", web3Helper);
+    if (web3Helper.provider && web3Helper.provider.close) {
+      await web3Helper.provider.close();
+    }
+    web3Helper.web3Modal.clearCachedProvider();
+    web3Helper.web3Modal = defaultWeb3Modal;
+    web3Helper.account = undefined;
+    web3Helper.provider = undefined;
+    web3Helper.contracts = {
+      commitPool: {},
+      dai: {},
+    };
+    web3Helper.isLoggedIn = false;
+    window.localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
   },
   provider: undefined,
+  web3Modal: defaultWeb3Modal,
   setWeb3Provider: function (localProvider) {
     // Subscribe to accounts change
     localProvider.on("accountsChanged", (accounts: string[]) => {
@@ -104,6 +115,11 @@ const web3Helper = {
     );
 
     web3Helper.provider = new ethers.providers.Web3Provider(localProvider);
+
+    web3Helper.isLoggedIn = true;
+    return web3Helper.provider;
+  },
+  setContracts: function () {
     web3Helper.contracts.dai = getContract(
       daiContractAddress,
       daiAbi,
@@ -115,13 +131,12 @@ const web3Helper = {
       abi,
       web3Helper.provider
     );
-
-    web3Helper.isLoggedIn = true;
-    return web3Helper.provider;
   },
-  wallet: {},
   initialize: async function () {
-    await connectProvider().then(localProvider => web3Helper.setWeb3Provider(localProvider)).then(web3Provider => this.setAccount(web3Provider));
+    await web3Helper.connectProvider()
+      .then((localProvider) => web3Helper.setWeb3Provider(localProvider))
+      .then((web3Provider) => web3Helper.setAccount(web3Provider))
+      .then(() => web3Helper.setContracts());
     return web3Helper;
   },
 };

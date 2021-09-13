@@ -35,7 +35,9 @@ const providerOptions = {
     network: "Polygon Main Network",
     package: WalletConnectProvider,
     options: {
-      137: `https://polygon-mainnet.infura.io/v3/3c072dd341bb4e45858038e146195ae1`,
+      rpc: {
+        137: `https://polygon-mainnet.infura.io/v3/3c072dd341bb4e45858038e146195ae1`,
+      },
     },
   },
 };
@@ -133,7 +135,8 @@ const web3Helper = {
     );
   },
   initialize: async function () {
-    await web3Helper.connectProvider()
+    await web3Helper
+      .connectProvider()
       .then((localProvider) => web3Helper.setWeb3Provider(localProvider))
       .then((web3Provider) => web3Helper.setAccount(web3Provider))
       .then(() => web3Helper.setContracts());

@@ -6,7 +6,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@toruslabs/torus-embed": "^1.9.9",
+    "@toruslabs/torus-embed": "^1.13.2",
+    "@walletconnect/web3-provider": "^1.6.5",
     "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "ethers": "^5.0.8",
@@ -45,7 +46,8 @@
     "strava-v3": "^2.0.5",
     "styled-components": "^5.2.1",
     "sync-storage": "^0.4.2",
-    "tasit": "0.0.33"
+    "tasit": "0.0.33",
+    "web3modal": "^1.9.4"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",

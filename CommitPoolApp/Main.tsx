@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, View} from "react-native";
+import { StyleSheet, View } from "react-native";
 import Login from "./Login";
 import Track from "./Track";
 import MakeCommitment from "./MakeCommitment";
@@ -7,12 +7,11 @@ import Complete from "./Complete";
 import Wallet from "./Wallet";
 import Welcome from "./Welcome";
 import Directions from "./Directions";
-import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions } from "react-native";
 
-export default class Main extends Component <
+export default class Main extends Component<
   { web3: any; stravaOAuth: any; code: string },
-  { step: Number, height: any, width: any, stravaLog: any }
+  { step: Number; height: any; width: any; stravaLog: any }
 > {
   constructor(props) {
     super(props);
@@ -25,22 +24,21 @@ export default class Main extends Component <
   }
 
   updateDimensions() {
-      const { width, height } = Dimensions.get("window")
-      this.setState({ width: width, height: height });
+    const { width, height } = Dimensions.get("window");
+    this.setState({ width: width, height: height });
+  }
 
-    }
+  componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
+  }
 
-    componentDidMount() {
-      this.updateDimensions();
-      window.addEventListener("resize", this.updateDimensions.bind(this));
-    }
-
-/**
- * Remove event listener
- */
+  /**
+   * Remove event listener
+   */
   componentWillUnmount() {
-      window.removeEventListener("resize", this.updateDimensions.bind(this));
-    }
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
+  }
 
   componentWillReceiveProps(newProps) {
     if (newProps.code !== this.props.code) {
@@ -50,17 +48,16 @@ export default class Main extends Component <
 
   onClick = (step: Number) => {
     this.setState({ step: step });
-  }
+  };
 
   getStravaLog() {
-    this.state.stravaLog ? this.setState({ step: 4}) : this.setState({step: 1})
+    this.state.stravaLog
+      ? this.setState({ step: 4 })
+      : this.setState({ step: 1 });
   }
-
-
 
   renderSwitch = () => {
     switch (this.state.step) {
-
       case 1:
         return <Welcome next={this.onClick} />;
 
@@ -69,10 +66,13 @@ export default class Main extends Component <
           <Login next={this.onClick} stravaOAuth={this.props.stravaOAuth} />
         );
 
-        case 3:
-          return (
-            <Directions next={this.onClick} stravaOAuth={this.props.stravaOAuth} />
-          );
+      case 3:
+        return (
+          <Directions
+            next={this.onClick}
+            stravaOAuth={this.props.stravaOAuth}
+          />
+        );
 
       case 4:
         return <Wallet next={this.onClick} web3={this.props.web3}></Wallet>;
@@ -111,17 +111,20 @@ export default class Main extends Component <
     }
   };
 
-
   render() {
-
     return (
-      <View style={[styles.bg, {height: this.state.height}, {width: this.state.width}]}>
+      <View
+        style={[
+          styles.bg,
+          { height: this.state.height },
+          { width: this.state.width },
+        ]}
+      >
         {this.renderSwitch()}
       </View>
     );
   }
 }
-
 
 const styles = StyleSheet.create({
   bg: {
@@ -131,8 +134,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#d45454",
     // width = {this.state.width},
     // height = {this.state.height},
-    alignSelf: 'center',
+    alignSelf: "center",
     borderRadius: 5,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
   },
 });

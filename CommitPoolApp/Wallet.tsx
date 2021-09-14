@@ -23,7 +23,6 @@ export default class Wallet extends Component<
     width: any;
     loading: any;
     commitmentExists: boolean;
-    web3: any;
   }
 > {
   constructor(props) {

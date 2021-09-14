@@ -73,9 +73,7 @@ const web3Helper = {
 
 const clearWeb3State = async (web3Helper) => {
   const localWeb3Helper = web3Helper;
-  console.log("Web3Helper before closing: ", localWeb3Helper);
   if (web3Helper.provider && web3Helper.provider.close) {
-    console.log("Closing provider")
     await web3Helper.provider.close();
 
   }
@@ -86,12 +84,10 @@ const clearWeb3State = async (web3Helper) => {
   localWeb3Helper.web3ModalProvider = undefined
   localWeb3Helper.isLoggedIn = false;
   window.localStorage.removeItem("WEB3_CONNECT_CACHED_PROVIDER");
-  console.log("Web3Helper after closing: ", localWeb3Helper);
   return localWeb3Helper;
 }
 
 const setAccount = (web3Helper) => {
-  console.log("Setting account");
   if (web3Helper.provider) {
     const account = deriveSelectedAddress(web3Helper.provider.provider);
     web3Helper.account = account;
@@ -100,8 +96,6 @@ const setAccount = (web3Helper) => {
 };
 
 const setContracts = (web3Helper) => {
-  console.log("Setting contracts");
-
   if (web3Helper.provider) {
     const contracts = getContractsWithProvider(web3Helper.provider);
     web3Helper.contracts = contracts;
@@ -110,8 +104,6 @@ const setContracts = (web3Helper) => {
 };
 
 const setLoggedIn = (web3Helper) => {
-  console.log("Setting logged in");
-
   if (web3Helper.provider && web3Helper.account && web3Helper.contracts) {
     web3Helper.isLoggedIn = true;
   } else {
@@ -122,8 +114,6 @@ const setLoggedIn = (web3Helper) => {
 };
 
 const setWeb3Provider = (web3Helper) => {
-  console.log("Setting web3provider");
-
   const localProvider = subscribeToEvents(web3Helper.web3ModalProvider);
   web3Helper.provider = new ethers.providers.Web3Provider(localProvider);
   return web3Helper;

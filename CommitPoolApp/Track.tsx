@@ -59,8 +59,8 @@ export default class Track extends Component<
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        client_id: 51548,
-        client_secret: "28d56211b9ca33972055bf61010074fbedc3c7c2",
+        client_id: 66714,
+        client_secret: "6b5e8c4fd9bb841d1e8d9be15020dab2017607e4",
         refresh_token: this.state.refreshToken,
         grant_type: "refresh_token",
       }),

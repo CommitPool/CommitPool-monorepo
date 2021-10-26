@@ -1,93 +1,93 @@
-import React, { useState }  from 'react';
-import { AsyncStorage, StyleSheet } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
-import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
-import web3Helper from "./components/web3-helper/web3-helper";
+import "react-native-gesture-handler";
+import React from "react";
+import { ChakraProvider } from "@chakra-ui/react";
+import theme from "./theme.js";
 
-import Main from './Main';
+import { InjectedProvider } from "./contexts/injectedProviderContext";
+import { ContractContextProvider } from "./contexts/contractContext";
+import { CommitPoolContextProvider } from "./contexts/commitPoolContext";
+import { StravaContextProvider } from "./contexts/stravaContext";
 
-WebBrowser.maybeCompleteAuthSession();
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 
-// Endpoint
-const discovery = {
-  authorizationEndpoint: 'https://www.strava.com/oauth/mobile/authorize',
-  tokenEndpoint: 'https://www.strava.com/oauth/token',
-  revocationEndpoint: 'https://www.strava.com/oauth/deauthorize',
-};
+import AppLoading from "expo-app-loading";
+import { useFonts, OpenSans_400Regular } from "@expo-google-fonts/open-sans";
+import { Rubik_700Bold } from "@expo-google-fonts/rubik";
 
-export default function App() {
-  const [code, setCode] = useState(true);
-  const [web3, setWeb3] = useState(web3Helper);
+import {
+  LandingPage,
+  IntroPage,
+  LoginPage,
+  ActivityGoalPage,
+  ActivitySourcePage,
+  StakingPage,
+  ConfirmationPage,
+  TrackPage,
+  CompletionPage,
+  FaqPage,
+} from "./pages";
+import { CurrentUserContextProvider } from "./contexts/currentUserContext";
 
-  //Strava login
-  const [request, response, promptAsync] = useAuthRequest(
-    {
-      clientId: '51548',
-      scopes: ['read,activity:read'],
-      // For usage in managed apps using the proxy
-      redirectUri: makeRedirectUri({
-        // For usage in bare and standalone
-        // the "redirect" must match your "Authorization Callback Domain" in the Strava dev console.
-        native: 'your.app://redirect',
-      }),
-    },
-    discovery
-  );
+const App = () => {
+  let [fontsLoaded] = useFonts({
+    OpenSans_400Regular,
+    Rubik_700Bold,
+  });
 
-  React.useEffect(() => {
-    if (response?.type === 'success') {
-      fetch('https://www.strava.com/oauth/token?client_id=51548&client_secret=28d56211b9ca33972055bf61010074fbedc3c7c2&code=' + response.params.code + '&grant_type=authorization_code',
-        {
-          method: 'POST'
-        })
-        .then(res => res.json())
-        .then(async (json) => {
-          console.log(json)
-          await AsyncStorage.setItem(
-            'rt',
-            json.refresh_token
-          );
-          setCode(json);
-          createUser(json.athlete.id, json.refresh_token)
-        })
-    }
-  }, [response]);
-
-  const stravaOauth = () => {
-    promptAsync()
-  }
-
-  const createUser = async (address, token) => {
-    await fetch('https://test2.dcl.properties/user', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({address: address, token: token})
-    });
-  }
-
-  React.useEffect(() => {
-    if (web3.provider !== undefined) {
-      setWeb3(web3);
-    }
-  }, [web3])
-
-
-  return (
-    <Home web3={web3} stravaOauth={stravaOauth} code={code}></Home>
-  )
-
-}
-
-
-//TODO This layer can go?
-class Home extends React.Component <{web3: any, stravaOauth: any, code: string}, {}> {
-
-  render() {
+  //TODO Do we ever get to the loading screen?
+  //TODO Refactor/aggregate screen loading away from app.tsx
+  if (!fontsLoaded) {
+    return <AppLoading />;
+  } else {
     return (
-      <Main web3={this.props.web3} stravaOAuth={this.props.stravaOauth} code={this.props.code}/>
+      <ChakraProvider theme={theme}>
+          <InjectedProvider>
+            <ContractContextProvider>
+              <CurrentUserContextProvider>
+                <StravaContextProvider>
+                  <CommitPoolContextProvider>
+                    <NavigationContainer>
+                      <Stack.Navigator
+                        initialRouteName="Landing"
+                        screenOptions={{
+                          headerShown: false,
+                        }}
+                      >
+                        <Stack.Screen name="Login" component={LoginPage} />
+                        <Stack.Screen name="Intro" component={IntroPage} />
+                        <Stack.Screen
+                          name="ActivityGoal"
+                          component={ActivityGoalPage}
+                        />
+                        <Stack.Screen
+                          name="ActivitySource"
+                          component={ActivitySourcePage}
+                        />
+                        <Stack.Screen name="Staking" component={StakingPage} />
+                        <Stack.Screen
+                          name="Confirmation"
+                          component={ConfirmationPage}
+                        />
+                        <Stack.Screen name="Track" component={TrackPage} />
+                        <Stack.Screen
+                          name="Completion"
+                          component={CompletionPage}
+                        />
+                        <Stack.Screen name="Faq" component={FaqPage} />
+                        <Stack.Screen name="Landing" component={LandingPage} />
+                      </Stack.Navigator>
+                    </NavigationContainer>
+                  </CommitPoolContextProvider>
+                </StravaContextProvider>
+              </CurrentUserContextProvider>
+            </ContractContextProvider>
+          </InjectedProvider>
+      </ChakraProvider>
     );
   }
-}
+};
+
+const Stack = createStackNavigator();
+
+export default App;

@@ -3,7 +3,7 @@ import Plausible from "plausible-tracker";
 const usePlausible = () => {
   const plausible = Plausible({
     domain: "app.commitpool.com",
-    trackLocalhost: true,
+    trackLocalhost: false,
   });
 
   return plausible;

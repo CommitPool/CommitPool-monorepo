@@ -1,21 +1,12 @@
 {
-  "name": "CommitPool",
-  "displayName": "CommitPool",
+  "name": "commitpool-ui-bare",
+  "displayName": "commitpool-ui-bare",
   "expo": {
-    "name": "CommitPool",
-    "slug": "CommitPool",
+    "name": "commitpool-ui-bare",
+    "slug": "commitpool-ui-bare",
     "version": "1.0.0",
-    "scheme": "cpool",
     "assetBundlePatterns": [
       "**/*"
     ]
-  },
-  "host": {
-    "exp": {
-      "exponent": "com.ztnark.commitpool"
-    }
-  },
-  "ios": {
-    "bundleIdentifier": "com.ztnark.commitpool"
   }
 }

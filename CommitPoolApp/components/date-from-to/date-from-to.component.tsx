@@ -55,7 +55,7 @@ const DateFromTo = ({ children }: DateFromTo) => {
       startTimestamp = DateTime.now().toSeconds();
       endTimestamp = DateTime.now()
         .plus({ days: Number(_end) })
-        .startOf("day")
+        .endOf("day")
         .toSeconds();
     } else if (start > 0) {
       startTimestamp = DateTime.now()

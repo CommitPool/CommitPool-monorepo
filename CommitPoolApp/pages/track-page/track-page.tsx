@@ -48,7 +48,6 @@ const TrackPage = ({ navigation }: TrackPageProps) => {
   });
   const toast = useToast();
   const [waiting, setWaiting] = useState<boolean>(false);
-  const { injectedProvider } = useInjectedProvider();
   const { commitment, refreshCommitment } = useCommitPool();
   const { spcContract } = useContracts();
   const { athlete } = useStrava();
@@ -69,6 +68,9 @@ const TrackPage = ({ navigation }: TrackPageProps) => {
   const oracleAddress: string = "0x0a31078cD57d23bf9e8e8F1BA78356ca2090569E";
   const jobId: string = "692ce2ecba234a3f9a0c579f8bf7a4cb";
 
+  // TODO To update the commitment progress we can first call the Strava API to update the UI
+  // When the commitment is complete or the deadline has passed, we offer the option to 'Settle commitment'
+  // using the button in the footer
   const getCommitmentProgress = async () => {
     if (
       spcContract &&

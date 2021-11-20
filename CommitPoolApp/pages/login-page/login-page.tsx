@@ -35,12 +35,12 @@ const LoginPage = ({ navigation }: LoginPageProps) => {
   trackPageview({
     url: "https://app.commitpool.com/login"
   });
-  const { requestWallet } = useInjectedProvider();
+  const { requestWallet, injectedProvider } = useInjectedProvider();
   const toast = useToast();
 
   const { athlete } = useStrava();
   const { currentUser } = useCurrentUser();
-  const { commitment } = useCommitPool();
+  const { commitment, refreshCommitment } = useCommitPool();
 
   //When account has an commitment, write to state
   useEffect(() => {
@@ -48,6 +48,13 @@ const LoginPage = ({ navigation }: LoginPageProps) => {
         navigation.navigate("Track")
     }
   }, [commitment]);
+
+  // When address updates refresh commitment
+  useEffect(() => {
+    if(injectedProvider){
+      refreshCommitment();
+    }
+  }, [injectedProvider])
 
   const onNext = () => {
     const address = currentUser.attributes?.["custom:account_address"];

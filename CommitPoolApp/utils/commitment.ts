@@ -21,6 +21,11 @@ const formatActivities = (activities: Activity[]): DropdownItem[] => {
         label: "Ride 🚲",
         value: act.key,
       };
+    } else if (act.name === "Walk") {
+      return {
+        label: "Walk 🚶🏻",
+        value: act.key,
+      };
     } else {
       return {
         label: act.name,

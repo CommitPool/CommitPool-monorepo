@@ -184,15 +184,18 @@ const CompletionPage = ({ navigation }: CompletionPageProps) => {
           <Center h="90%">
             <Button onClick={() => onProcess()}>Process commitment</Button>
           </Center>
-        ) : undefined}
+        ) : (
+          <Center>
+            <Button onClick={() => navigation.navigate("ActivityGoal")}>
+              Restart
+            </Button>
+          </Center>
+        )}
       </VStack>
       <Footer>
         <ButtonGroup>
           <Button onClick={() => navigation.goBack()}>
             {strings.footer.back}
-          </Button>
-          <Button onClick={() => navigation.navigate("ActivityGoal")}>
-            Restart
           </Button>
           <IconButton
             aria-label="Go to FAQ"

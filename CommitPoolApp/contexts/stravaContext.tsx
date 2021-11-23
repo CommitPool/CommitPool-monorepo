@@ -47,9 +47,9 @@ export const StravaContextProvider: React.FC<StravaProps> = ({
 }: StravaProps) => {
   const { trackEvent } = usePlausible();
 
-  const [athlete, setAthlete] = useState<Athlete>();
-  const { currentUser, setCurrentUser } = useCurrentUser();
-  const { commitment, setCommitment } = useCommitPool();
+  const [athlete, setAthlete] = useState<Athlete>();  // Athlete data received from Strava
+  const { currentUser, setCurrentUser } = useCurrentUser(); // COmplete user, web3 + Strava
+  const { commitment, setCommitment } = useCommitPool(); // Commitment that the user has created. Could be default (commitment.exists === false)
   const [refreshToken, setRefreshToken] = useLocalStorage<string>(
     "strava_rt",
     ""
@@ -65,6 +65,7 @@ export const StravaContextProvider: React.FC<StravaProps> = ({
     athlete?.id ? await logOutAndClearState() : await stravaOauth();
   };
 
+  // Login is handled by Expo, will display Strava login modal
   const stravaOauth = async () => {
     await promptAsync();
   };
@@ -73,7 +74,7 @@ export const StravaContextProvider: React.FC<StravaProps> = ({
   const [request, response, promptAsync] = useAuthRequest(
     {
       clientId: clientID,
-      scopes: ["read,activity:read"],
+      scopes: ["read,activity:read"], // Strava API spec
       // For usage in managed apps using the proxy
       redirectUri: makeRedirectUri({
         // For usage in bare and standalone
@@ -84,6 +85,7 @@ export const StravaContextProvider: React.FC<StravaProps> = ({
     discovery
   );
 
+  // Clear all user parameteres
   const logOutAndClearState = async () => {
     if (refreshToken !== "") {
       const config: RevokeTokenRequestConfig = { token: refreshToken };
@@ -115,7 +117,7 @@ export const StravaContextProvider: React.FC<StravaProps> = ({
     }
   }, [response, refreshToken, accessToken]);
 
-  //finally post strava user to db
+  //finally post strava user to db 
   useEffect(() => {
     if (athlete && refreshToken !== "") {
       console.log("Posting athlete to DB");
@@ -257,6 +259,7 @@ export const StravaContextProvider: React.FC<StravaProps> = ({
   }, [athlete, commitment]);
 
   //TODO axios this up
+  // The athlete activity data can be queried from the Strava api so we don't call the external adapter to get the Strava data
   const getAthleteActivityData = async (
     commitment: Partial<Commitment>,
     accessToken: string

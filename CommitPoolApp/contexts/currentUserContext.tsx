@@ -14,7 +14,7 @@ type CurrentUserContextType = {
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
   currentUser: {},
-  latestTransaction: {methodCall: undefined, txReceipt: undefined},
+  latestTransaction: { methodCall: undefined, txReceipt: undefined },
   setCurrentUser: (user: Partial<User>) => {},
   setLatestTransaction: (txDetails: TransactionDetails) => {},
 });
@@ -30,13 +30,14 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
   const [currentUser, setCurrentUser] = useState<Partial<User>>({});
   const { injectedChain, address, injectedProvider } = useInjectedProvider();
   const { daiContract } = useContracts();
-  const [latestTransaction, setLatestTransaction] = useLocalStorage<TransactionDetails>(
-    "tx",
-    {methodCall: undefined, txReceipt: undefined}
-  );
+  const [latestTransaction, setLatestTransaction] =
+    useLocalStorage<TransactionDetails>("tx", {
+      methodCall: undefined,
+      txReceipt: undefined,
+    });
 
   console.log("Current user:  ", currentUser);
-  console.log("Latest tx: ", latestTransaction)
+  console.log("Latest tx: ", latestTransaction);
 
   useEffect(() => {
     const user: Partial<User> = createWeb3User(
@@ -93,13 +94,30 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
   };
 
   return (
-    <CurrentUserContext.Provider value={{ currentUser, latestTransaction, setCurrentUser, setLatestTransaction }}>
+    <CurrentUserContext.Provider
+      value={{
+        currentUser,
+        latestTransaction,
+        setCurrentUser,
+        setLatestTransaction,
+      }}
+    >
       {children}
     </CurrentUserContext.Provider>
   );
 };
 
 export const useCurrentUser = () => {
-  const { currentUser, latestTransaction, setCurrentUser, setLatestTransaction } = useContext(CurrentUserContext);
-  return { currentUser, latestTransaction, setCurrentUser, setLatestTransaction };
+  const {
+    currentUser,
+    latestTransaction,
+    setCurrentUser,
+    setLatestTransaction,
+  } = useContext(CurrentUserContext);
+  return {
+    currentUser,
+    latestTransaction,
+    setCurrentUser,
+    setLatestTransaction,
+  };
 };

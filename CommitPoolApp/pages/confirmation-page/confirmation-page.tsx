@@ -55,7 +55,6 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
   const toast = useToast();
   const [waiting, setWaiting] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
-  const { injectedProvider } = useInjectedProvider();
   const { commitment, activities, refreshCommitment } = useCommitPool();
   const { athlete } = useStrava();
   const { currentUser, latestTransaction, setLatestTransaction } =

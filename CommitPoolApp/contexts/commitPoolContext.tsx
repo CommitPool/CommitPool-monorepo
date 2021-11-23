@@ -47,7 +47,7 @@ export const CommitPoolContextProvider: React.FC<CommitPoolProps> = ({
       );
       refreshCommitment();
     }
-  }, [commitment, currentUser, spcContract, activities]);
+  }, []); //Only on initial render
 
   useEffect(() => {
     if (spcContract) {

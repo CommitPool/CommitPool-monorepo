@@ -93,13 +93,30 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
   };
 
   return (
-    <CurrentUserContext.Provider value={{ currentUser, latestTransaction, setCurrentUser, setLatestTransaction }}>
+    <CurrentUserContext.Provider
+      value={{
+        currentUser,
+        latestTransaction,
+        setCurrentUser,
+        setLatestTransaction,
+      }}
+    >
       {children}
     </CurrentUserContext.Provider>
   );
 };
 
 export const useCurrentUser = () => {
-  const { currentUser, latestTransaction, setCurrentUser, setLatestTransaction } = useContext(CurrentUserContext);
-  return { currentUser, latestTransaction, setCurrentUser, setLatestTransaction };
+  const {
+    currentUser,
+    latestTransaction,
+    setCurrentUser,
+    setLatestTransaction,
+  } = useContext(CurrentUserContext);
+  return {
+    currentUser,
+    latestTransaction,
+    setCurrentUser,
+    setLatestTransaction,
+  };
 };

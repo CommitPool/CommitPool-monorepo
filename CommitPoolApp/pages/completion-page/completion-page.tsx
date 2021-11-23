@@ -178,11 +178,13 @@ const CompletionPage = ({ navigation }: CompletionPageProps) => {
               View transaction on Polygonscan <ExternalLinkIcon mx="2px" />
             </Link>
           </VStack>
-        ) : (
+        ) : undefined}
+
+        {!waiting && commitment?.exists && commitment.exists ? (
           <Center h="90%">
             <Button onClick={() => onProcess()}>Process commitment</Button>
           </Center>
-        )}
+        ) : undefined}
       </VStack>
       <Footer>
         <ButtonGroup>

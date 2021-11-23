@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Box } from "@chakra-ui/react";
 import { useCurrentUser } from "../../contexts/currentUserContext";
 import { useCommitPool } from "../../contexts/commitPoolContext";
-import AllowanceButton from "../allowance-button/allowance-button.component";
+import ApprovalButton from "../approval-button/approval-button.component";
 import DepositAndCommitButton from "../deposit-and-commit-button.component/deposit-and-commit-button.component";
-import { BigNumber } from "ethers";
 import { parseEther } from "ethers/lib/utils";
 const CommitmentConfirmationButton = () => {
   const [sufficientAllowance, setSufficientAllowance] = useState<boolean>();
@@ -25,7 +24,7 @@ const CommitmentConfirmationButton = () => {
 
   return (
     <Box>
-      {sufficientAllowance ? <AllowanceButton /> : <DepositAndCommitButton />}
+      {sufficientAllowance ? <ApprovalButton /> : <DepositAndCommitButton />}
     </Box>
   );
 };

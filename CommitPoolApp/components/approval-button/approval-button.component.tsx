@@ -7,36 +7,36 @@ import {
   FormLabel,
   Switch,
 } from "@chakra-ui/react";
-import { requestAllowance } from "../../utils/contractInteractions";
+import { requestApproval } from "../../utils/contractInteractions";
 import { useCommitPool } from "../../contexts/commitPoolContext";
 import { useContracts } from "../../contexts/contractContext";
 
-const AllowanceButton = () => {
+const ApprovalButton = () => {
   const [infinite, setInfinite] = useState<boolean>(true);
   const { commitment } = useCommitPool();
   const { daiContract, spcContract } = useContracts();
 
   const buttonText = `Request ${
     infinite ? "infinite" : `${commitment?.stake} DAI`
-  } allowance`;
+  } approval`;
 
-  const onAllowanceRequest = () => {
+  const onApprovalRequest = () => {
     if (commitment?.stake && daiContract && spcContract) {
       infinite
-        ? requestAllowance(-1, daiContract, spcContract.address)
-        : requestAllowance(commitment.stake, daiContract, spcContract.address);
+        ? requestApproval(-1, daiContract, spcContract.address)
+        : requestApproval(commitment.stake, daiContract, spcContract.address);
     }
   };
 
   return (
     <VStack>
-      <Button onClick={() => onAllowanceRequest()}>{buttonText}</Button>
+      <Button onClick={() => onApprovalRequest()}>{buttonText}</Button>
       <FormControl display="flex" justifyContent="center">
-        <FormLabel htmlFor="infinite-allowance" pr="2">
+        <FormLabel htmlFor="infinite-approval" pr="2">
           Infinite allowance
         </FormLabel>
         <Switch
-          id="infinite-allowance"
+          id="infinite-approval"
           defaultChecked={infinite}
           onChange={() => setInfinite(!infinite)}
         />
@@ -45,4 +45,4 @@ const AllowanceButton = () => {
   );
 };
 
-export default AllowanceButton;
+export default ApprovalButton;

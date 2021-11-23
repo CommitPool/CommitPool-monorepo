@@ -4,7 +4,7 @@ import { Contract } from "ethers";
 import { Athlete, Commitment, User } from "../types";
 import usePlausible from "../hooks/usePlausible";
 
-export const getAllowance = async (
+export const getApproval = async (
   user: User,
   spender: string,
   contract: Contract
@@ -45,7 +45,7 @@ export const executeDepositAndCommit = async (
   );
 };
 
-export const requestAllowance = async (
+export const requestApproval = async (
   amount: number,
   contract: Contract,
   spender: string

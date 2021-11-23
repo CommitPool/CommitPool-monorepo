@@ -74,4 +74,5 @@ export type User = {
   username: string;
   nativeTokenBalance: string;
   daiBalance: string;
+  daiAllowance: string;
 };

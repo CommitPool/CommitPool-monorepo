@@ -31,6 +31,7 @@ import { Commitment, TransactionTypes } from "../../types";
 import { useCurrentUser } from "../../contexts/currentUserContext";
 import usePlausible from "../../hooks/usePlausible";
 import { useInjectedProvider } from "../../contexts/injectedProviderContext";
+import { DateTime } from "luxon";
 
 type TrackPageNavigationProps = StackNavigationProp<
   RootStackParamList,
@@ -48,7 +49,7 @@ const TrackPage = ({ navigation }: TrackPageProps) => {
   });
   const toast = useToast();
   const [waiting, setWaiting] = useState<boolean>(false);
-  const { injectedProvider } = useInjectedProvider();
+  const [commitmentExpired, setCommitmentExpired] = useState<boolean>(false);
   const { commitment, refreshCommitment } = useCommitPool();
   const { spcContract } = useContracts();
   const { athlete } = useStrava();
@@ -68,6 +69,14 @@ const TrackPage = ({ navigation }: TrackPageProps) => {
   //to do - move to env and/or activity state
   const oracleAddress: string = "0x0a31078cD57d23bf9e8e8F1BA78356ca2090569E";
   const jobId: string = "692ce2ecba234a3f9a0c579f8bf7a4cb";
+
+  useEffect(() => {
+    const now = DateTime.now().toSeconds();
+    if (commitment?.endTime) {
+      const endTime = commitment.endTime;
+      now > endTime ? setCommitmentExpired(true) : setCommitmentExpired(false);
+    }
+  }, [commitment]);
 
   const getCommitmentProgress = async () => {
     if (
@@ -170,7 +179,9 @@ const TrackPage = ({ navigation }: TrackPageProps) => {
   }, [latestTransaction]);
 
   const onNext = async () => {
-    if (
+    if (commitmentExpired) {
+      navigation.navigate("Completion");
+    } else if (
       commitment?.reportedValue &&
       commitment?.goalValue &&
       commitment.reportedValue > commitment.goalValue
@@ -253,9 +264,10 @@ const TrackPage = ({ navigation }: TrackPageProps) => {
             {strings.footer.back}
           </Button>
           <Button onClick={() => onNext()}>
-            {commitment?.reportedValue &&
-            commitment?.goalValue &&
-            commitment.reportedValue > commitment.goalValue
+            {commitmentExpired ||
+            (commitment?.reportedValue &&
+              commitment?.goalValue &&
+              commitment.reportedValue > commitment.goalValue)
               ? "Process commitment"
               : "Update progress"}
           </Button>

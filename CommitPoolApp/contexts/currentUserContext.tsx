@@ -14,7 +14,7 @@ type CurrentUserContextType = {
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
   currentUser: {},
-  latestTransaction: {methodCall: undefined, txReceipt: undefined},
+  latestTransaction: {methodCall: undefined, tx: undefined},
   setCurrentUser: (user: Partial<User>) => {},
   setLatestTransaction: (txDetails: TransactionDetails) => {},
 });
@@ -29,14 +29,11 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
 }: CurrentUserProps) => {
   const [currentUser, setCurrentUser] = useState<Partial<User>>({});
   const { injectedChain, address, injectedProvider } = useInjectedProvider();
-  const { daiContract } = useContracts();
+  const { daiContract, spcContract } = useContracts();
   const [latestTransaction, setLatestTransaction] = useLocalStorage<TransactionDetails>(
     "tx",
-    {methodCall: undefined, txReceipt: undefined}
+    {methodCall: undefined, tx: undefined}
   );
-
-  console.log("Current user:  ", currentUser);
-  console.log("Latest tx: ", latestTransaction)
 
   useEffect(() => {
     const user: Partial<User> = createWeb3User(
@@ -71,7 +68,10 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
       const daiBalance: string = await daiContract
         .balanceOf(address)
         .then((res: BigNumber) => ethers.utils.formatEther(res).toString());
-      setCurrentUser({ ...currentUser, nativeTokenBalance, daiBalance });
+      const daiAllowance: string = await daiContract
+        .allowance(address, spcContract?.address)
+        .then((res: BigNumber) => ethers.utils.formatEther(res).toString());
+      setCurrentUser({ ...currentUser, nativeTokenBalance, daiBalance, daiAllowance });
     }
   };
 

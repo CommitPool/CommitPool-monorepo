@@ -24,18 +24,13 @@ import { StackNavigationProp } from "@react-navigation/stack";
 
 import strings from "../../resources/strings";
 
-import {
-  validCommitmentRequest,
-  getCommitmentRequestParameters,
-} from "../../utils/commitment";
-import { Transaction } from "ethers";
-import { useContracts } from "../../contexts/contractContext";
 import { useCurrentUser } from "../../contexts/currentUserContext";
 import { useCommitPool } from "../../contexts/commitPoolContext";
 import { useStrava } from "../../contexts/stravaContext";
 import usePlausible from "../../hooks/usePlausible";
 import { TransactionTypes } from "../../types";
-import { useInjectedProvider } from "../../contexts/injectedProviderContext";
+
+import CommitmentConfirmationButton from "../../components/confirmation-button/commitment-confirmation-button.component";
 
 type ConfirmationPageNavigationProps = StackNavigationProp<
   RootStackParamList,
@@ -54,13 +49,10 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
 
   const toast = useToast();
   const [waiting, setWaiting] = useState<boolean>(false);
-  const [editMode, setEditMode] = useState<boolean>(false);
-  const { injectedProvider } = useInjectedProvider();
-  const { commitment, activities, refreshCommitment } = useCommitPool();
+  const { refreshCommitment } = useCommitPool();
   const { athlete } = useStrava();
-  const { currentUser, latestTransaction, setLatestTransaction } =
+  const { latestTransaction, setLatestTransaction } =
     useCurrentUser();
-  const { daiContract, spcContract } = useContracts();
   const methodCall: TransactionTypes = "depositAndCommit";
 
   const txUrl = latestTransaction?.tx?.hash
@@ -80,8 +72,8 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
           position: "top",
         });
 
-        const receipt = await latestTransaction.tx.wait()
-        console.log("Receipt: ", receipt)
+        const receipt = await latestTransaction.tx.wait();
+        console.log("Receipt: ", receipt);
 
         if (receipt && receipt.status === 0) {
           setWaiting(false);
@@ -127,99 +119,6 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
     }
   }, [latestTransaction]);
 
-  const createCommitment = async () => {
-    trackEvent("spc_create_commitment");
-    if (
-      commitment &&
-      activities &&
-      validCommitmentRequest(commitment, activities) &&
-      spcContract &&
-      daiContract &&
-      athlete &&
-      currentUser.attributes?.["custom:account_address"]
-    ) {
-      const allowance = await daiContract.allowance(
-        currentUser.attributes["custom:account_address"],
-        spcContract.address
-      );
-
-      const _commitmentParameters = getCommitmentRequestParameters(commitment);
-      const _commitmentParametersWithUserId = {
-        ..._commitmentParameters,
-        _userId: String(athlete.id),
-      };
-
-      console.log(
-        "Commitment request with user ID: ",
-        _commitmentParametersWithUserId
-      );
-
-      if (allowance.gte(_commitmentParameters._stake)) {
-        console.log("Submitting D&C tx");
-        await spcContract
-          .depositAndCommit(
-            _commitmentParametersWithUserId._activityKey,
-            _commitmentParametersWithUserId._goalValue,
-            _commitmentParametersWithUserId._startTime,
-            _commitmentParametersWithUserId._endTime,
-            _commitmentParametersWithUserId._stake,
-            _commitmentParametersWithUserId._depositAmount,
-            _commitmentParametersWithUserId._userId,
-            { gasLimit: 5000000 }
-          )
-          .then((tx: Transaction) => {
-            console.log("Updating latest Tx: ", tx);
-            setLatestTransaction({
-              methodCall,
-              tx,
-            });
-          });
-      } else {
-        console.log("Getting allowance with DAI contract: ", daiContract);
-
-        await daiContract
-          .approve(spcContract.address, _commitmentParametersWithUserId._stake)
-          .then((tx: Transaction) => {
-            toast({
-              title: "DAI approval requested",
-              description: "Let's commit!",
-              status: "success",
-              duration: 5000,
-              isClosable: true,
-              position: "top",
-            });
-          });
-
-        console.log("Calling D&C with SPC contract: ", spcContract);
-        await spcContract
-          .depositAndCommit(
-            _commitmentParametersWithUserId._activityKey,
-            _commitmentParametersWithUserId._goalValue,
-            _commitmentParametersWithUserId._startTime,
-            _commitmentParametersWithUserId._endTime,
-            _commitmentParametersWithUserId._stake,
-            _commitmentParametersWithUserId._depositAmount,
-            _commitmentParametersWithUserId._userId,
-            { gasLimit: 5000000 }
-          )
-          .then((tx: Transaction) =>
-            setLatestTransaction({
-              methodCall,
-              tx,
-            })
-          );
-      }
-    } else {
-      toast({
-        title: "Activity not complete",
-        description: "Please check your values and try again",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      });
-    }
-  };
   return (
     <LayoutContainer>
       <ProgressBar size={5} />
@@ -244,24 +143,8 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
           </VStack>
         ) : (
           <VStack>
-            <CommitmentOverview editing={editMode} />
-            {editMode ? (
-              <Button
-                onClick={() => {
-                  setEditMode(false);
-                }}
-              >
-                Set
-              </Button>
-            ) : (
-              <Button
-                onClick={() => {
-                  setEditMode(true);
-                }}
-              >
-                Edit
-              </Button>
-            )}
+            <CommitmentOverview />
+            <CommitmentConfirmationButton />
           </VStack>
         )}
       </VStack>
@@ -269,9 +152,6 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
         <ButtonGroup>
           <Button onClick={() => navigation.goBack()}>
             {strings.footer.back}
-          </Button>
-          <Button onClick={async () => createCommitment()}>
-            {strings.footer.next}
           </Button>
           <IconButton
             aria-label="Go to FAQ"

@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Text, VStack, Spacer } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { Box, Text, VStack, Spacer, Button } from "@chakra-ui/react";
 
 import {
   ActivitySelector,
@@ -12,15 +12,12 @@ import StakeBox from "../stake-box/stake-box.component";
 import { parseSecondTimestampToFullString } from "../../utils/dateTime";
 import { useCommitPool } from "../../contexts/commitPoolContext";
 
-interface CommitmentOverviewProps {
-  editing: boolean;
-}
-
-const CommitmentOverview = ({ editing }: CommitmentOverviewProps) => {
+const CommitmentOverview = () => {
+  const [editMode, setEditMode] = useState<boolean>();
   const { commitment } = useCommitPool();
   return (
     <Box>
-      {editing ? (
+      {editMode ? (
         <VStack>
           <ActivitySelector
             text={strings.activityGoal.setUp.activitySelector}
@@ -30,6 +27,13 @@ const CommitmentOverview = ({ editing }: CommitmentOverviewProps) => {
           />
           <DateFromTo />
           <StakeBox />
+          <Button
+            onClick={() => {
+              setEditMode(false);
+            }}
+          >
+            Set
+          </Button>
         </VStack>
       ) : (
         <VStack>
@@ -45,12 +49,21 @@ const CommitmentOverview = ({ editing }: CommitmentOverviewProps) => {
               } ${parseSecondTimestampToFullString(commitment?.startTime)} `}
               {`${
                 strings.confirmation.commitment.endDate
-              } ${parseSecondTimestampToFullString(commitment?.endTime)} (end of day)`}
+              } ${parseSecondTimestampToFullString(
+                commitment?.endTime
+              )} (end of day)`}
             </Text>
           </Box>
           <Spacer />
           <Text>{strings.confirmation.commitment.stake} </Text>
           <Text>{`${commitment?.stake} DAI`}</Text>
+          <Button
+            onClick={() => {
+              setEditMode(true);
+            }}
+          >
+            Edit
+          </Button>
         </VStack>
       )}
     </Box>

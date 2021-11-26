@@ -30,8 +30,8 @@ import { useStrava } from "../../contexts/stravaContext";
 import { Commitment, TransactionTypes } from "../../types";
 import { useCurrentUser } from "../../contexts/currentUserContext";
 import usePlausible from "../../hooks/usePlausible";
-import { useInjectedProvider } from "../../contexts/injectedProviderContext";
 import { DateTime } from "luxon";
+import { handleAndNotifyTxProcessing } from "../../utils/contractInteractions";
 
 type TrackPageNavigationProps = StackNavigationProp<
   RootStackParamList,
@@ -149,36 +149,15 @@ const TrackPage = ({ navigation }: TrackPageProps) => {
   }
 
   useEffect(() => {
+    const successMessage = "Activity progress update incoming!";
+
     const awaitTransaction = async () => {
       setWaiting(true);
-      try {
-        const receipt = await latestTransaction.tx.wait();
-
-        if (receipt && receipt.status === 0) {
-          setWaiting(false);
-          toast({
-            title: "Transaction failed",
-            description: "Please check your tx on Polygonscan and try again",
-            status: "error",
-            duration: 5000,
-            isClosable: false,
-            position: "top",
-          });
-        } else if (receipt && receipt.status === 1) {
-          setWaiting(false);
-          toast({
-            title: "Activity progress updated!",
-            description: null,
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-            position: "top",
-          });
-        }
-      } catch {
-        console.log("Got error on latest Tx: ", latestTransaction);
-        setWaiting(false);
-      }
+      handleAndNotifyTxProcessing(
+        toast,
+        latestTransaction,
+        successMessage
+      ).then(() => setWaiting(false));
     };
 
     if (latestTransaction.methodCall === methodCall) {

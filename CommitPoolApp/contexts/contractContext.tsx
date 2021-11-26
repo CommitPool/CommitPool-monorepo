@@ -5,17 +5,17 @@ import spcAbi from "../resources/contracts/SinglePlayerCommit.json";
 import { Contract, ethers } from "ethers";
 
 type ContractContextType = {
-  spcContract?: Contract;
-  daiContract?: Contract;
-  setSpcContract: (contract: Contract) => void;
-  setDaiContract: (contract: Contract) => void;
+  spcContract: Partial<Contract>;
+  daiContract: Partial<Contract>;
+  setSpcContract: (contract: Partial<Contract>) => void;
+  setDaiContract: (contract: Partial<Contract>) => void;
 };
 
 export const ContractContext = createContext<ContractContextType>({
-  spcContract: undefined,
-  daiContract: undefined,
-  setSpcContract: (contract: Contract) => {},
-  setDaiContract: (contract: Contract) => {},
+  spcContract: {},
+  daiContract: {},
+  setSpcContract: (contract: Partial<Contract>) => {},
+  setDaiContract: (contract: Partial<Contract>) => {},
 });
 
 interface ContractProps {
@@ -35,8 +35,8 @@ const daiAddrs: any = {
 export const ContractContextProvider: React.FC<ContractProps> = ({
   children,
 }: ContractProps) => {
-  const [spcContract, setSpcContract] = useState<Contract>();
-  const [daiContract, setDaiContract] = useState<Contract>();
+  const [spcContract, setSpcContract] = useState<Partial<Contract>>({});
+  const [daiContract, setDaiContract] = useState<Partial<Contract>>({});
 
   const { injectedChain, injectedProvider, address } = useInjectedProvider();
 

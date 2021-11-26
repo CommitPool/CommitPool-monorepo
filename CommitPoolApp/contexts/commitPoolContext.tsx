@@ -7,7 +7,6 @@ import {
   parseCommitmentFromContract,
   validActivityParameters,
 } from "../utils/commitment";
-import { Contract } from "ethers";
 
 type CommitPoolContextType = {
   activities?: Activity[];
@@ -128,8 +127,7 @@ export const CommitPoolContextProvider: React.FC<CommitPoolProps> = ({
         commitment,
         activities
       );
-      console.log("Setting commitment: ", _commitment);
-      setCommitment(_commitment);
+      commitment.exists ? setCommitment(_commitment) : setCommitment({})
     }
   };
 

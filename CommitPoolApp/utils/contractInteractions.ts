@@ -1,26 +1,31 @@
-//TODO refactor methods away from pages
 import { getCommitmentRequestParameters } from "./commitment";
-import { Contract } from "ethers";
-import { Athlete, Commitment, User } from "../types";
+import { BigNumber, Contract, ethers } from "ethers";
+import { Athlete, Commitment, TransactionDetails, User } from "../types";
 import usePlausible from "../hooks/usePlausible";
+import { formatUnits, parseUnits } from "ethers/lib/utils";
 
 export const getApproval = async (
-  user: User,
+  user: Partial<User>,
   spender: string,
-  contract: Contract
+  contract: Partial<Contract>
 ) => {
-  return await contract
-    .allowance(user.attributes["custom:account_address"], spender)
-    .toString();
+  if (user.attributes?.["custom:account_address"]) {
+    return await contract
+      .allowance(user.attributes["custom:account_address"], spender)
+      .then((res: BigNumber) => {
+        console.log(res.toString());
+        return ethers.utils.formatEther(res).toString();
+      });
+  }
 };
 
 export const executeDepositAndCommit = async (
   athlete: Athlete,
   commitment: Partial<Commitment>,
-  spcContract: Contract
+  spcContract: Partial<Contract>
 ) => {
   const { trackEvent } = usePlausible();
-  
+
   trackEvent("spc_create_commitment");
   const _commitmentParameters = getCommitmentRequestParameters(commitment);
   const _commitmentParametersWithUserId = {
@@ -47,7 +52,7 @@ export const executeDepositAndCommit = async (
 
 export const requestApproval = async (
   amount: number,
-  contract: Contract,
+  contract: Partial<Contract>,
   spender: string
 ) => {
   return amount === -1
@@ -55,5 +60,50 @@ export const requestApproval = async (
         spender,
         "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
       )
-    : await contract.approve(spender, amount);
+    : await contract.approve(spender, parseUnits(amount.toString(), 18));
+};
+
+export const handleAndNotifyTxProcessing = async (
+  toast: any,
+  transaction: Partial<TransactionDetails>,
+  successMessage = "Transaction succesful!",
+  failMessage = "Transaction failed"
+) => {
+  try {
+    const receipt = await transaction.tx.wait();
+
+    if (receipt && receipt.status === 0) {
+      toast({
+        title: failMessage,
+        description: "Please check your tx on Polygonscan and try again",
+        status: "error",
+        duration: 5000,
+        isClosable: false,
+        position: "top",
+      });
+    }
+
+    if (receipt && receipt.status === 1) {
+      toast({
+        title: successMessage,
+        description: "Let's continue",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+
+    return receipt;
+  } catch {
+    console.log("Got error on latest Tx: ", transaction);
+    toast({
+      title: "Transaction failed",
+      description: "Please check your tx on Polygonscan and try again",
+      status: "error",
+      duration: 5000,
+      isClosable: false,
+      position: "top",
+    });
+  }
 };

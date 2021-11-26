@@ -1,22 +1,26 @@
+import { formatEther, parseEther } from "@ethersproject/units";
 import { BigNumber, Contract, ethers, providers } from "ethers";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { Network, TransactionDetails, User } from "../types";
+import { getApproval } from "../utils/contractInteractions";
 import { useContracts } from "./contractContext";
 import { useInjectedProvider } from "./injectedProviderContext";
 
 type CurrentUserContextType = {
   currentUser: Partial<User>;
-  latestTransaction: TransactionDetails;
+  latestTransaction: Partial<TransactionDetails>;
+  refreshDaiAllowance: () => void;
   setCurrentUser: (user: Partial<User>) => void;
-  setLatestTransaction: (txDetails: TransactionDetails) => void;
+  setLatestTransaction: (txDetails: Partial<TransactionDetails>) => void;
 };
 
 export const CurrentUserContext = createContext<CurrentUserContextType>({
   currentUser: {},
-  latestTransaction: {methodCall: undefined, tx: undefined},
+  latestTransaction: {},
+  refreshDaiAllowance: () => {},
   setCurrentUser: (user: Partial<User>) => {},
-  setLatestTransaction: (txDetails: TransactionDetails) => {},
+  setLatestTransaction: (txDetails: Partial<TransactionDetails>) => {},
 });
 
 interface CurrentUserProps {
@@ -30,10 +34,9 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
   const [currentUser, setCurrentUser] = useState<Partial<User>>({});
   const { injectedChain, address, injectedProvider } = useInjectedProvider();
   const { daiContract, spcContract } = useContracts();
-  const [latestTransaction, setLatestTransaction] = useLocalStorage<TransactionDetails>(
-    "tx",
-    {methodCall: undefined, tx: undefined}
-  );
+  const [latestTransaction, setLatestTransaction] = useLocalStorage<
+    Partial<TransactionDetails>
+  >("tx", {});
 
   useEffect(() => {
     const user: Partial<User> = createWeb3User(
@@ -54,11 +57,13 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
   const addUserBalances = async (
     provider: any,
     currentUser: Partial<User>,
-    daiContract: Contract
+    daiContract: Partial<Contract>
   ) => {
     if (
       injectedProvider &&
       daiContract &&
+      spcContract &&
+      spcContract.address &&
       currentUser.attributes?.["custom:account_address"]
     ) {
       const address: string = currentUser.attributes["custom:account_address"];
@@ -68,10 +73,28 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
       const daiBalance: string = await daiContract
         .balanceOf(address)
         .then((res: BigNumber) => ethers.utils.formatEther(res).toString());
-      const daiAllowance: string = await daiContract
-        .allowance(address, spcContract?.address)
-        .then((res: BigNumber) => ethers.utils.formatEther(res).toString());
-      setCurrentUser({ ...currentUser, nativeTokenBalance, daiBalance, daiAllowance });
+      const daiAllowance: string = await getApproval(
+        currentUser,
+        spcContract.address,
+        daiContract
+      );
+      setCurrentUser({
+        ...currentUser,
+        nativeTokenBalance,
+        daiBalance,
+        daiAllowance,
+      });
+    }
+  };
+
+  const refreshDaiAllowance = async () => {
+    if (daiContract && spcContract?.address && currentUser) {
+      const daiAllowance: string = await getApproval(
+        currentUser,
+        spcContract.address,
+        daiContract
+      );
+      setCurrentUser({ ...currentUser, daiAllowance });
     }
   };
 
@@ -97,6 +120,7 @@ export const CurrentUserContextProvider: React.FC<CurrentUserProps> = ({
       value={{
         currentUser,
         latestTransaction,
+        refreshDaiAllowance,
         setCurrentUser,
         setLatestTransaction,
       }}
@@ -110,12 +134,14 @@ export const useCurrentUser = () => {
   const {
     currentUser,
     latestTransaction,
+    refreshDaiAllowance,
     setCurrentUser,
     setLatestTransaction,
   } = useContext(CurrentUserContext);
   return {
     currentUser,
     latestTransaction,
+    refreshDaiAllowance,
     setCurrentUser,
     setLatestTransaction,
   };

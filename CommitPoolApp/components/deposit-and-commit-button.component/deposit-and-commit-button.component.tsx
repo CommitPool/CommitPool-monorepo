@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, useToast } from "@chakra-ui/react";
+import { Button, useToast } from "@chakra-ui/react";
 import { executeDepositAndCommit } from "../../utils/contractInteractions";
 import { useCommitPool } from "../../contexts/commitPoolContext";
 import { useStrava } from "../../contexts/stravaContext";
@@ -11,14 +11,15 @@ import { validCommitmentRequest } from "../../utils/commitment";
 
 const DepositAndCommitButton = () => {
   const toast = useToast();
-  const { setLatestTransaction } = useCurrentUser();
 
   const { spcContract } = useContracts();
   const { commitment, activities } = useCommitPool();
   const { athlete } = useStrava();
-  const methodCall: TransactionTypes = "depositAndCommit";
+  const { setLatestTransaction } = useCurrentUser();
 
   const onDepositAndCommit = async () => {
+    const methodCall: TransactionTypes = "depositAndCommit";
+
     if (
       spcContract &&
       athlete &&
@@ -27,11 +28,15 @@ const DepositAndCommitButton = () => {
       validCommitmentRequest(commitment, activities)
     ) {
       await executeDepositAndCommit(athlete, commitment, spcContract).then(
-        (tx: Transaction) =>
+        (tx: Transaction) => {
+          console.log("depositAndCommitTx: ", tx);
           setLatestTransaction({
             methodCall,
             tx,
-          })
+            pending: true
+          });
+          return tx;
+        }
       );
     } else {
       toast({

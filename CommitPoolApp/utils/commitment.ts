@@ -56,7 +56,7 @@ const parseCommitmentFromContract = (
     reportedValue,
     endTime: Number.parseFloat(commitment.endTime.toString()),
     startTime: Number.parseFloat(commitment.startTime.toString()),
-    stake: Number.parseFloat(ethers.utils.formatEther(commitment.stake)),
+    stake: ethers.utils.formatEther(commitment.stake),
     exists: commitment.exists,
     met: commitment.met,
     unit: "mi",

@@ -27,7 +27,7 @@ import { useContracts } from "../../contexts/contractContext";
 import { useCurrentUser } from "../../contexts/currentUserContext";
 import { useCommitPool } from "../../contexts/commitPoolContext";
 import usePlausible from "../../hooks/usePlausible";
-import { useInjectedProvider } from "../../contexts/injectedProviderContext";
+import { handleAndNotifyTxProcessing } from "../../utils/contractInteractions";
 
 type CompletionPageNavigationProps = StackNavigationProp<
   RootStackParamList,
@@ -68,48 +68,10 @@ const CompletionPage = ({ navigation }: CompletionPageProps) => {
   }, [commitment]);
 
   useEffect(() => {
+    const successMessage = "Commitment processed!";
     const awaitTransaction = async () => {
       setWaiting(true);
-      try {
-        toast({
-          title: "Awaiting transaction confirmation",
-          description: "Please hold on",
-          status: "success",
-          duration: null,
-          isClosable: true,
-          position: "top",
-        });
-
-        const receipt = await latestTransaction.tx.wait();
-
-        if (receipt && receipt.status === 0) {
-          setWaiting(false);
-          toast({
-            title: "Transaction failed",
-            description: "Please check your tx on Polygonscan and try again",
-            status: "error",
-            duration: null,
-            isClosable: false,
-            position: "top",
-          });
-        }
-
-        if (receipt && receipt.status === 1) {
-          toast({
-            title: "Commitment processed!",
-            description: null,
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-            position: "top",
-          });
-          refreshCommitment();
-          setWaiting(false);
-        }
-      } catch {
-        console.log("Got error on latest Tx: ", latestTransaction);
-        setWaiting(false);
-      }
+      handleAndNotifyTxProcessing(toast, latestTransaction, successMessage)
     };
 
     if (latestTransaction.methodCall === methodCall) {
@@ -178,9 +140,17 @@ const CompletionPage = ({ navigation }: CompletionPageProps) => {
               View transaction on Polygonscan <ExternalLinkIcon mx="2px" />
             </Link>
           </VStack>
-        ) : (
+        ) : undefined}
+
+        {!waiting && commitment?.exists && commitment.exists ? (
           <Center h="90%">
             <Button onClick={() => onProcess()}>Process commitment</Button>
+          </Center>
+        ) : (
+          <Center>
+            <Button onClick={() => navigation.navigate("ActivityGoal")}>
+              Restart
+            </Button>
           </Center>
         )}
       </VStack>
@@ -188,9 +158,6 @@ const CompletionPage = ({ navigation }: CompletionPageProps) => {
         <ButtonGroup>
           <Button onClick={() => navigation.goBack()}>
             {strings.footer.back}
-          </Button>
-          <Button onClick={() => navigation.navigate("ActivityGoal")}>
-            Restart
           </Button>
           <IconButton
             aria-label="Go to FAQ"

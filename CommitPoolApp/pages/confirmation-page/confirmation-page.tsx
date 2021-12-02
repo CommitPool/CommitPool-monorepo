@@ -10,6 +10,9 @@ import {
   VStack,
   Spinner,
   Link,
+  FormControl,
+  FormLabel,
+  Switch,
 } from "@chakra-ui/react";
 import { ExternalLinkIcon, QuestionIcon } from "@chakra-ui/icons";
 
@@ -24,18 +27,15 @@ import { StackNavigationProp } from "@react-navigation/stack";
 
 import strings from "../../resources/strings";
 
-import {
-  validCommitmentRequest,
-  getCommitmentRequestParameters,
-} from "../../utils/commitment";
-import { Transaction } from "ethers";
-import { useContracts } from "../../contexts/contractContext";
 import { useCurrentUser } from "../../contexts/currentUserContext";
 import { useCommitPool } from "../../contexts/commitPoolContext";
 import { useStrava } from "../../contexts/stravaContext";
 import usePlausible from "../../hooks/usePlausible";
 import { TransactionTypes } from "../../types";
-import { useInjectedProvider } from "../../contexts/injectedProviderContext";
+
+import CommitmentConfirmationButton from "../../components/confirmation-button/commitment-confirmation-button.component";
+import { handleAndNotifyTxProcessing } from "../../utils/contractInteractions";
+import { useContracts } from "../../contexts/contractContext";
 
 type ConfirmationPageNavigationProps = StackNavigationProp<
   RootStackParamList,
@@ -54,171 +54,74 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
 
   const toast = useToast();
   const [waiting, setWaiting] = useState<boolean>(false);
-  const [editMode, setEditMode] = useState<boolean>(false);
-  const { commitment, activities, refreshCommitment } = useCommitPool();
+  const [sufficientAllowance, setSufficientAllowance] =
+    useState<boolean>(false);
+  const [infinite, setInfinite] = useState<boolean>(true);
+
+  const { spcContract } = useContracts();
+  const { commitment, refreshCommitment } = useCommitPool();
   const { athlete } = useStrava();
-  const { currentUser, latestTransaction, setLatestTransaction } =
-    useCurrentUser();
-  const { daiContract, spcContract } = useContracts();
-  const methodCall: TransactionTypes = "depositAndCommit";
+  const {
+    currentUser,
+    latestTransaction,
+    refreshDaiAllowance,
+    setLatestTransaction,
+  } = useCurrentUser();
+
+  const methodCallDepositAndCommit: TransactionTypes = "depositAndCommit";
+  const methodCallApprove: TransactionTypes = "approve";
 
   const txUrl = latestTransaction?.tx?.hash
     ? `https://polygonscan.com/tx/${latestTransaction.tx.hash}`
     : "";
 
   useEffect(() => {
-    const awaitTransaction = async () => {
+    if (commitment?.stake && currentUser.daiAllowance) {
+      const stake = Number(commitment.stake);
+      const allowance = Number(currentUser.daiAllowance);
+      console.log("STAKE: ", stake);
+      console.log("ALLOWANCE: ", allowance);
+
+      stake <= allowance
+        ? setSufficientAllowance(true)
+        : setSufficientAllowance(false);
+    }
+  }, [commitment, currentUser.daiAllowance]);
+
+  useEffect(() => {
+    console.log("LATEST TX: ", latestTransaction);
+    const awaitTransaction = async (methodCall: TransactionTypes) => {
       setWaiting(true);
-      try {
-        toast({
-          title: "Awaiting transaction confirmation",
-          description: "Please hold on",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "top",
-        });
-
-        const receipt = await latestTransaction.tx.wait()
-        console.log("Receipt: ", receipt)
-
-        if (receipt && receipt.status === 0) {
+      await handleAndNotifyTxProcessing(toast, latestTransaction)
+        .then(async (receipt) => {
           setWaiting(false);
-          toast({
-            title: "Transaction failed",
-            description: "Please check your tx on Polygonscan and try again",
-            status: "error",
-            duration: 5000,
-            isClosable: false,
-            position: "top",
-          });
-        }
-
-        if (receipt && receipt.status === 1) {
-          toast({
-            title: "You're committed!",
-            description: "Let's check your progress",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-            position: "top",
-          });
-          refreshCommitment();
-          navigation.navigate("Track");
-          setWaiting(false);
-        }
-      } catch {
-        console.log("Got error on latest Tx: ", latestTransaction);
-        setWaiting(false);
-        toast({
-          title: "Transaction failed",
-          description: "Please check your tx on Polygonscan and try again",
-          status: "error",
-          duration: 5000,
-          isClosable: false,
-          position: "top",
-        });
-      }
+          setLatestTransaction({ ...latestTransaction, pending: false });
+          if (
+            receipt.status === 1 &&
+            methodCall === methodCallDepositAndCommit
+          ) {
+            navigation.navigate("Track");
+          } else if (
+            receipt?.status === 1 &&
+            methodCall === methodCallApprove
+          ) {
+            if (spcContract.address) {
+              refreshDaiAllowance();
+            }
+          }
+        })
+        .catch((err) => console.log(err));
     };
 
-    if (latestTransaction.methodCall === methodCall) {
-      awaitTransaction();
+    if (
+      latestTransaction.pending === true &&
+      (latestTransaction.methodCall === methodCallDepositAndCommit ||
+        latestTransaction.methodCall === methodCallApprove)
+    ) {
+      awaitTransaction(latestTransaction.methodCall);
     }
   }, [latestTransaction]);
 
-  const createCommitment = async () => {
-    trackEvent("spc_create_commitment");
-    if (
-      commitment &&
-      activities &&
-      validCommitmentRequest(commitment, activities) &&
-      spcContract &&
-      daiContract &&
-      athlete &&
-      currentUser.attributes?.["custom:account_address"]
-    ) {
-      const allowance = await daiContract.allowance(
-        currentUser.attributes["custom:account_address"],
-        spcContract.address
-      );
-
-      const _commitmentParameters = getCommitmentRequestParameters(commitment);
-      const _commitmentParametersWithUserId = {
-        ..._commitmentParameters,
-        _userId: String(athlete.id),
-      };
-
-      console.log(
-        "Commitment request with user ID: ",
-        _commitmentParametersWithUserId
-      );
-
-      if (allowance.gte(_commitmentParameters._stake)) {
-        console.log("Submitting D&C tx");
-        await spcContract
-          .depositAndCommit(
-            _commitmentParametersWithUserId._activityKey,
-            _commitmentParametersWithUserId._goalValue,
-            _commitmentParametersWithUserId._startTime,
-            _commitmentParametersWithUserId._endTime,
-            _commitmentParametersWithUserId._stake,
-            _commitmentParametersWithUserId._depositAmount,
-            _commitmentParametersWithUserId._userId,
-            { gasLimit: 5000000 }
-          )
-          .then((tx: Transaction) => {
-            console.log("Updating latest Tx: ", tx);
-            setLatestTransaction({
-              methodCall,
-              tx,
-            });
-          });
-      } else {
-        console.log("Getting allowance with DAI contract: ", daiContract);
-
-        await daiContract
-          .approve(spcContract.address, _commitmentParametersWithUserId._stake)
-          .then((tx: Transaction) => {
-            toast({
-              title: "DAI approval requested",
-              description: "Let's commit!",
-              status: "success",
-              duration: 5000,
-              isClosable: true,
-              position: "top",
-            });
-          });
-
-        console.log("Calling D&C with SPC contract: ", spcContract);
-        await spcContract
-          .depositAndCommit(
-            _commitmentParametersWithUserId._activityKey,
-            _commitmentParametersWithUserId._goalValue,
-            _commitmentParametersWithUserId._startTime,
-            _commitmentParametersWithUserId._endTime,
-            _commitmentParametersWithUserId._stake,
-            _commitmentParametersWithUserId._depositAmount,
-            _commitmentParametersWithUserId._userId,
-            { gasLimit: 5000000 }
-          )
-          .then((tx: Transaction) =>
-            setLatestTransaction({
-              methodCall,
-              tx,
-            })
-          );
-      }
-    } else {
-      toast({
-        title: "Activity not complete",
-        description: "Please check your values and try again",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-      });
-    }
-  };
   return (
     <LayoutContainer>
       <ProgressBar size={5} />
@@ -243,23 +146,18 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
           </VStack>
         ) : (
           <VStack>
-            <CommitmentOverview editing={editMode} />
-            {editMode ? (
-              <Button
-                onClick={() => {
-                  setEditMode(false);
-                }}
-              >
-                Set
-              </Button>
-            ) : (
-              <Button
-                onClick={() => {
-                  setEditMode(true);
-                }}
-              >
-                Edit
-              </Button>
+            <CommitmentOverview />
+            {sufficientAllowance ? undefined : (
+              <FormControl display="flex" justifyContent="center">
+                <FormLabel htmlFor="infinite-approval" pr="2">
+                  Infinite approval
+                </FormLabel>
+                <Switch
+                  id="infinite-approval"
+                  defaultChecked={infinite}
+                  onChange={() => setInfinite(!infinite)}
+                />
+              </FormControl>
             )}
           </VStack>
         )}
@@ -269,9 +167,11 @@ const ConfirmationPage = ({ navigation }: ConfirmationPageProps) => {
           <Button onClick={() => navigation.goBack()}>
             {strings.footer.back}
           </Button>
-          <Button onClick={async () => createCommitment()}>
-            {strings.footer.next}
-          </Button>
+          <CommitmentConfirmationButton
+            sufficientAllowance={sufficientAllowance}
+            infinite={infinite}
+            waiting={waiting}
+          />
           <IconButton
             aria-label="Go to FAQ"
             icon={<QuestionIcon />}

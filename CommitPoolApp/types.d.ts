@@ -8,7 +8,7 @@ export interface Commitment {
   startTime: number;
   endTime: number;
   reportedValue: number;
-  stake: number;
+  stake: string;
   unit: string;
   activitySet?: boolean;
   activityName?: string;
@@ -62,6 +62,7 @@ export type TransactionTypes =
 export type TransactionDetails = {
   methodCall: Partial<TransactionTypes>;
   tx: Partial<Transaction>;
+  pending: boolean;
 };
 
 export type User = {
@@ -74,4 +75,5 @@ export type User = {
   username: string;
   nativeTokenBalance: string;
   daiBalance: string;
+  daiAllowance: string;
 };
